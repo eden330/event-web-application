@@ -1,5 +1,7 @@
 package pl.pwr.thesis.web_event_application.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,8 +35,10 @@ public class Address {
     private String street;
     @OneToMany(mappedBy = "address")
     @ToString.Exclude
+    @JsonManagedReference
     private List<Location> locations;
     @ManyToOne
     @JoinColumn(name = "city_id")
+    @JsonBackReference
     private City city;
 }
