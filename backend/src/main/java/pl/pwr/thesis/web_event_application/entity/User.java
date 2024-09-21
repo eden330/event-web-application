@@ -55,7 +55,7 @@ public class User {
     @ToString.Exclude
     private List<Event> favouriteEvents;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserDetail userDetails;
+    private UserDetail userDetail;
     @OneToMany(mappedBy = "user")
     private List<Reaction> reactions;
 }

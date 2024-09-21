@@ -46,4 +46,7 @@ public class Event {
     private Location location;
     @OneToMany(mappedBy = "event")
     private List<Reaction> reactions;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
