@@ -1,5 +1,6 @@
 package pl.pwr.thesis.web_event_application.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,5 +37,6 @@ public class Location {
     private List<Event> events;
     @ManyToOne
     @JoinColumn(name = "address_id")
+    @JsonBackReference
     private Address address;
 }

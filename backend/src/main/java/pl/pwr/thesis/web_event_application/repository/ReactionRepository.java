@@ -15,7 +15,7 @@ public interface ReactionRepository extends JpaRepository<Reaction, ReactionKey>
 
     List<Reaction> findReactionsByUserId(Long userId);
 
-    @Query("SELECT r FROM Reaction WHERE r.user.id = :userId AND r.event.id = :eventId" +
+    @Query("SELECT r FROM Reaction r WHERE r.user.id = :userId AND r.event.id = :eventId" +
             " AND r.type = :reactionType")
     Reaction checkIfUserReactedForSpecificEvent(@Param("userId") Long userId,
                                                @Param("eventId") Long eventId,
