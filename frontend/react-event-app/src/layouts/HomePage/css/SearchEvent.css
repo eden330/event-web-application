@@ -1,0 +1,49 @@
+/* Round button for event categories and event city */
+.rounded-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* Description under button */
+.btn-rounded-description {
+    font-size: 0.6rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+/* Photo inside button */
+.button-image {
+    width: 70%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.card-image {
+    width: 90%;
+    height: auto;
+    margin-right: 5px;
+    max-width: 80px;
+}
+
+/* Container for a map */
+.leaflet-container {
+    height: 80vh;
+    width: 100%;
+}
+
+.event-list {
+    max-height: 80vh; /* You can adjust this as needed */
+    overflow-y: auto; /* Only this column will scroll */
+    padding-right: 10px; /* Optional: to avoid scrollbar overlapping content */
+}
+
+
+
+
+

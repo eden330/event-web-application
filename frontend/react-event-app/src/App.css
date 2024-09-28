@@ -1,21 +1,11 @@
-:root{
-  --mainOpacity: rgba(0, 0, 0, 0.55);
-}
-
-.header {
-  background-image: linear-gradient( rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7) );
-  opacity: var(--mainOpacity);
-  height: 25em !important;
-}
-
-.dark-overlay {
-  background-color: rgba(0, 0, 0, 0.35);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+html, body {
   height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
 }
+
 
 .main-color {
   background-color: #0e76a8 ;
@@ -26,3 +16,4 @@
   pointer-events: none;
   cursor: default;
 }
+

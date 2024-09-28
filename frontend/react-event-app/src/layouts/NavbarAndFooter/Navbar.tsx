@@ -1,9 +1,10 @@
 import React from "react";
-import {NavItem} from "./NavItem";
+import {NavItem} from "./components/NavItem";
+import './css/Navbar.css';
 
 export const Navbar = () => {
     return (
-        <nav className={"navbar navbar-expand-lg navbar-dark main-color py-3"}>
+        <nav className={"navbar navbar-expand-lg navbar-dark main-color py-2 small-navbar"}>
             <div className={"container-fluid"}>
                 <span className={"navbar-brand"}> Event App</span>
                 <button className={"navbar-toggler"} type={"button"}

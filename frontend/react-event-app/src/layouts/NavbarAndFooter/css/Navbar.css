@@ -1,0 +1,10 @@
+/* Small Navbar Custom Styles */
+.small-navbar {
+    font-size: 0.875rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.navbar-brand {
+    font-size: 1rem;
+}
