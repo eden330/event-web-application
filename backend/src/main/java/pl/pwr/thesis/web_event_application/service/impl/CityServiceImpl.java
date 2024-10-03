@@ -3,7 +3,9 @@ package pl.pwr.thesis.web_event_application.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.CityDto;
+import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.mapper.CityMapper;
 import pl.pwr.thesis.web_event_application.repository.CityRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
@@ -30,5 +32,12 @@ public class CityServiceImpl implements CityService {
                 stream()
                 .map(cityMapper::cityToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public City saveCity(City city) {
+        return cityRepository.findCityByName(city.getName())
+                .orElseGet(() -> cityRepository.save(city));
     }
 }

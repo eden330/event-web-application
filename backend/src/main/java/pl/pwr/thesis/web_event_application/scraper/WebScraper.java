@@ -11,6 +11,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -18,8 +20,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component
 public class WebScraper {
@@ -30,7 +30,7 @@ public class WebScraper {
             " and @data-v-7238e093 and .//div[contains(@class, 'column-inner')]]";
     private final static String DOC_HEIGHT = "document.body.scrollHeight";
     private final static int ATTEMPTS_NUMBER = 3;
-    private final Logger logger = Logger.getLogger(WebScraper.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(WebScraper.class);
 
     public Set<String> scrapEvents() {
         // test
@@ -38,7 +38,7 @@ public class WebScraper {
 //        return dummyValues();
 
         WebDriverManager.chromedriver().setup();
-        logger.log(Level.INFO, "Web driver initialized");
+        logger.info("Web driver initialized");
 
         ChromeOptions options = new ChromeOptions();
 //        String[] optionsArray = new String[]{
@@ -58,10 +58,10 @@ public class WebScraper {
 
             return scrapEventsJson(driver, executor);
         } catch (InvalidArgumentException e) {
-            logger.log(Level.SEVERE, "Exception in scraping events");
+            logger.error("Exception in scraping events", e);
             return new HashSet<>();
         } finally {
-            logger.log(Level.INFO, "Web driver closed");
+            logger.info("Web driver closed");
             driver.quit();
         }
     }
@@ -72,7 +72,7 @@ public class WebScraper {
         List<WebElement> eventDivs = driver.findElements(
                 By.xpath(EVENT_DIV_HTML));
 
-        logger.log(Level.INFO, "Number of event divs read: " + eventDivs.size());
+        logger.info("Number of event divs read: " + eventDivs.size());
 
         for (WebElement eventDiv : eventDivs) {
             boolean isSuccess = false;
@@ -92,15 +92,15 @@ public class WebScraper {
 
                 } catch (StaleElementReferenceException e) {
                     retryCount++;
-                    logger.log(Level.WARNING, "Stale element reference, retrying... (" + retryCount + "/3)");
+                    logger.warn("Stale element reference, retrying... (" + retryCount + "/3)");
                     if (retryCount == 3) {
-                        logger.log(Level.SEVERE, "Failed to process element after retries, skipping element.");
+                        logger.warn("Failed to process element after retries, skipping element.");
                     }
                 }
             }
         }
         eventsJsonSet.forEach(System.out::println);
-        logger.log(Level.INFO, "Number of json event elements: " + eventsJsonSet.size());
+        logger.info("Number of json event elements: " + eventsJsonSet.size());
 
         return eventsJsonSet;
     }
@@ -118,10 +118,9 @@ public class WebScraper {
                     return sizeAfterScroll > sizeBeforeScroll;
                 });
             } catch (TimeoutException e) {
-                logger.log(Level.WARNING, "No more events to load. Scrolling stopped!");
+                logger.warn("No more events to load. Scrolling stopped!");
                 break;
             }
-
         }
     }
 }

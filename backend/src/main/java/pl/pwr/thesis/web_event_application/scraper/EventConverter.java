@@ -2,19 +2,19 @@ package pl.pwr.thesis.web_event_application.scraper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pl.pwr.thesis.web_event_application.entity.Event;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component
 public class EventConverter {
 
-    private final Logger logger = Logger.getLogger(EventConverter.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(EventConverter.class);
 
     public List<Event> convertJsonToEvents(Set<String> eventJsonSet) {
         List<Event> events = new ArrayList<>();
@@ -25,7 +25,7 @@ public class EventConverter {
                 events.add(event);
             }
         } catch (JsonProcessingException e) {
-            logger.log(Level.SEVERE, "Error in converting JSON to event: " + e.getMessage(), e);
+            logger.error( "Error in converting JSON to event: " + e.getMessage(), e);
         }
         return events;
     }

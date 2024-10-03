@@ -30,8 +30,11 @@ public class EventDeserializer extends JsonDeserializer<Event> {
         event.setName(node.get("name").asText());
         event.setDescription(node.get("description").asText());
         event.setImage(node.get("image").asText());
+
+        //TODO: implement AI algorithm to read Category of event based on description
         Category category = new Category();
         category.setEventCategory(EventCategory.UNKNOWN);
+        category.setId(1);
         event.setCategory(category);
 
         String startDateString = node.get("startDate").asText();

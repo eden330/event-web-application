@@ -26,13 +26,11 @@ public class CityController {
 
     @GetMapping
     public ResponseEntity<List<CityDto>> getAllCities() {
-        logger.info("Get request to fetch all cities");
         List<CityDto> cities = cityService.getAllCities();
         if (cities.isEmpty()) {
-            logger.info("Error in fetching cites");
+            logger.info("There are no cities to fetch!");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            logger.info("Success in fetching all cities");
             return new ResponseEntity<>(cities, HttpStatus.OK);
         }
     }
