@@ -33,4 +33,5 @@ public class City {
     @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Address> addresses;
+
 }

@@ -1,5 +1,6 @@
 package pl.pwr.thesis.web_event_application.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import pl.pwr.thesis.web_event_application.entity.embedded.Reaction;
+import pl.pwr.thesis.web_event_application.scraper.EventDeserializer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 @Table(name = "event")
 @NoArgsConstructor
 @Data
+@JsonDeserialize(using = EventDeserializer.class)
 public class Event {
 
     @Id

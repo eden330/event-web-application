@@ -2,6 +2,7 @@ package pl.pwr.thesis.web_event_application.scraper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
+import org.openqa.selenium.InvalidArgumentException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
@@ -10,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -19,27 +21,31 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Component
 public class WebScraper {
 
     // @Value("${SCRAPING_URL}")
-    private String scrapingUrl;
+    private String scrapingUrl = "https://goout.net/en/poland/events/lezxxnfti/";
     private final static String EVENT_DIV_HTML = "//div[@data-v-a4578fba" +
             " and @data-v-7238e093 and .//div[contains(@class, 'column-inner')]]";
     private final static String DOC_HEIGHT = "document.body.scrollHeight";
-
     private final static int ATTEMPTS_NUMBER = 3;
     private final Logger logger = Logger.getLogger(WebScraper.class.getName());
 
     public Set<String> scrapEvents() {
+        // test
+//        System.out.println(dummyValues());
+//        return dummyValues();
+
         WebDriverManager.chromedriver().setup();
         logger.log(Level.INFO, "Web driver initialized");
 
         ChromeOptions options = new ChromeOptions();
-        String[] optionsArray = new String[]{
-                "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
-                "--disable-gpu"
-        };
-        options.addArguments(optionsArray);
+//        String[] optionsArray = new String[]{
+//                "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
+//                "--disable-gpu"
+//        };
+        options.addArguments();
 
         WebDriver driver = new ChromeDriver(options);
 
@@ -51,13 +57,13 @@ public class WebScraper {
             scrollPage(driver, executor);
 
             return scrapEventsJson(driver, executor);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InvalidArgumentException e) {
+            logger.log(Level.SEVERE, "Exception in scraping events");
+            return new HashSet<>();
         } finally {
             logger.log(Level.INFO, "Web driver closed");
             driver.quit();
         }
-        return new HashSet<>();
     }
 
     private Set<String> scrapEventsJson(WebDriver driver, JavascriptExecutor executor) {
@@ -93,13 +99,14 @@ public class WebScraper {
                 }
             }
         }
-        //eventsJsonSet.forEach(System.out::println);
+        eventsJsonSet.forEach(System.out::println);
         logger.log(Level.INFO, "Number of json event elements: " + eventsJsonSet.size());
 
         return eventsJsonSet;
     }
 
     private void scrollPage(WebDriver driver, JavascriptExecutor executor) {
+        // for testing purposes (read just initial events)
         while (true) {
             int sizeBeforeScroll = driver.findElements(By.xpath(EVENT_DIV_HTML)).size();
 
@@ -114,11 +121,7 @@ public class WebScraper {
                 logger.log(Level.WARNING, "No more events to load. Scrolling stopped!");
                 break;
             }
-        }
-    }
 
-    public static void main(String[] args) {
-        WebScraper webScraper = new WebScraper();
-        webScraper.scrapEvents();
+        }
     }
 }
