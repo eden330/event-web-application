@@ -23,8 +23,8 @@ public class EventReader {
     public List<Event> readEvents() {
         Set<String> eventJsonSet = webScraper.scrapEvents();
         List<Event> events = eventConverter.convertJsonToEvents(eventJsonSet);
-        events.forEach(System.out::println);
-        logger.info("Number of events read: " + events.size());
+        // events.forEach(System.out::println);
+        logger.info("Number of json elements converted to events: " + events.size());
         return events;
     }
 }

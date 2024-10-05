@@ -15,6 +15,7 @@ import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.LocationService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,17 +41,25 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public boolean checkIfEventExist(Event event) {
-        return repository.existsByNameAndLocation(event.getName(), event.getLocation());
+        return repository.existsByNameAndLocationAndStartDateAndEndDate(
+                event.getName(), event.getLocation(),
+                event.getStartDate(), event.getEndDate());
     }
 
     @Override
     @Transactional
     public void saveEvents(List<Event> events) {
+        List<Event> addedEvents = new ArrayList<>();
+        List<Event> otherEvents = new ArrayList<>();
         if (events != null && !events.isEmpty()) {
             logger.debug("Saving {} events to database", events.size());
             try {
                 for (Event event : events) {
-                    saveEvent(event);
+                    if (saveEvent(event)) {
+                        addedEvents.add(event);
+                    } else {
+                        otherEvents.add(event);
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Error  when saving to database", e);
@@ -58,11 +67,14 @@ public class EventServiceImpl implements EventService {
         } else {
             logger.info("No events to save!");
         }
+        System.out.println("Events saved to database: " + addedEvents.size());
+        System.out.println("Events not saved to database: " + otherEvents.size());
+        otherEvents.forEach(System.out::println);
     }
 
     @Override
     @Transactional
-    public void saveEvent(Event event) {
+    public boolean saveEvent(Event event) {
         Location location = event.getLocation();
         if (location != null) {
             Address address = location.getAddress();
@@ -80,12 +92,13 @@ public class EventServiceImpl implements EventService {
         if (!checkIfEventExist(event)) {
             try {
                 repository.save(event);
+                return true;
             } catch (Exception e) {
                 logger.error("Error when saving to database", e);
             }
         } else {
-            logger.warn("Event not saved! It already exists in database.");
+         //   logger.warn("Event not saved! It already exists in database.");
         }
-
+        return false;
     }
 }

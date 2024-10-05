@@ -8,7 +8,7 @@ public interface EventService {
 
     void saveEvents(List<Event> events);
 
-    void saveEvent(Event event);
+    boolean saveEvent(Event event);
 
     boolean checkIfEventExist(Event event);
 }

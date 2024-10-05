@@ -3,6 +3,7 @@ package pl.pwr.thesis.web_event_application;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
+@EnableCaching
 public class WebEventApplication {
 
     public static void main(String[] args) {

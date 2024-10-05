@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.scraper.EventReader;
@@ -28,8 +27,8 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<List<Event>> saveEvents(@RequestBody List<Event> events) {
-        events = eventReader.readEvents();
+    public ResponseEntity<List<Event>> saveEvents() {
+        List<Event> events = eventReader.readEvents();
         logger.info("Received request to save {}  events ", events.size());
         if (events.isEmpty()) {
             logger.warn("No events to be saved! Returning NO_CONTENT status.");
@@ -37,7 +36,7 @@ public class EventController {
         }
         try {
             eventService.saveEvents(events);
-            logger.info("Successfully saved {} events", events.size());
+           // logger.info("Successfully saved {} events", events.size());
             return new ResponseEntity<>(events, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error occurred while saving events", e);

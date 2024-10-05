@@ -13,24 +13,33 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import pl.pwr.thesis.web_event_application.scraper.cache.EventCache;
 
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class WebScraper {
 
-    // @Value("${SCRAPING_URL}")
-    private String scrapingUrl = "https://goout.net/en/poland/events/lezxxnfti/";
+     @Value("${SCRAPING_URL}")
+    private String scrapingUrl;
     private final static String EVENT_DIV_HTML = "//div[@data-v-a4578fba" +
             " and @data-v-7238e093 and .//div[contains(@class, 'column-inner')]]";
     private final static String DOC_HEIGHT = "document.body.scrollHeight";
     private final static int ATTEMPTS_NUMBER = 3;
+    private final EventCache eventCache;
     private static final Logger logger = LoggerFactory.getLogger(WebScraper.class);
+
+    public WebScraper(EventCache eventCache) {
+        this.eventCache = eventCache;
+    }
 
     public Set<String> scrapEvents() {
         // test
@@ -74,6 +83,8 @@ public class WebScraper {
 
         logger.info("Number of event divs read: " + eventDivs.size());
 
+        Map<UUID, String> eventsCacheMap = eventCache.getCacheMap();
+
         for (WebElement eventDiv : eventDivs) {
             boolean isSuccess = false;
             int retryCount = 0;
@@ -86,8 +97,13 @@ public class WebScraper {
                             By.xpath(".//script[@type='application/ld+json']"));
                     String eventJson = eventJsonElem.getAttribute("innerHTML");
 
-                    eventsJsonSet.add(eventJson);
-
+                    boolean isAdded = eventCache.addEventToCache(eventJson, eventsCacheMap);
+                    if (isAdded) {
+                        eventsJsonSet.add(eventJson);
+                        //logger.info("New event added to result set: {}", eventJson);
+                    } else {
+                        //logger.info("Duplicate event found, skipping: {}", eventJson);
+                    }
                     isSuccess = true;
 
                 } catch (StaleElementReferenceException e) {
@@ -99,7 +115,7 @@ public class WebScraper {
                 }
             }
         }
-        eventsJsonSet.forEach(System.out::println);
+       //  eventsJsonSet.forEach(System.out::println);
         logger.info("Number of json event elements: " + eventsJsonSet.size());
 
         return eventsJsonSet;
