@@ -22,6 +22,8 @@ public class WebEventApplication {
         envVars.put("DB_USERNAME", dotenv.get("DB_USERNAME"));
         envVars.put("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
         envVars.put("SCRAPING_URL", dotenv.get("SCRAPING_URL"));
+        envVars.put("API_KEY_GEOCODING", dotenv.get("API_KEY_GEOCODING"));
+        envVars.put("GEOCODING_BASE_URL", dotenv.get("GEOCODING_BASE_URL"));
 
         StandardEnvironment env = new StandardEnvironment();
         env.getPropertySources().addLast(new MapPropertySource("dotenvVars", envVars));

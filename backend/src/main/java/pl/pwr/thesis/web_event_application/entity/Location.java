@@ -40,4 +40,8 @@ public class Location {
     @JoinColumn(name = "address_id")
     @JsonBackReference
     private Address address;
+    @Column(name = "latitude")
+    private double latitude;
+    @Column(name = "longitude")
+    private double longitude;
 }

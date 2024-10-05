@@ -13,6 +13,7 @@ import pl.pwr.thesis.web_event_application.entity.Address;
 import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
+import pl.pwr.thesis.web_event_application.geocode.Geocoder;
 import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
 import pl.pwr.thesis.web_event_application.mapper.map.EventMapperMap;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
@@ -21,6 +22,7 @@ import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.LocationService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,18 +36,21 @@ public class EventServiceImpl implements EventService {
     private final LocationService locationService;
     private final AddressService addressService;
     private final CityService cityService;
+    private final Geocoder geocoder;
     private static final Logger logger = LoggerFactory.getLogger(CityServiceImpl.class);
 
 
-    public EventServiceImpl(EventRepository eventRepository, EventMapperMap eventMapperMap,
-                            EventMapper eventMapperList, LocationService locationService,
-                            AddressService addressService, CityService cityService) {
+    public EventServiceImpl(EventRepository eventRepository,
+                            EventMapperMap eventMapperMap, EventMapper eventMapperList,
+                            LocationService locationService, AddressService addressService,
+                            CityService cityService, Geocoder geocoder) {
         this.eventRepository = eventRepository;
         this.eventMapperMap = eventMapperMap;
         this.eventMapperList = eventMapperList;
         this.locationService = locationService;
         this.addressService = addressService;
         this.cityService = cityService;
+        this.geocoder = geocoder;
     }
 
     @Override
@@ -125,9 +130,26 @@ public class EventServiceImpl implements EventService {
             }
             Location savedLocation = locationService.findOrSaveLocation(location);
             event.setLocation(savedLocation);
-        }
 
-        if (!checkIfEventExist(event)) {
+            if (checkIfEventExist(event)) {
+                logger.warn("Event {} not saved! It already exists in database.", event.getName());
+                return false;
+            }
+
+            if (savedLocation.getLongitude() == 0 || savedLocation.getLatitude() == 0) {
+                try {
+                    double[] coordinates = geocoder.geocodeLocation(
+                            savedLocation.getAddress().getCity().getName(),
+                            savedLocation.getAddress().getStreet());
+
+                    savedLocation.setLatitude(coordinates[0]);
+                    savedLocation.setLongitude(coordinates[1]);
+                    event.setLocation(savedLocation);
+                } catch (IOException | InterruptedException e) {
+                    logger.error("Geocoding failed for event {}: {}", event.getName(), e.getMessage(), e);
+                    throw new RuntimeException("Failed to geocode location for event: " + event.getName(), e);
+                }
+            }
             try {
                 eventRepository.save(event);
                 return true;
@@ -135,9 +157,8 @@ public class EventServiceImpl implements EventService {
                 logger.error("Error when saving event: {} to database", event.getName(), e);
                 throw new RuntimeException("Failed to save event: " + event.getName(), e);
             }
-        } else {
-            logger.warn("Event {} not saved! It already exists in database.", event.getName());
         }
+        logger.warn("Event {} not saved! Location or Address is missing.", event.getName());
         return false;
     }
 }
