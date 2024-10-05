@@ -1,6 +1,7 @@
 package pl.pwr.thesis.web_event_application.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +45,7 @@ public class Event {
     @ManyToMany(mappedBy = "favouriteEvents")
     @ToString.Exclude
     private List<User> users;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private Location location;
     @OneToMany(mappedBy = "event")

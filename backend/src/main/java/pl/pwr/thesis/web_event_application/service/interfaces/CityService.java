@@ -9,5 +9,5 @@ public interface CityService {
 
     List<CityDto> getAllCities();
 
-    City saveCity(City city);
+    City findOrSaveCity(City city);
 }

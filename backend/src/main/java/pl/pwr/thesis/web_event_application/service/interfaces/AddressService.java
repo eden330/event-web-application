@@ -4,5 +4,5 @@ import pl.pwr.thesis.web_event_application.entity.Address;
 
 public interface AddressService {
 
-    Address saveAddress(Address address);
+    Address findOrSaveAddress(Address address);
 }

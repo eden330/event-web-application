@@ -42,10 +42,6 @@ public class WebScraper {
     }
 
     public Set<String> scrapEvents() {
-        // test
-//        System.out.println(dummyValues());
-//        return dummyValues();
-
         WebDriverManager.chromedriver().setup();
         logger.info("Web driver initialized");
 

@@ -36,8 +36,13 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public City saveCity(City city) {
-        return cityRepository.findCityByName(city.getName())
-                .orElseGet(() -> cityRepository.save(city));
+    public City findOrSaveCity(City city) {
+        try {
+            return cityRepository.findCityByName(city.getName())
+                    .orElseGet(() -> cityRepository.save(city));
+        } catch (Exception e) {
+            logger.error("Error in saving city: {} to database", city.getName(), e);
+            throw new RuntimeException(e);
+        }
     }
 }

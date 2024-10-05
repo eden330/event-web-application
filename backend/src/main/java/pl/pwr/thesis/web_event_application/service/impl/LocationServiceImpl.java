@@ -11,17 +11,22 @@ import pl.pwr.thesis.web_event_application.service.interfaces.LocationService;
 @Service
 public class LocationServiceImpl implements LocationService {
 
-    private final LocationRepository repository;
+    private final LocationRepository locationRepository;
     private static final Logger logger = LoggerFactory.getLogger(CityServiceImpl.class);
 
-    public LocationServiceImpl(LocationRepository repository) {
-        this.repository = repository;
+    public LocationServiceImpl(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
     }
 
     @Override
     @Transactional
-    public Location saveLocation(Location location) {
-        return repository.findLocationByNameAndAddress(location.getName(), location.getAddress())
-                .orElseGet(() -> repository.save(location));
+    public Location findOrSaveLocation(Location location) {
+        try {
+            return locationRepository.findLocationByNameAndAddress(location.getName(), location.getAddress())
+                    .orElseGet(() -> locationRepository.save(location));
+        } catch (Exception e) {
+            logger.error("Error in saving location: {} to database", location.getName(), e);
+            throw new RuntimeException(e);
+        }
     }
 }

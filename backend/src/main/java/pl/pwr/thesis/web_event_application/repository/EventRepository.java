@@ -8,11 +8,8 @@ import pl.pwr.thesis.web_event_application.entity.Location;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-
-    Optional<Event> findEventByName(String eventName);
 
     boolean existsByNameAndLocationAndStartDateAndEndDate(
             String name, Location location, LocalDateTime startDate, LocalDateTime endDate);
