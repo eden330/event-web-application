@@ -1,11 +1,15 @@
-package pl.pwr.thesis.web_event_application.dto;
+package pl.pwr.thesis.web_event_application.dto.list;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class EventDto {
 
     private Long id;
     private String name;
-    private String description;
-    private String imgUrl;
+    private String image;
     private String startDate;
     private String endDate;
     private LocationDto location;

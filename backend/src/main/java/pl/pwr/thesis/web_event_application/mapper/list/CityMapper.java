@@ -1,8 +1,8 @@
-package pl.pwr.thesis.web_event_application.mapper;
+package pl.pwr.thesis.web_event_application.mapper.list;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import pl.pwr.thesis.web_event_application.dto.CityDto;
+import pl.pwr.thesis.web_event_application.dto.list.CityDto;
 import pl.pwr.thesis.web_event_application.entity.City;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

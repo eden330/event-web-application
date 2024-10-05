@@ -4,12 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.pwr.thesis.web_event_application.dto.EventDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.entity.Address;
 import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
-import pl.pwr.thesis.web_event_application.mapper.EventMapper;
+import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.AddressService;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
@@ -38,6 +38,20 @@ public class EventServiceImpl implements EventService {
         this.locationService = locationService;
         this.addressService = addressService;
         this.cityService = cityService;
+    }
+
+    @Override
+    public List<EventDto> fetchAllEvents() {
+        logger.info("Fetching all events from database");
+        try {
+            return eventRepository.findAll()
+                    .stream()
+                    .map(mapper::eventToDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error in fetching all events", e);
+            throw new RuntimeException("Error fetching events", e);
+        }
     }
 
     @Override

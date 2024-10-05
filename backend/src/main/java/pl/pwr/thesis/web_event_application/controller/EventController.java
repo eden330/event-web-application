@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.pwr.thesis.web_event_application.dto.EventDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.scraper.EventReader;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;

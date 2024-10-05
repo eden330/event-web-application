@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.pwr.thesis.web_event_application.dto.CityDto;
+import pl.pwr.thesis.web_event_application.dto.list.CityDto;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 
 import java.util.List;

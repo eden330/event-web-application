@@ -1,6 +1,6 @@
 package pl.pwr.thesis.web_event_application.service.interfaces;
 
-import pl.pwr.thesis.web_event_application.dto.EventDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.entity.Event;
 
 import java.util.List;
