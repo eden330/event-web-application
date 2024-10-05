@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.thesis.web_event_application.dto.list.EventDto;
+import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.scraper.EventReader;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
@@ -28,10 +30,30 @@ public class EventController {
         this.eventReader = eventReader;
     }
 
-    @GetMapping
-    public ResponseEntity<List<EventDto>> fetchAllEvents() {
+    @GetMapping()
+    @RequestMapping("/map")
+    public ResponseEntity<List<EventDtoMap>> fetchAllEventsMap() {
         try {
-            List<EventDto> eventDtos = eventService.fetchAllEvents();
+            List<EventDtoMap> eventDtos = eventService.fetchAllEventsMap();
+            if (eventDtos.isEmpty()) {
+                logger.warn("No events fetched!");
+                return ResponseEntity.noContent().build();
+            }
+            logger.info("Number of events fetched: {}", eventDtos.size());
+            return ResponseEntity.ok(eventDtos);
+        } catch (Exception e) {
+            logger.error("Error in fetching all of the events", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping()
+    @RequestMapping("/list")
+    public ResponseEntity<List<EventDto>> fetchAllEventsList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            List<EventDto> eventDtos = eventService.fetchAllEventsList(page, size);
             if (eventDtos.isEmpty()) {
                 logger.warn("No events fetched!");
                 return ResponseEntity.noContent().build();

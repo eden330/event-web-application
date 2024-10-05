@@ -2,14 +2,19 @@ package pl.pwr.thesis.web_event_application.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.list.EventDto;
+import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Address;
 import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
+import pl.pwr.thesis.web_event_application.mapper.map.EventMapperMap;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.AddressService;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
@@ -24,30 +29,48 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final EventMapper mapper;
+    private final EventMapperMap eventMapperMap;
+    private final EventMapper eventMapperList;
     private final LocationService locationService;
     private final AddressService addressService;
     private final CityService cityService;
     private static final Logger logger = LoggerFactory.getLogger(CityServiceImpl.class);
 
-    public EventServiceImpl(EventRepository eventRepository, EventMapper mapper,
-                            LocationService locationService, AddressService addressService,
-                            CityService cityService) {
+
+    public EventServiceImpl(EventRepository eventRepository, EventMapperMap eventMapperMap,
+                            EventMapper eventMapperList, LocationService locationService,
+                            AddressService addressService, CityService cityService) {
         this.eventRepository = eventRepository;
-        this.mapper = mapper;
+        this.eventMapperMap = eventMapperMap;
+        this.eventMapperList = eventMapperList;
         this.locationService = locationService;
         this.addressService = addressService;
         this.cityService = cityService;
     }
 
     @Override
-    public List<EventDto> fetchAllEvents() {
-        logger.info("Fetching all events from database");
+    public List<EventDtoMap> fetchAllEventsMap() {
+        logger.info("Fetching all events from database to Map");
         try {
-            return eventRepository.findAll()
+            return eventRepository.findAllWithLocation()
                     .stream()
-                    .map(mapper::eventToDto)
+                    .map(eventMapperMap::eventToDtoMap)
                     .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error in fetching all events", e);
+            throw new RuntimeException("Error fetching events", e);
+        }
+    }
+
+    @Override
+    public List<EventDto> fetchAllEventsList(int page, int size) {
+        logger.info("Fetching all events from database to List");
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<Event> eventsPage = eventRepository.findAll(pageable);
+            return eventsPage.stream()
+                    .map(eventMapperList::eventToDto)
+                    .toList();
         } catch (Exception e) {
             logger.error("Error in fetching all events", e);
             throw new RuntimeException("Error fetching events", e);
