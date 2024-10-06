@@ -98,7 +98,7 @@ public class WebScraper {
                         eventsJsonSet.add(eventJson);
                         //logger.info("New event added to result set: {}", eventJson);
                     } else {
-                        //logger.info("Duplicate event found, skipping: {}", eventJson);
+                        logger.info("Duplicate event found, skipping: {}", eventJson);
                     }
                     isSuccess = true;
 

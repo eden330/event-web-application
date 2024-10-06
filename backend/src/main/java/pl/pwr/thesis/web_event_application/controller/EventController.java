@@ -74,9 +74,10 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No events found to save");
         }
         try {
-            eventService.saveEvents(events);
+            var searchEventsResult = eventService.saveEvents(events);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Successfully saved " + events.size() + " events.");
+                    .body("Successfully saved " + searchEventsResult.getSavedEventsCount() + " events. " +
+                            searchEventsResult.getNotSavedEventsCount() + " events were not saved.");
         } catch (Exception e) {
             logger.error("Error occurred while saving events", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

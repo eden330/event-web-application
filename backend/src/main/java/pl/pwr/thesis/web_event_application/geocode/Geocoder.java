@@ -2,6 +2,8 @@ package pl.pwr.thesis.web_event_application.geocode;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,48 +19,79 @@ import java.nio.charset.StandardCharsets;
 public class Geocoder {
 
     @Value("${API_KEY_GEOCODING}")
-    private String API_KEY;
-
+    private String apiKey;
     @Value("${GEOCODING_BASE_URL}")
     private String baseUrl;
+    private static final int NUMBER_OF_RETRIES = 2;
+    private static final Logger logger = LoggerFactory.getLogger(Geocoder.class);
 
-    public double[] geocodeLocation(String city, String street) throws IOException, InterruptedException {
-        // TODO: increase accuracy of geocoding of coordinates
-        String encodedStreet = URLEncoder.encode(street, StandardCharsets.UTF_8);
-        String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
+    public double[] geocodeLocation(String city, String street) {
+        try {
+            String apiUrl = constructApiQuery(city, street);
 
-        String apiUrl = String.format(
-                baseUrl + "?access_key=%s&query=%s&region=%s&country=PL" +
-                        "&limit=1&results.latitude,results.longitude",
-                API_KEY,
-                encodedStreet,
-                encodedCity);
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .GET()
+                    .build();
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
-                .GET()
-                .build();
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = objectMapper.readTree(response.body());
+                JsonNode featureNode = rootNode.get("features");
 
-        if (response.statusCode() == 200) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response.body());
-            JsonNode resultsNode = rootNode.get("data");
-
-            if (resultsNode.isArray() && resultsNode.size() > 0) {
-                JsonNode firstResult = resultsNode.get(0);
-                double latitude = firstResult.path("latitude").asDouble();
-                double longitude = firstResult.path("longitude").asDouble();
-
-                return new double[]{latitude, longitude};
+                if (featureNode != null && featureNode.isArray() && featureNode.size() > 0) {
+                    JsonNode firstFeature = featureNode.get(0);
+                    return convertToCoordinates(firstFeature);
+                }
             } else {
-                throw new IOException("No results found for the provided location.");
+                logger.error("Error in API request, status code: {}, response body: {}, URL: {}",
+                        response.statusCode(), response.body(), apiUrl);
             }
-        } else {
-            throw new IOException("Error in API request, status code: " + response.statusCode());
+        } catch (IOException | InterruptedException e) {
+            logger.error("Exception during geocoding request: {}", e.getMessage());
         }
+
+        logger.error("Geocoding failed for city: {} and street: {}," +
+                " returning default null", city, street);
+        return null;
+    }
+
+    public double[] geocodeLocationWithRetries(String city, String street) {
+        for (int i = 0; i < NUMBER_OF_RETRIES; i++) {
+            double[] result = geocodeLocation(city, street);
+            if (result != null) {
+                return result;
+            }
+        }
+        logger.error("Geocoding failed after {} attempts for city: {}," +
+                " street: {}", NUMBER_OF_RETRIES, city, street);
+        return null;
+    }
+
+    private double[] convertToCoordinates(JsonNode firstFeature) {
+        JsonNode geometryNode = firstFeature.get("geometry");
+        if (geometryNode != null) {
+            JsonNode coordinatesNode = geometryNode.get("coordinates");
+            if (coordinatesNode != null && coordinatesNode.isArray() && coordinatesNode.size() >= 2) {
+                double longitude = coordinatesNode.get(0).asDouble();
+                double latitude = coordinatesNode.get(1).asDouble();
+                return new double[]{latitude, longitude};
+            }
+        }
+        return null;
+    }
+
+    private String constructApiQuery(String city, String street) {
+        String fullQuery = String.join(", ", street, city);
+        String encodedFullQuery = URLEncoder.encode(fullQuery, StandardCharsets.UTF_8);
+
+        return String.format(
+                baseUrl + "%s.json?key=%s&country=PL&fuzzyMatch=false",
+                encodedFullQuery,
+                apiKey);
     }
 }

@@ -29,4 +29,10 @@ public class LocationServiceImpl implements LocationService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    @Transactional
+    public void deleteLocation(Location location) {
+        locationRepository.delete(location);
+    }
 }

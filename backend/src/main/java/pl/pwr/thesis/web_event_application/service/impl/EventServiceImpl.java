@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.pwr.thesis.web_event_application.dto.SearchEventsResult;
 import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Address;
@@ -22,7 +23,6 @@ import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.LocationService;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -91,17 +91,15 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void saveEvents(List<Event> events) {
-        List<Event> addedEvents = new ArrayList<>();
-        List<Event> otherEvents = new ArrayList<>();
-        if (events != null && !events.isEmpty()) {
+    public SearchEventsResult saveEvents(List<Event> events) {
+        List<Event> notSavedEvents = new ArrayList<>();
+        List<Event> savedEvents = new ArrayList<>(events);
+        if (!events.isEmpty()) {
             logger.debug("Saving {} events to database", events.size());
             try {
                 for (Event event : events) {
-                    if (saveEvent(event)) {
-                        addedEvents.add(event);
-                    } else {
-                        otherEvents.add(event);
+                    if (!saveEvent(event)) {
+                        notSavedEvents.add(event);
                     }
                 }
             } catch (Exception e) {
@@ -110,9 +108,10 @@ public class EventServiceImpl implements EventService {
         } else {
             logger.info("No events to save! The list is empty.");
         }
-        System.out.println("Events saved to database: " + addedEvents.size());
-        System.out.println("Events not saved to database: " + otherEvents.size());
-        // otherEvents.forEach(System.out::println);
+        savedEvents.removeAll(notSavedEvents);
+        return new SearchEventsResult(
+                savedEvents.size(), notSavedEvents.size(),
+                savedEvents, notSavedEvents);
     }
 
     @Override
@@ -122,9 +121,15 @@ public class EventServiceImpl implements EventService {
         if (location != null) {
             Address address = location.getAddress();
             if (address != null) {
+                String streetName = address.getStreet();
+                String cityName = address.getCity().getName();
+                if (streetName.isBlank() || cityName.isBlank()) {
+                    logger.warn("Event {} not saved! Street or City is empty.", event.getName());
+                    return false;
+                }
+
                 City city = cityService.findOrSaveCity(address.getCity());
                 address.setCity(city);
-
                 Address savedAddress = addressService.findOrSaveAddress(address);
                 location.setAddress(savedAddress);
             }
@@ -132,23 +137,23 @@ public class EventServiceImpl implements EventService {
             event.setLocation(savedLocation);
 
             if (checkIfEventExist(event)) {
-                logger.warn("Event {} not saved! It already exists in database.", event.getName());
+                logger.warn("Event: {} not saved! It already exists in database.", event.getName());
                 return false;
             }
 
             if (savedLocation.getLongitude() == 0 || savedLocation.getLatitude() == 0) {
-                try {
-                    double[] coordinates = geocoder.geocodeLocation(
-                            savedLocation.getAddress().getCity().getName(),
-                            savedLocation.getAddress().getStreet());
-
-                    savedLocation.setLatitude(coordinates[0]);
-                    savedLocation.setLongitude(coordinates[1]);
-                    event.setLocation(savedLocation);
-                } catch (IOException | InterruptedException e) {
-                    logger.error("Geocoding failed for event {}: {}", event.getName(), e.getMessage(), e);
-                    throw new RuntimeException("Failed to geocode location for event: " + event.getName(), e);
+                double[] coordinates = geocoder.geocodeLocationWithRetries(
+                        savedLocation.getAddress().getCity().getName(),
+                        savedLocation.getAddress().getStreet());
+                if (coordinates == null) {
+                    logger.warn("Geocoding failed for event: {}, event not saved to database.",
+                            event.getName());
+                    locationService.deleteLocation(location);
+                    return false;
                 }
+                savedLocation.setLatitude(coordinates[0]);
+                savedLocation.setLongitude(coordinates[1]);
+                event.setLocation(savedLocation);
             }
             try {
                 eventRepository.save(event);
