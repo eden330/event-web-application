@@ -1,4 +1,4 @@
-package pl.pwr.thesis.web_event_application.dto;
+package pl.pwr.thesis.web_event_application.dto.list;
 
 import lombok.Getter;
 import lombok.Setter;

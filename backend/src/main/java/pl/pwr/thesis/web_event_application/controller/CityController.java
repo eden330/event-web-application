@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.pwr.thesis.web_event_application.dto.CityDto;
+import pl.pwr.thesis.web_event_application.dto.list.CityDto;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 
 import java.util.List;
@@ -25,15 +25,14 @@ public class CityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CityDto>> getAllCities() {
-        logger.info("Get request to fetch all cities");
+    public ResponseEntity<List<CityDto>> fetchAllCities() {
+        logger.info("Received request to fetch all cities.");
         List<CityDto> cities = cityService.getAllCities();
         if (cities.isEmpty()) {
-            logger.info("Error in fetching cites");
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            logger.info("There are no cities to fetch! Returning empty list status.");
         } else {
-            logger.info("Success in fetching all cities");
-            return new ResponseEntity<>(cities, HttpStatus.OK);
+            logger.info("The number of fetched cities: {}", cities.size());
         }
+        return new ResponseEntity<>(cities, HttpStatus.OK);
     }
 }

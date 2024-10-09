@@ -3,8 +3,10 @@ package pl.pwr.thesis.web_event_application.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.pwr.thesis.web_event_application.dto.CityDto;
-import pl.pwr.thesis.web_event_application.mapper.CityMapper;
+import org.springframework.transaction.annotation.Transactional;
+import pl.pwr.thesis.web_event_application.dto.list.CityDto;
+import pl.pwr.thesis.web_event_application.entity.City;
+import pl.pwr.thesis.web_event_application.mapper.list.CityMapper;
 import pl.pwr.thesis.web_event_application.repository.CityRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 
@@ -30,5 +32,17 @@ public class CityServiceImpl implements CityService {
                 stream()
                 .map(cityMapper::cityToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public City findOrSaveCity(City city) {
+        try {
+            return cityRepository.findCityByName(city.getName())
+                    .orElseGet(() -> cityRepository.save(city));
+        } catch (Exception e) {
+            logger.error("Error in saving city: {} to database", city.getName(), e);
+            throw new RuntimeException(e);
+        }
     }
 }
