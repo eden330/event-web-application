@@ -1,8 +1,8 @@
-package pl.pwr.thesis.web_event_application.mapper.list;
+package pl.pwr.thesis.web_event_application.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import pl.pwr.thesis.web_event_application.dto.list.CategoryDto;
+import pl.pwr.thesis.web_event_application.dto.CategoryDto;
 import pl.pwr.thesis.web_event_application.entity.Category;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

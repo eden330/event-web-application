@@ -1,8 +1,8 @@
 import React from "react";
-import {EventDto} from "../../../dto/EventDto";
+import {EventModel} from "../models/EventModel";
 
 interface EventCardProps {
-    event: EventDto;
+    event: EventModel;
 }
 
 export const EventCard: React.FC<EventCardProps> = ({event}) => {
@@ -11,20 +11,20 @@ export const EventCard: React.FC<EventCardProps> = ({event}) => {
             <div className="row g-0 p-1">
                 <div className="col-auto d-flex align-items-center">
                     <img
-                        src={event.imageUrl}
+                        src={event.image}
                         alt="label"
                         className="card-image"
                     />
                 </div>
                 <div className="col-md-6">
                     <div className="card-body p-1">
-                        <h6 className="card-title">{event.title}</h6>
+                        <h6 className="card-title">{event.name}</h6>
                         <p className="card-text">{event.description}</p>
                     </div>
                 </div>
                 <div className="col-md-3">
-                    <p>Date: {event.startDate}</p>
-                    <p>Location: {event.location}</p>
+                    <p>Start date: {new Date(event.startDate).toLocaleDateString()}</p>
+                    <p>End date: {new Date(event.endDate).toLocaleDateString()}</p>
                 </div>
             </div>
         </div>

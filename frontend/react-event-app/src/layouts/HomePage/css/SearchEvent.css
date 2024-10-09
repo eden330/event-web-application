@@ -38,9 +38,10 @@
 }
 
 .event-list {
-    max-height: 80vh; /* You can adjust this as needed */
-    overflow-y: auto; /* Only this column will scroll */
-    padding-right: 10px; /* Optional: to avoid scrollbar overlapping content */
+    max-height: 80vh; /* Limits the height of the event list */
+    overflow-y: auto; /* Adds a scroll inside the event list itself */
+    padding-right: 10px;
+    position: relative;
 }
 
 
