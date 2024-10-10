@@ -1,4 +1,5 @@
 import {LocationModelMap} from "./LocationModelMap";
+import {CategoryModel} from "../CategoryModel";
 
 export interface EventModelMap {
     id: number;
@@ -8,5 +9,5 @@ export interface EventModelMap {
     startDate: string;
     endDate: string;
     location: LocationModelMap;
-    category: string;
+    category: CategoryModel;
 }
