@@ -20,6 +20,7 @@ export const EventCard: React.FC<EventCardProps> = ({event}) => {
                     <div className="card-body p-1">
                         <h6 className="card-title">{event.name}</h6>
                         <p className="card-text">{event.description}</p>
+                        <p className={"card-text"}>{event.location.address.city.name}</p>
                     </div>
                 </div>
                 <div className="col-md-3">

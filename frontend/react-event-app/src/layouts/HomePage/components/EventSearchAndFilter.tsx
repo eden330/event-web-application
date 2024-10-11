@@ -1,7 +1,47 @@
-import React from "react";
-import {CategoryAndCityButton} from "./CategoryAndCityButton";
+import React, { useState, useEffect } from "react";
+import { CategoryAndCityButton } from "./CategoryAndCityButton";
+import { CitiesModal } from "./CitiesModal";
+import { fetchCities } from "../../../api/eventApi";
+import { CityModel } from "../models/CityModel";
 
-export const EventSearchAndFilter = () => {
+// Define prop types for the component
+interface EventSearchAndFilterProps {
+    onShowEvents: (cityName: string | null) => void; // Prop for passing the selected city
+}
+
+export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents }) => {
+    const [showModal, setShowModal] = useState(false);
+    const [cities, setCities] = useState<CityModel[]>([]);
+    const [httpError, setHttpError] = useState<string | null>(null);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const loadCities = async () => {
+        if (showModal) {
+            try {
+                const responseJson: CityModel[] = await fetchCities();
+                setCities(responseJson);
+            } catch (error: any) {
+                setHttpError(error.message);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (showModal) {
+            loadCities();
+        }
+    }, [showModal]);
+
+    if (httpError) {
+        return (
+            <div className="container m-5">
+                <p>{httpError}</p>
+            </div>
+        );
+    }
+
     return (
         <div>
             <div className="container-fluid">
@@ -11,16 +51,14 @@ export const EventSearchAndFilter = () => {
                             <h6>EVENT CATEGORIES</h6>
                         </div>
                         <div className="row justify-content-center">
-                            <CategoryAndCityButton label="Sport"
-                                                   imgSource="/images/SearchEventImages/sport-icon.png"/>
-                            <CategoryAndCityButton label="Festival"
-                                                   imgSource="/images/SearchEventImages/festival.png"/>
-                            <CategoryAndCityButton label="Art" imgSource="/images/SearchEventImages/art-work.png"/>
-                            <CategoryAndCityButton label="Theater"
-                                                   imgSource="/images/SearchEventImages/theater-masks.png"/>
+                            <CategoryAndCityButton label="WWA" imgSource=""/>
+                            <CategoryAndCityButton label="WRO" imgSource=""/>
+                            <CategoryAndCityButton label="POZ" imgSource=""/>
+                            <CategoryAndCityButton label="GDK" imgSource=""/>
                         </div>
                     </div>
-                    <div className="col-lg-4 col-12 ">
+
+                    <div className="col-lg-4 col-12">
                         <div className="col d-flex justify-content-center align-items-center">
                             <h6>SEARCH EVENTS</h6>
                         </div>
@@ -34,19 +72,30 @@ export const EventSearchAndFilter = () => {
                             <button className="btn btn-outline-success mt-3">Search</button>
                         </div>
                     </div>
+
                     <div className="col-lg-4 col-12">
                         <div className="col d-flex justify-content-center align-items-center">
                             <h6>EVENT CITIES</h6>
                         </div>
                         <div className="row justify-content-center">
-                            <CategoryAndCityButton label="WWA" imgSource=""/>
-                            <CategoryAndCityButton label="WRO" imgSource=""/>
-                            <CategoryAndCityButton label="POZ" imgSource=""/>
-                            <CategoryAndCityButton label="GDK" imgSource=""/>
+                            <button
+                                className="btn btn-outline-primary"
+                                onClick={handleShowModal}
+                                style={{width: '150px', padding: '5px 10px', textAlign: 'center'}}>
+                                Show Cities
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Pass the onShowEvents function down to CitiesModal */}
+            <CitiesModal
+                show={showModal}
+                handleClose={handleCloseModal}
+                cities={cities}
+                onShowEvents={onShowEvents} // Pass the prop here
+            />
         </div>
-    )
+    );
 };

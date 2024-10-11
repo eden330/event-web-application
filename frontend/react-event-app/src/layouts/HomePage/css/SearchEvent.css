@@ -1,4 +1,3 @@
-/* Round button for event categories and event city */
 .rounded-btn {
     width: 40px;
     height: 40px;
@@ -9,14 +8,14 @@
     padding: 0;
 }
 
-/* Description under button */
+
 .btn-rounded-description {
     font-size: 0.6rem;
     color: #6c757d;
     text-align: center;
 }
 
-/* Photo inside button */
+
 .button-image {
     width: 70%;
     height: auto;
@@ -31,17 +30,52 @@
     max-width: 80px;
 }
 
-/* Container for a map */
+
 .leaflet-container {
     height: 80vh;
     width: 100%;
 }
 
 .event-list {
-    max-height: 80vh; /* Limits the height of the event list */
-    overflow-y: auto; /* Adds a scroll inside the event list itself */
+    max-height: 80vh;
+    overflow-y: auto;
     padding-right: 10px;
     position: relative;
+}
+
+.location-filter-button {
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    gap: 8px;
+}
+
+.location-section {
+    margin-top: 20px;
+}
+
+.location-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.tag:hover {
+    background-color: #e0e0e0;
 }
 
 
