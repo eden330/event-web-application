@@ -3,16 +3,16 @@ import '../css/SearchEvent.css';
 
 interface CategoryAndCityButtonProps {
     label: string;
-    imgSource: string;
+    image: string;
 }
 
-export const CategoryAndCityButton: React.FC<CategoryAndCityButtonProps> = ({label, imgSource}) => {
+export const CategoryAndCityButton: React.FC<CategoryAndCityButtonProps> = ({ label, image }) => {
     return (
-        <div className={"col-auto d-flex flex-column justify-content-center align-items-center"}>
+        <div className="col-auto d-flex flex-column justify-content-center align-items-center">
             <button className="btn btn-primary mt-2 rounded-btn">
-                <img src={imgSource} alt={label} className={"button-image"}/>
+                <img src={image} alt={label} className="button-image" />
             </button>
-            <p className={"btn-rounded-description"}>{label}</p>
+            <p className="btn-rounded-description">{label}</p>
         </div>
-    )
-}
+    );
+};

@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { CategoryAndCityButton } from "./CategoryAndCityButton";
 import { CitiesModal } from "./CitiesModal";
-import { fetchCities } from "../../../api/eventApi";
+import {fetchCategories, fetchCities} from "../../../api/eventApi";
 import { CityModel } from "../models/CityModel";
+import {CategoryModel} from "../models/CategoryModel";
 
-// Define prop types for the component
+
 interface EventSearchAndFilterProps {
-    onShowEvents: (cityName: string | null) => void; // Prop for passing the selected city
+    onShowEvents: (cityName: string | null) => void;
 }
 
 export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents }) => {
     const [showModal, setShowModal] = useState(false);
     const [cities, setCities] = useState<CityModel[]>([]);
+    const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
 
     const handleShowModal = () => setShowModal(true);
@@ -28,11 +30,24 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
         }
     };
 
+    const loadCategories = async () => {
+        try {
+            const responseJson: CategoryModel[] = await fetchCategories();
+            setCategories(responseJson);
+        } catch (error: any) {
+            setHttpError(error.message);
+        }
+    };
+
     useEffect(() => {
         if (showModal) {
             loadCities();
         }
     }, [showModal]);
+
+    useEffect(() => {
+        loadCategories();  // Fetch categories when component is mounted
+    }, []);
 
     if (httpError) {
         return (
@@ -51,10 +66,17 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
                             <h6>EVENT CATEGORIES</h6>
                         </div>
                         <div className="row justify-content-center">
-                            <CategoryAndCityButton label="WWA" imgSource=""/>
-                            <CategoryAndCityButton label="WRO" imgSource=""/>
-                            <CategoryAndCityButton label="POZ" imgSource=""/>
-                            <CategoryAndCityButton label="GDK" imgSource=""/>
+                            {categories.length > 0 ? (
+                                categories.map(category => (
+                                    <CategoryAndCityButton
+                                        key={category.id}
+                                        label={category.eventCategory}
+                                        image={category.image} // Assuming you have an icon URL
+                                    />
+                                ))
+                            ) : (
+                                <p>Loading categories...</p>
+                            )}
                         </div>
                     </div>
 
@@ -88,13 +110,11 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
                     </div>
                 </div>
             </div>
-
-            {/* Pass the onShowEvents function down to CitiesModal */}
             <CitiesModal
                 show={showModal}
                 handleClose={handleCloseModal}
                 cities={cities}
-                onShowEvents={onShowEvents} // Pass the prop here
+                onShowEvents={onShowEvents}
             />
         </div>
     );

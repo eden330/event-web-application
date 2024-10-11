@@ -7,15 +7,11 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
 import {EventModelMap} from "../../models/map/EventModelMap";
 import './MapComponents.css';
+import {CategoryModel} from "../../models/CategoryModel";
 
 interface MapComponentProps {
     events: EventModelMap[];
 }
-
-const customIcon = new L.Icon({
-    iconUrl: "https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png",
-    iconSize: [25, 41]
-});
 
 const createPopupContent = (event: EventModelMap): string => {
     return `
@@ -45,31 +41,30 @@ const createClusterPopupContent = (events: EventModelMap[]): string => {
     `;
 };
 
-const getIconForCategory = (category: string): string => {
-
-    switch (category.toLowerCase()) {
-        case 'art':
-            return '/images/SearchEventImages/art-work.png';
-        case 'festival':
-            return '/images/SearchEventImages/festival.png';
-        case 'sport':
-            return '/images/SearchEventImages/sport-icon.png';
-        case 'theater':
-            return '/images/SearchEventImages/theater-masks.png';
-        default:
-            return 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png'; // default icon
-    }
+const getIconForCategory = (category: CategoryModel): string => {
+    return category.image && category.image.trim() !== ''
+        ? category.image
+        : 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png'; // Default icon for unknown category
 };
 
-const getMostFrequentCategory = (events: EventModelMap[]): string => {
-    const categoryCounts: { [key: string]: number } = {};
+const getMostFrequentCategory = (events: EventModelMap[]): CategoryModel | null => {
+    const categoryCounts: { [key: string]: { count: number, categoryModel: CategoryModel } } = {};
 
     events.forEach(event => {
-        const category = event.category.eventCategory;
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        const categoryModel = event.category;
+        const category = categoryModel.eventCategory;
+        if (categoryCounts[category]) {
+            categoryCounts[category].count += 1;
+        } else {
+            categoryCounts[category] = { count: 1, categoryModel };
+        }
     });
 
-    return Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b);
+    if (Object.keys(categoryCounts).length === 0) {
+        return null;
+    }
+
+    return Object.values(categoryCounts).reduce((a, b) => a.count > b.count ? a : b).categoryModel;
 };
 
 const createClusterIcon = (cluster: any, events: EventModelMap[]): L.DivIcon => {
@@ -85,9 +80,9 @@ const createClusterIcon = (cluster: any, events: EventModelMap[]): L.DivIcon => 
     return L.divIcon({
         className: 'custom-cluster-icon',
         html: `
-            <div class="marker-icon" style="background-image: url('${getIconForCategory(mostFrequentCategory)}');">
-                <div class="event-count">${eventCount}</div>
-            </div>`,
+        <div class="marker-icon" style="background-image: url('${mostFrequentCategory?.image}');">
+            <div class="event-count">${eventCount}</div>
+        </div>`,
         iconSize: [40, 40],
         iconAnchor: [20, 20],
     });
@@ -115,7 +110,7 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
 
             const eventIcon = L.divIcon({
                 className: 'custom-marker',
-                html: `<div class="marker-icon" style="background-image: url('${getIconForCategory(event.category.eventCategory)}');"></div>`,
+                html: `<div class="marker-icon" style="background-image: url('${getIconForCategory(event.category)}');"></div>`,
                 iconSize: [30, 30],
                 iconAnchor: [10, 10],
             });

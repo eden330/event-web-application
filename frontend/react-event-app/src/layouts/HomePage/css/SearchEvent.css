@@ -1,26 +1,33 @@
 .rounded-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 50px; /* Keep your button size consistent */
+    height: 50px; /* Keep your button size consistent */
+    border-radius: 5px; /* Optional rounded corners */
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    background-color: #007bff; /* Button background color */
 }
-
-
-.btn-rounded-description {
-    font-size: 0.6rem;
-    color: #6c757d;
-    text-align: center;
-}
-
 
 .button-image {
-    width: 70%;
-    height: auto;
-    object-fit: contain;
+    width: 100%; /* Make the image fit the button */
+    height: 100%; /* Ensure the image takes full height */
+    object-fit: contain; /* Fit the entire image within the button */
     display: block;
+    border-radius: 0; /* Remove rounded corners on the image */
+}
+
+
+.rounded-btn:hover {
+    background-color: #f5f5f5;  /* Lighten the background on hover */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15); /* Enhance shadow on hover */
+}
+
+.btn-rounded-description {
+    font-size: 0.8rem;  /* Adjust the font size for the label */
+    color: #333333;  /* Darken the font color */
+    text-align: center;
+    margin-top: 5px;
 }
 
 .card-image {

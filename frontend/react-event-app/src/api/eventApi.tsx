@@ -2,7 +2,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const fetchEventsMap = async () => {
     const response = await fetch(`${API_BASE_URL}/events/map`);
-    console.log("Fetching from URL: `${API_BASE_URL}/events/map`"); // Debug the URL
+    console.log("Fetching from URL: `${API_BASE_URL}/events/map`");
     if (!response.ok) {
         throw new Error('Error fetching events from the backend');
     }
@@ -17,7 +17,7 @@ export const fetchEventsList = async (page: number, size: number, cityName?: str
         ? `${API_BASE_URL}/events/list?page=${page}&size=${size}&cityName=${cityName}`
         : `${API_BASE_URL}/events/list?page=${page}&size=${size}`;
 
-    console.log("Fetching from URL: ", url); // Debug the URL
+    console.log("Fetching from URL: ", url);
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error('Error fetching events by city name from the backend');
@@ -36,9 +36,25 @@ export const fetchEventCount = async () => {
 };
 
 export const fetchCities = async () => {
-    const response = await fetch(`${API_BASE_URL}/cities`);
+    const response = await fetch(`${API_BASE_URL}/cities/all`);
     if (!response.ok) {
         throw new Error('Error fetching cities from the backend');
+    }
+    return await response.json();
+};
+
+export const fetchCity = async (cityName?: string) => {
+    const response = await fetch(`${API_BASE_URL}/cities?cityName=${cityName}`);
+    if (!response.ok) {
+        throw new Error('Error fetching city by name');
+    }
+    return await response.json();
+};
+
+export const fetchCategories = async () => {
+    const response = await fetch(`${API_BASE_URL}/categories/all`);
+    if (!response.ok) {
+        throw new Error('Error fetching categories from the backend');
     }
     return await response.json();
 };
