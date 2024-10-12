@@ -1,31 +1,36 @@
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-export const fetchEventsMap = async () => {
-    const response = await fetch(`${API_BASE_URL}/events/map`);
-    console.log("Fetching from URL: `${API_BASE_URL}/events/map`");
-    if (!response.ok) {
-        throw new Error('Error fetching events from the backend');
-    }
-    return await response.json();
-};
+export const fetchEventsMap = async (cityName?: string, category?: string) => {
+    const params = new URLSearchParams();
+    if (cityName) params.append('cityName', cityName);
+    if (category) params.append('category', category);
 
-export const fetchEventsList = async (page: number, size: number, cityName?: string) => {
-    console.log("City in fetch method", cityName);
-    const encodedCityName = cityName ? encodeURIComponent(cityName) : undefined;
-    console.log("encoded in fetch method", encodedCityName);
-    const url = encodedCityName
-        ? `${API_BASE_URL}/events/list?page=${page}&size=${size}&cityName=${cityName}`
-        : `${API_BASE_URL}/events/list?page=${page}&size=${size}`;
+    const url = `${API_BASE_URL}/events/map?${params.toString()}`;
+    console.log("Fetching from URL (Map):", url);
 
-    console.log("Fetching from URL: ", url);
     const response = await fetch(url);
     if (!response.ok) {
-        throw new Error('Error fetching events by city name from the backend');
+        throw new Error('Error fetching map events from the backend');
     }
 
     return await response.json();
 };
 
+export const fetchEventsList = async (page: number, size: number, cityName?: string, category?: string) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (cityName) params.append('cityName', cityName);
+    if (category) params.append('category', category);
+
+    const url = `${API_BASE_URL}/events/list?${params.toString()}`;
+    console.log("Fetching from URL (List):", url);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('Error fetching list events from the backend');
+    }
+
+    return await response.json();
+};
 
 export const fetchEventCount = async () => {
     const response = await fetch(`${API_BASE_URL}/events/count`);

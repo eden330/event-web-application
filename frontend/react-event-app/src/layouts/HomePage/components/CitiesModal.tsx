@@ -5,7 +5,7 @@ interface CitiesModalProps {
     show: boolean;
     handleClose: () => void;
     cities: CityModel[];
-    onShowEvents: (cityName: string | null) => void;
+    onShowEvents: (cityName: string | null, category: string | null) => void;
 }
 
 export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, cities, onShowEvents}) => {
@@ -103,7 +103,7 @@ export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, citi
                             type="button"
                             className="btn btn-primary"
                             onClick={() => {
-                                onShowEvents(selectedCity);
+                                onShowEvents(selectedCity,null);
                                 handleClose();
                             }}>
                             Show events

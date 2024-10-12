@@ -13,20 +13,21 @@ export const SearchEvent = () => {
     const [eventsMap, setEventsMap] = useState<EventModelMap[]>([]);
     const [httpError, setHttpError] = useState(null);
     const [page, setPage] = useState(0);
-    const numberOfEventsToFetch: number = 20;
+    const numberOfEventsToFetch: number = 10;
     const [cityCoordinates, setCityCoordinates] = useState<{ lat: number; lon: number } | null>(null);
     const [size] = useState(numberOfEventsToFetch);
     const [hasMore, setHasMore] = useState(true);
     // const [totalEventsCount, setTotalEventsCount] = useState(0);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [initialized, setInitialized] = useState(false);
 
-    const fetchEvents = async (cityName: string | null = null) => {
-        console.log("Fetching events for city: ", cityName);
+    const fetchEvents = async (cityName: string | null = null, category: string | null = null) => {
+        console.log("Fetching events for city: ", cityName, "and category:", category);
         if (!hasMore) return;
 
         try {
-            const responseJson: EventModel[] = await fetchEventsList(page, size, cityName || undefined);
+            const responseJson: EventModel[] = await fetchEventsList(page, size, cityName || undefined, category || undefined);
 
             console.log("Number of events returned:", responseJson.length);
 
@@ -42,9 +43,10 @@ export const SearchEvent = () => {
         }
     };
 
-    const fetchEventsForMap = async () => {
+    const fetchEventsForMap = async (cityName: string | null = null, category: string | null = null) => {
         try {
-            const responseJson: EventModelMap[] = await fetchEventsMap();
+            const responseJson: EventModelMap[] = await fetchEventsMap(cityName || undefined, category || undefined);
+            console.log("Number of events [MAP] returned:", responseJson.length);
             setEventsMap(responseJson);
         } catch (error: any) {
             setHttpError(error.message);
@@ -60,26 +62,15 @@ export const SearchEvent = () => {
         await fetchEvents(cityName);
     };
 
-    const fetchCityCoordinates = async (cityName: string | null) => {
-        if (!cityName) return;
-        try {
-            const cityData = await fetchCity(cityName);
-            if (cityData && cityData.latitude && cityData.longitude) {
-                setCityCoordinates({lat: cityData.latitude, lon: cityData.longitude});
-            } else {
-                console.error(`No coordinates found for city: ${cityName}`);
-            }
-        } catch (error: any) {
-            setHttpError(error.message);
-        }
-    };
-
-    const onShowEvents = (cityName: string | null) => {
-        console.log("City selected in modal: ", cityName);
+    const onShowEvents = (cityName: string | null, category: string | null) => {
+        console.log("City and category selected: ", cityName, category);
         setSelectedCity(cityName);
+        setSelectedCategory(category);
         setHasMore(true);
         setPage(0);
-        fetchCityCoordinates(cityName);
+
+        fetchEvents(cityName, category);
+        fetchEventsForMap(cityName, category);
     };
 
     useEffect(() => {

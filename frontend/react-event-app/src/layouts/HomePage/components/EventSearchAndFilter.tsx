@@ -7,7 +7,7 @@ import {CategoryModel} from "../models/CategoryModel";
 
 
 interface EventSearchAndFilterProps {
-    onShowEvents: (cityName: string | null) => void;
+    onShowEvents: (cityName: string | null, category: string | null) => void;
 }
 
 export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents }) => {
@@ -15,6 +15,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const [cities, setCities] = useState<CityModel[]>([]);
     const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -37,6 +38,12 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
         } catch (error: any) {
             setHttpError(error.message);
         }
+    };
+
+    const handleCategoryClick = (category: string) => {
+        console.log("Category selected:", category);
+        setSelectedCategory(category);
+        onShowEvents(null, category);
     };
 
     useEffect(() => {
@@ -71,7 +78,8 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
                                     <CategoryAndCityButton
                                         key={category.id}
                                         label={category.eventCategory}
-                                        image={category.image} // Assuming you have an icon URL
+                                        image={category.image}
+                                        onClick={handleCategoryClick}
                                     />
                                 ))
                             ) : (
