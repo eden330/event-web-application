@@ -20,7 +20,7 @@ export const SearchEvent = () => {
     // const [totalEventsCount, setTotalEventsCount] = useState(0);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [initialized, setInitialized] = useState(false);
+    const [noResultsFound, setNoResultsFound] = useState(false);
 
     const fetchEvents = async (cityName: string | null = null, category: string | null = null) => {
         console.log("Fetching events for city: ", cityName, "and category:", category);
@@ -31,13 +31,15 @@ export const SearchEvent = () => {
 
             console.log("Number of events returned:", responseJson.length);
 
-            setEvents((prevEvents) => [...prevEvents, ...responseJson]);
-
-            if (responseJson.length === 0 || responseJson.length < size) {
+            if (responseJson.length === 0) {
+                setNoResultsFound(true);
                 setHasMore(false);
+            } else {
+                setEvents((prevEvents) => [...prevEvents, ...responseJson]);
+                setHasMore(responseJson.length === size);
+                setPage(prevPage => prevPage + 1);
+                setNoResultsFound(false);
             }
-
-            setPage(prevPage => prevPage + 1);
         } catch (error: any) {
             setHttpError(error.message);
         }
@@ -48,55 +50,61 @@ export const SearchEvent = () => {
             const responseJson: EventModelMap[] = await fetchEventsMap(cityName || undefined, category || undefined);
             console.log("Number of events [MAP] returned:", responseJson.length);
             setEventsMap(responseJson);
+
         } catch (error: any) {
             setHttpError(error.message);
         }
     };
 
-    const fetchInitialEvents = async (cityName: string | null) => {
-        console.log("Fetching initial events for city: ", cityName);
+
+    const fetchCityCoordinates = async (cityName: string | null) => {
+        if (!cityName) return;
+        try {
+            const cityData = await fetchCity(cityName);
+            if (cityData && cityData.latitude && cityData.longitude) {
+                setCityCoordinates({lat: cityData.latitude, lon: cityData.longitude});
+            } else {
+                console.error(`No coordinates found for city: ${cityName}`);
+            }
+        } catch (error: any) {
+            setHttpError(error.message);
+        }
+    }
+
+
+    const fetchInitialEvents = async () => {
+        console.log("Fetching initial events without filters");
         setPage(0);
         setHasMore(true);
         setEvents([]);
+        setCityCoordinates(null);
 
-        await fetchEvents(cityName);
+        await fetchEvents();
+        await fetchEventsForMap();
     };
 
     const onShowEvents = (cityName: string | null, category: string | null) => {
         console.log("City and category selected: ", cityName, category);
-        setSelectedCity(cityName);
-        setSelectedCategory(category);
+
         setHasMore(true);
         setPage(0);
+        setEvents([]);
 
-        fetchEvents(cityName, category);
-        fetchEventsForMap(cityName, category);
+        setSelectedCity(cityName);
+        setSelectedCategory(category);
+        fetchCityCoordinates(cityName);
     };
 
     useEffect(() => {
-        const initialize = async () => {
-            try {
-                await fetchInitialEvents(null);
-                await fetchEventsForMap();
-            } catch (error: unknown) {
-                const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-                console.error("Error caught:", errorMessage);
-            } finally {
-                setInitialized(true);
-            }
-        };
-
-        if (!initialized) {
-            initialize();
-        }
-    }, [initialized]);
+        fetchInitialEvents();
+    }, []);
 
     useEffect(() => {
-        if (initialized && selectedCity !== null) {
-            console.log("Triggering fetch for city: ", selectedCity);
-            fetchInitialEvents(selectedCity);
+        if (selectedCity || selectedCategory) {
+            fetchEvents(selectedCity, selectedCategory);
+            fetchEventsForMap(selectedCity, selectedCategory);
         }
-    }, [selectedCity, initialized]);
+    }, [selectedCity, selectedCategory]);
 
     if (httpError) {
         return (
@@ -115,16 +123,21 @@ export const SearchEvent = () => {
                         <MapComponent events={eventsMap} cityCoordinates={cityCoordinates}/>
                     </div>
                     <div className="col-12 col-md-6 p-3 event-list" id="scrollable-event-list">
-                        <InfiniteScroll
-                            dataLength={events.length}
-                            next={() => fetchEvents(selectedCity)}
-                            hasMore={hasMore}
-                            loader={<p>Loading more events...</p>}
-                            scrollableTarget="scrollable-event-list">
-                            {events.map(event => (
-                                <EventCard event={event} key={event.id}/>
-                            ))}
-                        </InfiniteScroll>
+                        {noResultsFound ? (
+                            <p>No results found :D</p>
+                        ) : (
+                            <InfiniteScroll
+                                dataLength={events.length}
+                                next={() => fetchEvents(selectedCity)}
+                                hasMore={hasMore}
+                                loader={<p>Loading more events...</p>}
+                                scrollableTarget="scrollable-event-list"
+                            >
+                                {events.map(event => (
+                                    <EventCard event={event} key={event.id}/>
+                                ))}
+                            </InfiniteScroll>
+                        )}
                     </div>
                 </div>
             </div>

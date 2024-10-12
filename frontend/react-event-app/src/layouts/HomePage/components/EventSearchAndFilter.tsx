@@ -15,6 +15,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const [cities, setCities] = useState<CityModel[]>([]);
     const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
+    const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleShowModal = () => setShowModal(true);
@@ -43,7 +44,12 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const handleCategoryClick = (category: string) => {
         console.log("Category selected:", category);
         setSelectedCategory(category);
-        onShowEvents(null, category);
+        onShowEvents(selectedCity, category);
+    };
+
+    const handleCitySelection = (city: string | null) => {
+        setSelectedCity(city);
+        onShowEvents(city, selectedCategory);
     };
 
     useEffect(() => {
@@ -53,7 +59,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     }, [showModal]);
 
     useEffect(() => {
-        loadCategories();  // Fetch categories when component is mounted
+        loadCategories();
     }, []);
 
     if (httpError) {
@@ -122,7 +128,8 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
                 show={showModal}
                 handleClose={handleCloseModal}
                 cities={cities}
-                onShowEvents={onShowEvents}
+                onShowEvents={handleCitySelection}
+                selectedCategory={selectedCategory}
             />
         </div>
     );

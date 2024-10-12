@@ -6,9 +6,11 @@ interface CitiesModalProps {
     handleClose: () => void;
     cities: CityModel[];
     onShowEvents: (cityName: string | null, category: string | null) => void;
+    selectedCategory: string | null;
 }
 
-export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, cities, onShowEvents}) => {
+export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, cities,
+                                                            onShowEvents,selectedCategory}) => {
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
@@ -103,7 +105,7 @@ export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, citi
                             type="button"
                             className="btn btn-primary"
                             onClick={() => {
-                                onShowEvents(selectedCity,null);
+                                onShowEvents(selectedCity, selectedCategory);
                                 handleClose();
                             }}>
                             Show events

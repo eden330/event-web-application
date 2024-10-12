@@ -33,4 +33,30 @@ build/
 .vscode/
 
 ### env (Enviroment variables)
-.env
+backend/.env
+
+# dependencies
+frontend/react-event-app/node_modules
+frontend/react-event-app/.pnp
+frontend/react-event-app.pnp.js
+
+# testing
+/frontend/react-event-app/coverage
+
+# production
+/frontend/react-event-app/build
+
+# enviroment variables
+frontend/.env
+
+# misc
+/frontend/react-event-app.DS_Store
+/frontend/react-event-app.env.local
+/frontend/react-event-app.env.development.local
+/frontend/react-event-app.env.test.local
+/frontend/react-event-app.env.production.local
+
+/frontend/react-event-app/npm-debug.log*
+/frontend/react-event-app/yarn-debug.log*
+/frontend/react-event-app/yarn-error.log*
+

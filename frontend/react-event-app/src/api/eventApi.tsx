@@ -5,15 +5,7 @@ export const fetchEventsMap = async (cityName?: string, category?: string) => {
     if (cityName) params.append('cityName', cityName);
     if (category) params.append('category', category);
 
-    const url = `${API_BASE_URL}/events/map?${params.toString()}`;
-    console.log("Fetching from URL (Map):", url);
-
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error('Error fetching map events from the backend');
-    }
-
-    return await response.json();
+    return await fetchFromApi("/events/map", params);
 };
 
 export const fetchEventsList = async (page: number, size: number, cityName?: string, category?: string) => {
@@ -21,46 +13,56 @@ export const fetchEventsList = async (page: number, size: number, cityName?: str
     if (cityName) params.append('cityName', cityName);
     if (category) params.append('category', category);
 
-    const url = `${API_BASE_URL}/events/list?${params.toString()}`;
-    console.log("Fetching from URL (List):", url);
-
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error('Error fetching list events from the backend');
-    }
-
-    return await response.json();
+    return await fetchFromApi("/events/list", params);
 };
 
 export const fetchEventCount = async () => {
-    const response = await fetch(`${API_BASE_URL}/events/count`);
-    if (!response.ok) {
-        throw new Error('Error fetching event count from the backend');
-    }
-    return await response.json();
+    return await fetchFromApi("/events/count");
 };
 
 export const fetchCities = async () => {
-    const response = await fetch(`${API_BASE_URL}/cities/all`);
-    if (!response.ok) {
-        throw new Error('Error fetching cities from the backend');
-    }
-    return await response.json();
+    return await fetchFromApi("/cities/all");
 };
 
 export const fetchCity = async (cityName?: string) => {
-    const response = await fetch(`${API_BASE_URL}/cities?cityName=${cityName}`);
-    if (!response.ok) {
-        throw new Error('Error fetching city by name');
-    }
-    return await response.json();
+    const params = new URLSearchParams();
+    if (cityName) params.append('cityName', cityName);
+
+    return await fetchFromApi("/cities", params);
 };
 
 export const fetchCategories = async () => {
-    const response = await fetch(`${API_BASE_URL}/categories/all`);
-    if (!response.ok) {
-        throw new Error('Error fetching categories from the backend');
-    }
-    return await response.json();
+    return await fetchFromApi("/categories/all");
 };
 
+const fetchFromApi = async (endpoint: string, params?: URLSearchParams) => {
+    let url = `${API_BASE_URL}${endpoint}`;
+    if (params) {
+        url += `?${params.toString()}`;
+    }
+
+    console.log("Fetching from URL:", url);
+
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const textResponse = await response.text();
+            if (!textResponse || textResponse.trim() === "") {
+                return [];
+            }
+            return JSON.parse(textResponse);
+        } else if (response.status === 204) {
+            return [];
+        } else {
+            throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error fetching data:", error.message);
+            throw new Error(`Failed to fetch data: ${error.message}`);
+        } else {
+            console.error("Unknown error fetching data:", error);
+            throw new Error('An unknown error occurred while fetching data');
+        }
+    }
+};
