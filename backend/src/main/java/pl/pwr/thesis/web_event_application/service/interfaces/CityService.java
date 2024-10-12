@@ -10,4 +10,8 @@ public interface CityService {
     List<CityDto> getAllCities();
 
     City findOrSaveCity(City city);
+
+    CityDto findCityByName(String cityName);
+
+    void deleteCity(City city);
 }

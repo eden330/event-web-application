@@ -10,6 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -22,12 +26,35 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@NamedEntityGraphs({
+        @NamedEntityGraph(
+                name = "event-with-location",
+                attributeNodes = @NamedAttributeNode("location")
+        ),
+        @NamedEntityGraph(
+                name = "event-with-full-details",
+                attributeNodes = {
+                        @NamedAttributeNode(value = "location", subgraph = "location-with-address")
+                },
+                subgraphs = {
+                        @NamedSubgraph(
+                                name = "location-with-address",
+                                attributeNodes = {
+                                        @NamedAttributeNode(value = "address", subgraph = "address-with-city")
+                                }
+                        ),
+                        @NamedSubgraph(
+                                name = "address-with-city",
+                                attributeNodes = @NamedAttributeNode("city")
+                        )
+                }
+        )
+})
 @Table(name = "event")
 @NoArgsConstructor
 @Data
 @JsonDeserialize(using = EventDeserializer.class)
 public class Event {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

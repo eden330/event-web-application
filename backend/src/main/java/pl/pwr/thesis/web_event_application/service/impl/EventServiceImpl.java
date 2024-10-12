@@ -5,81 +5,61 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.SearchEventsResult;
 import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Address;
+import pl.pwr.thesis.web_event_application.entity.Category;
 import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
+import pl.pwr.thesis.web_event_application.enums.EventCategory;
 import pl.pwr.thesis.web_event_application.geocode.Geocoder;
 import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
-import pl.pwr.thesis.web_event_application.mapper.map.EventMapperMap;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
+import pl.pwr.thesis.web_event_application.repository.specification.EventSpecifications;
 import pl.pwr.thesis.web_event_application.service.interfaces.AddressService;
+import pl.pwr.thesis.web_event_application.service.interfaces.CategoryService;
 import pl.pwr.thesis.web_event_application.service.interfaces.CityService;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.LocationService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final EventMapperMap eventMapperMap;
-    private final EventMapper eventMapperList;
+    private final EventMapper eventMapper;
     private final LocationService locationService;
     private final AddressService addressService;
     private final CityService cityService;
+    private final CategoryService categoryService;
     private final Geocoder geocoder;
-    private static final Logger logger = LoggerFactory.getLogger(CityServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
 
-    public EventServiceImpl(EventRepository eventRepository,
-                            EventMapperMap eventMapperMap, EventMapper eventMapperList,
+    public EventServiceImpl(EventRepository eventRepository, EventMapper eventMapper,
                             LocationService locationService, AddressService addressService,
-                            CityService cityService, Geocoder geocoder) {
+                            CityService cityService, CategoryService categoryService,
+                            Geocoder geocoder) {
         this.eventRepository = eventRepository;
-        this.eventMapperMap = eventMapperMap;
-        this.eventMapperList = eventMapperList;
+        this.eventMapper = eventMapper;
         this.locationService = locationService;
         this.addressService = addressService;
         this.cityService = cityService;
+        this.categoryService = categoryService;
         this.geocoder = geocoder;
     }
 
     @Override
-    public List<EventDtoMap> fetchAllEventsMap() {
-        logger.info("Fetching all events from database to Map");
-        try {
-            return eventRepository.findAllWithLocation()
-                    .stream()
-                    .map(eventMapperMap::eventToDtoMap)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.error("Error in fetching all events", e);
-            throw new RuntimeException("Error fetching events", e);
-        }
-    }
-
-    @Override
-    public List<EventDto> fetchAllEventsList(int page, int size) {
-        logger.info("Fetching all events from database to List");
-        Pageable pageable = PageRequest.of(page, size);
-        try {
-            Page<Event> eventsPage = eventRepository.findAll(pageable);
-            return eventsPage.stream()
-                    .map(eventMapperList::eventToDto)
-                    .toList();
-        } catch (Exception e) {
-            logger.error("Error in fetching all events", e);
-            throw new RuntimeException("Error fetching events", e);
-        }
+    public long countEvents() {
+        return eventRepository.count();
     }
 
     @Override
@@ -89,81 +69,147 @@ public class EventServiceImpl implements EventService {
                 event.getStartDate(), event.getEndDate());
     }
 
+    public List<EventDto> fetchAllEventsList(int page, int size,
+                                             Optional<String> city,
+                                             Optional<String> category) {
+        Pageable pageable = PageRequest.of(page, size);
+        Specification<Event> spec = Specification.where(null);
+        try {
+            if (city.isPresent()) {
+                String cityName = city.get();
+                logger.info("Fetching {} events to List by city name: {}", size, cityName);
+                spec = spec.and(EventSpecifications.hasCityName(cityName));
+            }
+            if (category.isPresent()) {
+                String categoryName = category.get();
+                EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
+                logger.info("Fetching {} events to List by category name: {}", size, categoryName);
+                spec = spec.and(EventSpecifications.hasCategory(eventCategory));
+            }
+            logger.info("Fetching {} events from the database", size);
+        } catch (Exception e) {
+            logger.error("Error in fetching all events", e);
+            throw new RuntimeException("Error fetching events", e);
+        }
+        Page<Event> eventPage = eventRepository.findAll(spec, pageable);
+        return eventPage.stream()
+                .map(eventMapper::eventToDto)
+                .toList();
+    }
+
+    public List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
+                                               Optional<String> category) {
+        Specification<Event> spec = Specification.where(null);
+        try {
+            if (city.isPresent()) {
+                String cityName = city.get();
+                logger.info("Fetching all events to Map by city name: {}", cityName);
+                spec = spec.and(EventSpecifications.hasCityName(cityName));
+            }
+            if (category.isPresent()) {
+                String categoryName = category.get();
+                EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
+                logger.info("Fetching all events to Map by category name: {}", categoryName);
+                spec = spec.and(EventSpecifications.hasCategory(eventCategory));
+            }
+            logger.info("Fetching all events from database to Map");
+        } catch (Exception e) {
+            logger.error("Error in fetching all events", e);
+            throw new RuntimeException("Error fetching events", e);
+        }
+        List<Event> events = eventRepository.findAll(spec);
+        return events.stream()
+                .map(eventMapper::eventToDtoMap)
+                .toList();
+    }
+
     @Override
-    @Transactional
     public SearchEventsResult saveEvents(List<Event> events) {
         List<Event> notSavedEvents = new ArrayList<>();
-        List<Event> savedEvents = new ArrayList<>(events);
+        List<Event> savedEvents = new ArrayList<>();
+
         if (!events.isEmpty()) {
-            logger.debug("Saving {} events to database", events.size());
-            try {
-                for (Event event : events) {
-                    if (!saveEvent(event)) {
-                        notSavedEvents.add(event);
-                    }
+            logger.debug("Saving {} events to the database", events.size());
+
+            for (Event event : events) {
+                try {
+                    saveEvent(event);
+                    savedEvents.add(event);
+                } catch (Exception e) {
+                    logger.error("Error when saving event: {} to the database", event.getName(), e);
+                    notSavedEvents.add(event);
                 }
-            } catch (Exception e) {
-                logger.error("Error when saving list of events to database", e);
             }
         } else {
             logger.info("No events to save! The list is empty.");
         }
-        savedEvents.removeAll(notSavedEvents);
         return new SearchEventsResult(
                 savedEvents.size(), notSavedEvents.size(),
-                savedEvents, notSavedEvents);
+                savedEvents, notSavedEvents
+        );
     }
 
     @Override
     @Transactional
-    public boolean saveEvent(Event event) {
+    public void saveEvent(Event event) {
         Location location = event.getLocation();
-        if (location != null) {
-            Address address = location.getAddress();
-            if (address != null) {
-                String streetName = address.getStreet();
-                String cityName = address.getCity().getName();
-                if (streetName.isBlank() || cityName.isBlank()) {
-                    logger.warn("Event {} not saved! Street or City is empty.", event.getName());
-                    return false;
-                }
-
-                City city = cityService.findOrSaveCity(address.getCity());
-                address.setCity(city);
-                Address savedAddress = addressService.findOrSaveAddress(address);
-                location.setAddress(savedAddress);
-            }
-            Location savedLocation = locationService.findOrSaveLocation(location);
-            event.setLocation(savedLocation);
-
-            if (checkIfEventExist(event)) {
-                logger.warn("Event: {} not saved! It already exists in database.", event.getName());
-                return false;
-            }
-
-            if (savedLocation.getLongitude() == 0 || savedLocation.getLatitude() == 0) {
-                double[] coordinates = geocoder.geocodeLocationWithRetries(
-                        savedLocation.getAddress().getCity().getName(),
-                        savedLocation.getAddress().getStreet());
-                if (coordinates == null) {
-                    logger.warn("Geocoding failed for event: {}, event not saved to database.",
-                            event.getName());
-                    locationService.deleteLocation(location);
-                    return false;
-                }
-                savedLocation.setLatitude(coordinates[0]);
-                savedLocation.setLongitude(coordinates[1]);
-                event.setLocation(savedLocation);
-            }
-            try {
-                eventRepository.save(event);
-                return true;
-            } catch (Exception e) {
-                logger.error("Error when saving event: {} to database", event.getName(), e);
-                throw new RuntimeException("Failed to save event: " + event.getName(), e);
-            }
+        if (location == null) {
+            throw new IllegalArgumentException("Location is missing for event: " + event.getName());
         }
-        logger.warn("Event {} not saved! Location or Address is missing.", event.getName());
-        return false;
+
+        Address address = location.getAddress();
+        if (address == null) {
+            throw new IllegalArgumentException("Address is missing for event: " + event.getName());
+        }
+
+        String streetName = address.getStreet();
+        String cityName = address.getCity().getName();
+
+        if (streetName.isBlank() || cityName.isBlank()) {
+            logger.warn("Event {} not saved! Street or City is empty.", event.getName());
+            throw new IllegalArgumentException("Street or City cannot be empty.");
+        }
+
+        City city = cityService.findOrSaveCity(address.getCity());
+
+        if (city.getLatitude() == 0 || city.getLongitude() == 0) {
+            double[] cityCoordinates = geocoder.geocodeLocationWithRetries(cityName, "");
+            if (cityCoordinates == null) {
+                logger.warn("Geocoding failed for city: {}, event not saved to database.", cityName);
+                throw new IllegalStateException("Geocoding failed for city: " + cityName);
+            }
+            city.setLatitude(cityCoordinates[0]);
+            city.setLongitude(cityCoordinates[1]);
+        }
+
+        address.setCity(city);
+        Address savedAddress = addressService.findOrSaveAddress(address);
+        location.setAddress(savedAddress);
+
+        Location savedLocation = locationService.findOrSaveLocation(location);
+        event.setLocation(savedLocation);
+
+        Category category = categoryService.findOrSaveCategory(event.getCategory());
+        event.setCategory(category);
+
+        if (checkIfEventExist(event)) {
+            logger.warn("Event: {} not saved! It already exists in the database.", event.getName());
+            throw new IllegalStateException("Event already exists: " + event.getName());
+        }
+
+        if (savedLocation.getLongitude() == 0 || savedLocation.getLatitude() == 0) {
+            double[] coordinates = geocoder.geocodeLocationWithRetries(
+                    savedLocation.getAddress().getCity().getName(),
+                    savedLocation.getAddress().getStreet()
+            );
+            if (coordinates == null) {
+                logger.warn("Geocoding failed for event: {}, event not saved to database.", event.getName());
+                throw new IllegalStateException("Geocoding failed for location: " + event.getName());
+            }
+            savedLocation.setLatitude(coordinates[0]);
+            savedLocation.setLongitude(coordinates[1]);
+            event.setLocation(savedLocation);
+        }
+        eventRepository.save(event);
     }
 }

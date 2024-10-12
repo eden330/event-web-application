@@ -6,16 +6,23 @@ import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Event;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EventService {
 
     SearchEventsResult saveEvents(List<Event> events);
 
-    boolean saveEvent(Event event);
+    long countEvents();
+
+    void saveEvent(Event event);
 
     boolean checkIfEventExist(Event event);
 
-    List<EventDtoMap> fetchAllEventsMap();
+    List<EventDto> fetchAllEventsList(int page, int size,
+                                      Optional<String> city,
+                                      Optional<String> category);
 
-    List<EventDto> fetchAllEventsList(int page, int size);
+    List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
+                                        Optional<String> category);
+
 }

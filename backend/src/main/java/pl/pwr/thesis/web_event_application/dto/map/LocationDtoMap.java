@@ -9,5 +9,7 @@ public class LocationDtoMap {
 
     private Long id;
     private String name;
+    private double latitude;
+    private double longitude;
 
 }
