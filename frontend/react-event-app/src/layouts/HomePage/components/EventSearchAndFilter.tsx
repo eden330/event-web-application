@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from "react";
-import {CategoryAndCityButton} from "./CategoryAndCityButton";
+import {CategoryButton} from "./CategoryButton";
 import {CitiesModal} from "./CitiesModal";
 import {fetchCategories, fetchCities, fetchEventsList} from "../../../api/eventApi";
 import {CityModel} from "../models/CityModel";
@@ -184,7 +184,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                         <div className="row justify-content-center">
                             {categories.length > 0 ? (
                                 categories.map(category => (
-                                    <CategoryAndCityButton
+                                    <CategoryButton
                                         key={category.id}
                                         label={category.eventCategory}
                                         image={category.image}

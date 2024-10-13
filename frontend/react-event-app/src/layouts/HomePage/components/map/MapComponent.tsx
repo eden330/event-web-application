@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import '../../css/SearchEvent.css';
+import '../../css/HomePage.css';
 import {EventModelMap} from "../../models/map/EventModelMap";
 import {MarkerCluster} from "./MarkerCluster";
 
@@ -36,7 +36,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({events, cityCoordinat
             zoomControl={false}
             minZoom={5}
             boxZoom={false}
-            className="leaflet-container"
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'

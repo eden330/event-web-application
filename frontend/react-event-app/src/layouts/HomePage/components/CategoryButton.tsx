@@ -1,5 +1,5 @@
 import React from "react";
-import '../css/SearchEvent.css';
+import '../css/HomePage.css';
 
 interface CategoryAndCityButtonProps {
     label: string;
@@ -7,7 +7,7 @@ interface CategoryAndCityButtonProps {
     onClick: (category: string) => void;
 }
 
-export const CategoryAndCityButton: React.FC<CategoryAndCityButtonProps> = ({ label, image, onClick }) => {
+export const CategoryButton: React.FC<CategoryAndCityButtonProps> = ({ label, image, onClick }) => {
     return (
         <div className="col-auto d-flex flex-column justify-content-center align-items-center">
             <button className="btn btn-primary mt-2 rounded-btn" onClick={() => onClick(label)}>

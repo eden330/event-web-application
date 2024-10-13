@@ -27,4 +27,5 @@ public interface EventService {
                                         Optional<String> category,
                                         Optional<String> searchTerm);
 
+    Optional<EventDto> fetchEventById(long id);
 }

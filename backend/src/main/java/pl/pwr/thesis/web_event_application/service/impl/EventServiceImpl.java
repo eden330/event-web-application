@@ -63,6 +63,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Optional<EventDto> fetchEventById(long id) {
+        return eventRepository.findById(id).map(eventMapper::eventToDto);
+    }
+
+    @Override
     public boolean checkIfEventExist(Event event) {
         return eventRepository.existsByNameAndLocationAndStartDateAndEndDate(
                 event.getName(), event.getLocation(),
@@ -88,6 +93,7 @@ public class EventServiceImpl implements EventService {
             throw new RuntimeException("Error fetching events", e);
         }
     }
+
 
     public List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
                                                Optional<String> category,

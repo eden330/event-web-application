@@ -27,6 +27,10 @@ export const fetchCities = async () => {
     return await fetchFromApi("/cities/all");
 };
 
+export const fetchEventById = async (eventId: string) => {
+    return await fetchFromApi(`/events/${eventId}`);
+};
+
 export const fetchCity = async (cityName?: string) => {
     const params = new URLSearchParams();
     if (cityName) params.append('cityName', cityName);

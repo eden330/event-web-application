@@ -37,12 +37,6 @@
     max-width: 80px;
 }
 
-
-.leaflet-container {
-    height: 80vh;
-    width: 100%;
-}
-
 .event-list {
     max-height: 80vh;
     overflow-y: auto;

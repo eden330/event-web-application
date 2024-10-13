@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import './css/SearchEvent.css';
+import './css/HomePage.css';
 import {EventSearchAndFilter} from "./components/EventSearchAndFilter";
 import {MapComponent} from "./components/map/MapComponent";
 import {EventCard} from "./components/EventCard";
@@ -7,8 +7,9 @@ import {EventModel} from "./models/EventModel";
 import {EventModelMap} from "./models/map/EventModelMap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {fetchEventCount, fetchCity, fetchEventsMap, fetchEventsList} from "../../api/eventApi";
+import {Link} from "react-router-dom";
 
-export const SearchEvent = () => {
+export const HomePage = () => {
     const [events, setEvents] = useState<EventModel[]>([]);
     const [eventsMap, setEventsMap] = useState<EventModelMap[]>([]);
     const [httpError, setHttpError] = useState(null);
@@ -162,7 +163,13 @@ export const SearchEvent = () => {
                                 scrollableTarget="scrollable-event-list"
                             >
                                 {events.map(event => (
-                                    <EventCard event={event} key={event.id}/>
+                                    <Link
+                                        key={event.id}
+                                        to={`/event/${event.id}/${encodeURIComponent(event.name)}`}
+                                        style={{textDecoration: 'none', color: 'inherit'}}
+                                    >
+                                        <EventCard event={event}/>
+                                    </Link>
                                 ))}
                             </InfiniteScroll>
                         )}

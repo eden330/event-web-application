@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +42,19 @@ public class EventController {
             return new ResponseEntity<>(countOfEvents, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error in counting number of events", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDto> fetchEventById(@PathVariable long id) {
+        logger.info("Fetching event with id {}", id);
+        try {
+            Optional<EventDto> event = eventService.fetchEventById(id);
+            return event.map(ResponseEntity::ok).orElseGet(
+                    () -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        } catch (Exception e) {
+            logger.error("Error in fetching event by id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
