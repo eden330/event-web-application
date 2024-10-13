@@ -7,16 +7,20 @@ import {MarkerCluster} from "./MarkerCluster";
 
 interface MapComponentProps {
     events: EventModelMap[];
-    cityCoordinates?: { lat: number; lon: number } | null;
+    cityCoordinates?: { lat: number; lon: number } | null | undefined;
 }
 
-const SetMapCenter = ({cityCoordinates}: { cityCoordinates: { lat: number; lon: number } }) => {
+const SetMapCenter = ({ cityCoordinates }: { cityCoordinates?: { lat: number; lon: number } | null }) => {
     const map = useMap();
+
     useEffect(() => {
         if (cityCoordinates) {
             map.setView([cityCoordinates.lat, cityCoordinates.lon], 11);
+        } else {
+            map.setView([52, 19.4803], 6);
         }
     }, [cityCoordinates, map]);
+
     return null;
 };
 
@@ -39,7 +43,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({events, cityCoordinat
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MarkerCluster events={events}/>
-            {cityCoordinates && <SetMapCenter cityCoordinates={cityCoordinates}/>}
+            <SetMapCenter cityCoordinates={cityCoordinates} />
         </MapContainer>
     );
 };

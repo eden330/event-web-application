@@ -25,4 +25,8 @@ public interface EventService {
     List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
                                         Optional<String> category);
 
+    List<EventDto> searchAllEventsList(int page, int size, String searchTerm);
+
+    List<EventDtoMap> searchAllEventsMap(String searchTerm);
+
 }

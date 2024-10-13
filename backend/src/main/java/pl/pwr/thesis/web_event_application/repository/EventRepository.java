@@ -22,4 +22,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @EntityGraph(value = "event-with-full-details")
     Page<Event> findAll(Specification<Event> spec, Pageable pageable);
+
 }

@@ -64,15 +64,6 @@ public class EventController {
         }
     }
 
-    private <T> ResponseEntity<List<T>> checkFetchedData(List<T> events, String type) {
-        if (events.isEmpty()) {
-            logger.warn("No events fetched from database for {}!", type);
-            return ResponseEntity.noContent().build();
-        }
-        logger.info("Number of events fetched: {} for {} ", events.size(), type);
-        return ResponseEntity.ok(events);
-    }
-
     @GetMapping("/map")
     public ResponseEntity<List<EventDtoMap>> fetchAllEventsList(
             @RequestParam(required = false) String cityName,
@@ -88,6 +79,46 @@ public class EventController {
             logger.error("Error in fetching events for list", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/map/search")
+    public ResponseEntity<List<EventDtoMap>> searchAllEventsMap(
+            @RequestParam(required = false) String searchTerm
+    ) {
+        try {
+            List<EventDtoMap> eventDtos = eventService
+                    .searchAllEventsMap(
+                            searchTerm);
+            return checkFetchedData(eventDtos, "map");
+        } catch (Exception e) {
+            logger.error("Error in searching by word: {} events for map", searchTerm, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/list/search")
+    public ResponseEntity<List<EventDto>> searchAllEventsList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String searchTerm
+    ) {
+        try {
+            List<EventDto> eventDtos = eventService
+                    .searchAllEventsList(page, size, searchTerm);
+            return checkFetchedData(eventDtos, "list");
+        } catch (Exception e) {
+            logger.error("Error in searching by word: {} events for list", searchTerm, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private <T> ResponseEntity<List<T>> checkFetchedData(List<T> events, String type) {
+        if (events.isEmpty()) {
+            logger.warn("No events fetched from database for {}!", type);
+            return ResponseEntity.noContent().build();
+        }
+        logger.info("Number of events fetched: {} for {} ", events.size(), type);
+        return ResponseEntity.ok(events);
     }
 
     @PostMapping

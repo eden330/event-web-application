@@ -42,9 +42,13 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     };
 
     const handleCategoryClick = (category: string) => {
-        console.log("Category selected:", category);
-        setSelectedCategory(category);
-        onShowEvents(selectedCity, category);
+        if (selectedCategory === category) {
+            setSelectedCategory(null);
+            onShowEvents(selectedCity, null);
+        } else {
+            setSelectedCategory(category);
+            onShowEvents(selectedCity, category);
+        }
     };
 
     const handleCitySelection = (city: string | null) => {

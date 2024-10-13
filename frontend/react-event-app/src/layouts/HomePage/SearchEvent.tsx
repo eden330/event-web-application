@@ -71,7 +71,6 @@ export const SearchEvent = () => {
         }
     }
 
-
     const fetchInitialEvents = async () => {
         console.log("Fetching initial events without filters");
         setPage(0);
@@ -92,7 +91,12 @@ export const SearchEvent = () => {
 
         setSelectedCity(cityName);
         setSelectedCategory(category);
-        fetchCityCoordinates(cityName);
+
+        if (cityName === null) {
+            setCityCoordinates(null);
+        } else {
+            fetchCityCoordinates(cityName);
+        }
     };
 
     useEffect(() => {
@@ -103,6 +107,8 @@ export const SearchEvent = () => {
         if (selectedCity || selectedCategory) {
             fetchEvents(selectedCity, selectedCategory);
             fetchEventsForMap(selectedCity, selectedCategory);
+        } else {
+            fetchInitialEvents();
         }
     }, [selectedCity, selectedCategory]);
 

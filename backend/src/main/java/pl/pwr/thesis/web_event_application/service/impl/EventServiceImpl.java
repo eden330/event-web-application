@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
                 logger.info("Fetching {} events to List by category name: {}", size, categoryName);
                 spec = spec.and(EventSpecifications.hasCategory(eventCategory));
             }
-            logger.info("Fetching {} events from the database", size);
+            logger.info("Fetching {} events to List", size);
         } catch (Exception e) {
             logger.error("Error in fetching all events", e);
             throw new RuntimeException("Error fetching events", e);
@@ -121,6 +121,38 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(eventMapper::eventToDtoMap)
                 .toList();
+    }
+
+    @Override
+    public List<EventDto> searchAllEventsList(int page, int size, String searchTerm) {
+        Pageable pageable = PageRequest.of(page, size);
+        Specification<Event> spec =
+                EventSpecifications.eventTitleOrLocationOrCityContains(searchTerm);
+        try {
+            logger.info("Fetching {} events to List by specific search term: {}", size, searchTerm);
+            Page<Event> events = eventRepository.findAll(spec, pageable);
+            return events.stream()
+                    .map(eventMapper::eventToDto)
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Error in fetching all events by search term {}", searchTerm, e);
+            throw new RuntimeException("Error fetching events", e);
+        }
+    }
+
+    @Override
+    public List<EventDtoMap> searchAllEventsMap(String searchTerm) {
+        Specification<Event> spec = EventSpecifications.eventTitleOrLocationOrCityContains(searchTerm);
+        try {
+            logger.info("Fetching all events to Map by specific search term: {}", searchTerm);
+            List<Event> events = eventRepository.findAll(spec);
+            return events.stream()
+                    .map(eventMapper::eventToDtoMap)
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Error in fetching all events by search term {}", searchTerm, e);
+            throw new RuntimeException("Error fetching events", e);
+        }
     }
 
     @Override

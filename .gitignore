@@ -41,22 +41,22 @@ frontend/react-event-app/.pnp
 frontend/react-event-app.pnp.js
 
 # testing
-/frontend/react-event-app/coverage
+frontend/react-event-app/coverage
 
 # production
-/frontend/react-event-app/build
+frontend/react-event-app/build
 
 # enviroment variables
-frontend/.env
+frontend/react-event-app/.env
 
 # misc
-/frontend/react-event-app.DS_Store
-/frontend/react-event-app.env.local
-/frontend/react-event-app.env.development.local
-/frontend/react-event-app.env.test.local
-/frontend/react-event-app.env.production.local
+frontend/react-event-app.DS_Store
+frontend/react-event-app.env.local
+frontend/react-event-app.env.development.local
+frontend/react-event-app.env.test.local
+frontend/react-event-app.env.production.local
 
-/frontend/react-event-app/npm-debug.log*
-/frontend/react-event-app/yarn-debug.log*
-/frontend/react-event-app/yarn-error.log*
+frontend/react-event-app/npm-debug.log*
+frontend/react-event-app/yarn-debug.log*
+frontend/react-event-app/yarn-error.log*
 
