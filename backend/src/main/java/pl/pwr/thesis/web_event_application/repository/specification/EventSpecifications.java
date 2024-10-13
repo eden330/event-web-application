@@ -5,8 +5,6 @@ import jakarta.persistence.criteria.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
-import pl.pwr.thesis.web_event_application.entity.Address;
-import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 import pl.pwr.thesis.web_event_application.enums.EventCategory;
@@ -35,17 +33,12 @@ public class EventSpecifications {
                     criteriaBuilder.lower(root.get("name")), pattern);
 
             Join<Event, Location> locationJoin = root.join("location");
-            Join<Location, Address> addressJoin = locationJoin.join("address");
-            Join<Address, City> cityJoin = addressJoin.join("city");
 
             Predicate locationNamePredicate = criteriaBuilder.like(
                     criteriaBuilder.lower(locationJoin.get("name")), pattern
             );
-            Predicate cityNamePredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(cityJoin.get("name")), pattern
-            );
 
-            return criteriaBuilder.or(eventTitlePredicate, locationNamePredicate, cityNamePredicate);
+            return criteriaBuilder.or(eventTitlePredicate, locationNamePredicate);
         };
     }
 }

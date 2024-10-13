@@ -1,4 +1,5 @@
 import {LocationModel} from "./LocationModel";
+import {CategoryModel} from "./CategoryModel";
 
 export interface EventModel {
     id: number;
@@ -8,5 +9,5 @@ export interface EventModel {
     startDate: string;
     endDate: string;
     location: LocationModel;
-    category: string;
+    category: CategoryModel;
 }

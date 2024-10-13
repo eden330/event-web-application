@@ -50,13 +50,15 @@ public class EventController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String cityName,
-            @RequestParam(required = false) String category
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String searchTerm
     ) {
         try {
             List<EventDto> eventDtos = eventService
                     .fetchAllEventsList(page, size,
                             Optional.ofNullable(cityName),
-                            Optional.ofNullable(category));
+                            Optional.ofNullable(category),
+                            Optional.ofNullable(searchTerm));
             return checkFetchedData(eventDtos, "list");
         } catch (Exception e) {
             logger.error("Error in fetching events for list", e);
@@ -67,47 +69,18 @@ public class EventController {
     @GetMapping("/map")
     public ResponseEntity<List<EventDtoMap>> fetchAllEventsList(
             @RequestParam(required = false) String cityName,
-            @RequestParam(required = false) String category
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String searchTerm
     ) {
         try {
             List<EventDtoMap> eventDtos = eventService
                     .fetchAllEventsMap(
                             Optional.ofNullable(cityName),
-                            Optional.ofNullable(category));
+                            Optional.ofNullable(category),
+                            Optional.ofNullable(searchTerm));
             return checkFetchedData(eventDtos, "map");
         } catch (Exception e) {
             logger.error("Error in fetching events for list", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/map/search")
-    public ResponseEntity<List<EventDtoMap>> searchAllEventsMap(
-            @RequestParam(required = false) String searchTerm
-    ) {
-        try {
-            List<EventDtoMap> eventDtos = eventService
-                    .searchAllEventsMap(
-                            searchTerm);
-            return checkFetchedData(eventDtos, "map");
-        } catch (Exception e) {
-            logger.error("Error in searching by word: {} events for map", searchTerm, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/list/search")
-    public ResponseEntity<List<EventDto>> searchAllEventsList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String searchTerm
-    ) {
-        try {
-            List<EventDto> eventDtos = eventService
-                    .searchAllEventsList(page, size, searchTerm);
-            return checkFetchedData(eventDtos, "list");
-        } catch (Exception e) {
-            logger.error("Error in searching by word: {} events for list", searchTerm, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

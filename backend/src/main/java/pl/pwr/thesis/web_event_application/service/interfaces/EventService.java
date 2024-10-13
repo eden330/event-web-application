@@ -20,13 +20,11 @@ public interface EventService {
 
     List<EventDto> fetchAllEventsList(int page, int size,
                                       Optional<String> city,
-                                      Optional<String> category);
+                                      Optional<String> category,
+                                      Optional<String> searchTerm);
 
     List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
-                                        Optional<String> category);
-
-    List<EventDto> searchAllEventsList(int page, int size, String searchTerm);
-
-    List<EventDtoMap> searchAllEventsMap(String searchTerm);
+                                        Optional<String> category,
+                                        Optional<String> searchTerm);
 
 }

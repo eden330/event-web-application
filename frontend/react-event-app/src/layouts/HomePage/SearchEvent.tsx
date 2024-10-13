@@ -20,14 +20,18 @@ export const SearchEvent = () => {
     // const [totalEventsCount, setTotalEventsCount] = useState(0);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string | null>(null);
     const [noResultsFound, setNoResultsFound] = useState(false);
 
-    const fetchEvents = async (cityName: string | null = null, category: string | null = null) => {
-        console.log("Fetching events for city: ", cityName, "and category:", category);
+    const fetchEvents = async (cityName: string | null = null, category: string | null = null,
+                               searchTerm: string | null = null) => {
+        console.log("Fetching events for city: ", cityName,
+            "and category:", category, "and filter:", searchTerm);
         if (!hasMore) return;
 
         try {
-            const responseJson: EventModel[] = await fetchEventsList(page, size, cityName || undefined, category || undefined);
+            const responseJson: EventModel[] = await fetchEventsList(page, size,
+                cityName || undefined, category || undefined, searchTerm || undefined);
 
             console.log("Number of events returned:", responseJson.length);
 
@@ -45,9 +49,11 @@ export const SearchEvent = () => {
         }
     };
 
-    const fetchEventsForMap = async (cityName: string | null = null, category: string | null = null) => {
+    const fetchEventsForMap = async (cityName: string | null = null, category: string | null = null,
+                                     searchTerm: string | null = null) => {
         try {
-            const responseJson: EventModelMap[] = await fetchEventsMap(cityName || undefined, category || undefined);
+            const responseJson: EventModelMap[] = await fetchEventsMap(cityName || undefined,
+                category || undefined, searchTerm || undefined);
             console.log("Number of events [MAP] returned:", responseJson.length);
             setEventsMap(responseJson);
 
@@ -55,7 +61,6 @@ export const SearchEvent = () => {
             setHttpError(error.message);
         }
     };
-
 
     const fetchCityCoordinates = async (cityName: string | null) => {
         if (!cityName) return;
@@ -82,15 +87,14 @@ export const SearchEvent = () => {
         await fetchEventsForMap();
     };
 
-    const onShowEvents = (cityName: string | null, category: string | null) => {
-        console.log("City and category selected: ", cityName, category);
-
+    const onShowEvents = (cityName: string | null = null, category: string | null = null, searchTerm: string | null = null) => {
         setHasMore(true);
         setPage(0);
         setEvents([]);
 
         setSelectedCity(cityName);
         setSelectedCategory(category);
+        setSearchTerm(searchTerm);
 
         if (cityName === null) {
             setCityCoordinates(null);
@@ -99,18 +103,36 @@ export const SearchEvent = () => {
         }
     };
 
+    const clearFilters = () => {
+        console.log("Clearing all filters");
+
+        if (selectedCity !== null || selectedCategory !== null || searchTerm !== null) {
+            setSelectedCity(null);
+            setSelectedCategory(null);
+            setSearchTerm(null);
+
+            setHasMore(true);
+            setPage(0);
+            setEvents([]);
+
+            fetchInitialEvents();
+        } else {
+            console.log("Filters are already cleared.");
+        }
+    };
+
     useEffect(() => {
         fetchInitialEvents();
     }, []);
 
     useEffect(() => {
-        if (selectedCity || selectedCategory) {
-            fetchEvents(selectedCity, selectedCategory);
-            fetchEventsForMap(selectedCity, selectedCategory);
+        if (selectedCity || selectedCategory || searchTerm) {
+            fetchEvents(selectedCity, selectedCategory, searchTerm);
+            fetchEventsForMap(selectedCity, selectedCategory, searchTerm);
         } else {
             fetchInitialEvents();
         }
-    }, [selectedCity, selectedCategory]);
+    }, [selectedCity, selectedCategory, searchTerm]);
 
     if (httpError) {
         return (
@@ -122,7 +144,7 @@ export const SearchEvent = () => {
 
     return (
         <div className="d-flex flex-column">
-            <EventSearchAndFilter onShowEvents={onShowEvents}/>
+            <EventSearchAndFilter onShowEvents={onShowEvents} clearFilters={clearFilters}/>
             <div className="container-fluid flex-grow-1">
                 <div className="row">
                     <div className="col-12 col-md-6 p-0">
@@ -134,7 +156,7 @@ export const SearchEvent = () => {
                         ) : (
                             <InfiniteScroll
                                 dataLength={events.length}
-                                next={() => fetchEvents(selectedCity)}
+                                next={() => fetchEvents(selectedCity, selectedCategory, searchTerm)}
                                 hasMore={hasMore}
                                 loader={<p>Loading more events...</p>}
                                 scrollableTarget="scrollable-event-list"

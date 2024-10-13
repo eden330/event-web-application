@@ -71,89 +71,67 @@ public class EventServiceImpl implements EventService {
 
     public List<EventDto> fetchAllEventsList(int page, int size,
                                              Optional<String> city,
-                                             Optional<String> category) {
+                                             Optional<String> category,
+                                             Optional<String> searchTerm) {
         Pageable pageable = PageRequest.of(page, size);
-        Specification<Event> spec = Specification.where(null);
+        Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
+
         try {
-            if (city.isPresent()) {
-                String cityName = city.get();
-                logger.info("Fetching {} events to List by city name: {}", size, cityName);
-                spec = spec.and(EventSpecifications.hasCityName(cityName));
-            }
-            if (category.isPresent()) {
-                String categoryName = category.get();
-                EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
-                logger.info("Fetching {} events to List by category name: {}", size, categoryName);
-                spec = spec.and(EventSpecifications.hasCategory(eventCategory));
-            }
             logger.info("Fetching {} events to List", size);
-        } catch (Exception e) {
-            logger.error("Error in fetching all events", e);
-            throw new RuntimeException("Error fetching events", e);
-        }
-        Page<Event> eventPage = eventRepository.findAll(spec, pageable);
-        return eventPage.stream()
-                .map(eventMapper::eventToDto)
-                .toList();
-    }
-
-    public List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
-                                               Optional<String> category) {
-        Specification<Event> spec = Specification.where(null);
-        try {
-            if (city.isPresent()) {
-                String cityName = city.get();
-                logger.info("Fetching all events to Map by city name: {}", cityName);
-                spec = spec.and(EventSpecifications.hasCityName(cityName));
-            }
-            if (category.isPresent()) {
-                String categoryName = category.get();
-                EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
-                logger.info("Fetching all events to Map by category name: {}", categoryName);
-                spec = spec.and(EventSpecifications.hasCategory(eventCategory));
-            }
-            logger.info("Fetching all events from database to Map");
-        } catch (Exception e) {
-            logger.error("Error in fetching all events", e);
-            throw new RuntimeException("Error fetching events", e);
-        }
-        List<Event> events = eventRepository.findAll(spec);
-        return events.stream()
-                .map(eventMapper::eventToDtoMap)
-                .toList();
-    }
-
-    @Override
-    public List<EventDto> searchAllEventsList(int page, int size, String searchTerm) {
-        Pageable pageable = PageRequest.of(page, size);
-        Specification<Event> spec =
-                EventSpecifications.eventTitleOrLocationOrCityContains(searchTerm);
-        try {
-            logger.info("Fetching {} events to List by specific search term: {}", size, searchTerm);
-            Page<Event> events = eventRepository.findAll(spec, pageable);
-            return events.stream()
+            Page<Event> eventPage = eventRepository.findAll(spec, pageable);
+            logger.info("Number of events: {} fetched to List", size);
+            return eventPage.stream()
                     .map(eventMapper::eventToDto)
                     .toList();
         } catch (Exception e) {
-            logger.error("Error in fetching all events by search term {}", searchTerm, e);
+            logger.error("Error in fetching all events", e);
             throw new RuntimeException("Error fetching events", e);
         }
     }
 
-    @Override
-    public List<EventDtoMap> searchAllEventsMap(String searchTerm) {
-        Specification<Event> spec = EventSpecifications.eventTitleOrLocationOrCityContains(searchTerm);
+    public List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
+                                               Optional<String> category,
+                                               Optional<String> searchTerm) {
+        Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
+
         try {
-            logger.info("Fetching all events to Map by specific search term: {}", searchTerm);
+            logger.info("Fetching all events to Map");
             List<Event> events = eventRepository.findAll(spec);
+            logger.info("Number of events: {} fetched to Map", events.size());
             return events.stream()
                     .map(eventMapper::eventToDtoMap)
                     .toList();
         } catch (Exception e) {
-            logger.error("Error in fetching all events by search term {}", searchTerm, e);
+            logger.error("Error in fetching all events for Map", e);
             throw new RuntimeException("Error fetching events", e);
         }
     }
+
+    private Specification<Event> buildEventSpecification(Optional<String> city,
+                                                         Optional<String> category,
+                                                         Optional<String> searchTerm) {
+        Specification<Event> spec = Specification.where(null);
+
+        if (city.isPresent()) {
+            String cityName = city.get();
+            logger.info("Applying filter by city name: {}", cityName);
+            spec = spec.and(EventSpecifications.hasCityName(cityName));
+        }
+        if (category.isPresent()) {
+            String categoryName = category.get();
+            EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
+            logger.info("Applying filter by category name: {}", categoryName);
+            spec = spec.and(EventSpecifications.hasCategory(eventCategory));
+        }
+        if (searchTerm.isPresent()) {
+            String term = searchTerm.get();
+            logger.info("Applying filter by search term: {}", term);
+            spec = spec.and(EventSpecifications.eventTitleOrLocationOrCityContains(term));
+        }
+
+        return spec;
+    }
+
 
     @Override
     public SearchEventsResult saveEvents(List<Event> events) {
