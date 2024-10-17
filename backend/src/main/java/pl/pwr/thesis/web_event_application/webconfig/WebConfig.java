@@ -17,5 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
                 "/api/cities/**",
                 "/api/categories/**"
         };
+        for (var endpoint : endpoints) {
+            registry.addMapping(endpoint)
+                    .allowedOrigins(frontendUrl);
+        }
     }
 }
