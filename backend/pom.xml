@@ -6,13 +6,17 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.3.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>pl.pwr.air-filipdutkiewicz-thesis</groupId>
     <artifactId>web-event-application</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>web-event-application</name>
-    <description>Engineering thesis - web application for finding cultural and entertainment events</description>
+    <description>
+        Engineering thesis -
+        web application for finding
+        cultural and entertainment events
+    </description>
     <url/>
     <licenses>
         <license/>
@@ -54,11 +58,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>java-dotenv</artifactId>
-            <version>5.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>
@@ -106,8 +105,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.17.0</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
