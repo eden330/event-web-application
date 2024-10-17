@@ -19,9 +19,9 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class Geocoder {
 
-    @Value("${API_KEY_GEOCODING}")
+    @Value("${api.key.geocoding}")
     private String apiKey;
-    @Value("${GEOCODING_BASE_URL}")
+    @Value("${geocoding.base.url}")
     private String baseUrl;
     private static final int NUMBER_OF_RETRIES = 2;
     private static final Logger logger = LoggerFactory.getLogger(Geocoder.class);
