@@ -28,7 +28,7 @@ import java.util.UUID;
 @Component
 public class WebScraper {
 
-     @Value("${SCRAPING_URL}")
+     @Value("${scraping.url}")
     private String scrapingUrl;
     private final static String EVENT_DIV_HTML = "//div[@data-v-a4578fba" +
             " and @data-v-7238e093 and .//div[contains(@class, 'column-inner')]]";
