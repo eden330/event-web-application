@@ -30,6 +30,10 @@ public class City {
     private Long id;
     @Column(name = "name")
     private String name;
+    @Column(name = "latitude")
+    private double latitude;
+    @Column(name = "longitude")
+    private double longitude;
     @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Address> addresses;

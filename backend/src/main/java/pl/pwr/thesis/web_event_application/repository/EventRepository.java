@@ -2,10 +2,9 @@ package pl.pwr.thesis.web_event_application.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 
@@ -14,17 +13,14 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    boolean existsByNameAndLocationAndStartDateAndEndDate(
-            String name, Location location, LocalDateTime startDate, LocalDateTime endDate);
+    boolean existsByNameAndLocationAndStartDateAndEndDate(String name, Location location,
+                                                          LocalDateTime startDate,
+                                                          LocalDateTime endDate);
 
-    @EntityGraph(attributePaths = {"location"})
-    @Query("SELECT e FROM Event e")
-    List<Event> findAllWithLocation();
+    @EntityGraph(value = "event-with-location")
+    List<Event> findAll(Specification<Event> spec);
 
-    Page<Event> findAll(Pageable pageable);
+    @EntityGraph(value = "event-with-full-details")
+    Page<Event> findAll(Specification<Event> spec, Pageable pageable);
 
-    @Query("SELECT e FROM Event e WHERE e.location.address.city.id = :cityId")
-    List<Event> findEventsByCityId(@Param("cityId") Long cityId);
-
-    List<Event> findEventsByCategoryId(Long categoryId);
 }

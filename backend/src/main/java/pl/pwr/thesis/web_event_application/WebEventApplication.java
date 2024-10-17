@@ -15,7 +15,7 @@ import java.util.Map;
 public class WebEventApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv =  Dotenv.configure().directory("backend/.env").load();
 
         Map<String, Object> envVars = new HashMap<>();
         envVars.put("DB_URL", dotenv.get("DB_URL"));

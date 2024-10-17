@@ -10,5 +10,7 @@ public class CategoryDto {
 
     private Integer id;
 
+    private String image;
+
     private EventCategory eventCategory;
 }

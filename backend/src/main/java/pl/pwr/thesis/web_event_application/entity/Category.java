@@ -25,4 +25,6 @@ public class Category {
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
+    @Column(name = "image")
+    private String image;
 }

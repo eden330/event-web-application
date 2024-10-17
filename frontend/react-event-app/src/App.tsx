@@ -1,14 +1,21 @@
 import React from 'react';
 import './App.css';
-import {Navbar} from "./layouts/NavbarAndFooter/Navbar";
-import {SearchEvent} from "./layouts/HomePage/SearchEvent";
+import {Navbar} from "./layouts/Navbar/Navbar";
+import {HomePage} from "./layouts/HomePage/HomePage";
+import {EventPage} from "./layouts/EventPage/EventPage";
 import 'leaflet/dist/leaflet.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Route, Routes, Navigate} from "react-router-dom";
 
 function App() {
     return (
-        <div >
+        <div>
             <Navbar/>
-            <SearchEvent/>
+            <Routes>
+                <Route path="/" element={<Navigate to="/home"/>}/>
+                <Route path="/home" element={<HomePage/>}/>
+                <Route path="/event/:eventId/:eventName" element={<EventPage/>} />
+            </Routes>
         </div>
     );
 }

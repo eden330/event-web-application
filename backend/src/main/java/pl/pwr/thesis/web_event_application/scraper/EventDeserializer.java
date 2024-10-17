@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Random;
 
 public class EventDeserializer extends JsonDeserializer<Event> {
 
@@ -33,22 +34,19 @@ public class EventDeserializer extends JsonDeserializer<Event> {
 
         //TODO: implement AI algorithm to read Category of event based on description
         Category category = new Category();
-        category.setEventCategory(EventCategory.UNKNOWN);
-        category.setId(1);
+        EventCategory[] eventCategories = EventCategory.values();
+        category.setEventCategory(eventCategories[new Random().nextInt(eventCategories.length)]);
         event.setCategory(category);
 
         String startDateString = node.get("startDate").asText();
         String endDateString = node.get("endDate").asText();
 
         // Define the formatter for the date format
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
-                "EEE MMM dd yyyy HH:mm:ss 'GMT'Z '('zzzz')'", Locale.ENGLISH);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT'Z '('zzzz')'", Locale.ENGLISH);
 
 
-        LocalDateTime startDate = ZonedDateTime.parse(
-                startDateString, formatter).toLocalDateTime();
-        LocalDateTime endDate = ZonedDateTime.parse(
-                endDateString, formatter).toLocalDateTime();
+        LocalDateTime startDate = ZonedDateTime.parse(startDateString, formatter).toLocalDateTime();
+        LocalDateTime endDate = ZonedDateTime.parse(endDateString, formatter).toLocalDateTime();
 
         event.setStartDate(startDate);
         event.setEndDate(endDate);

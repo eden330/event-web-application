@@ -1,6 +1,6 @@
 import React from "react";
-import {NavItem} from "./components/NavItem";
 import './css/Navbar.css';
+import { NavItem } from "./components/NavItem";
 
 export const Navbar = () => {
     return (
@@ -15,9 +15,9 @@ export const Navbar = () => {
                 </button>
                 <div className={"collapse navbar-collapse"} id={"navbarNavDropdown"}>
                     <ul className={"navbar-nav ms-auto"}>
-                        <NavItem label={"Explore events"} href={"#"}></NavItem>
-                        <NavItem label={"My profile"} href={"#"}></NavItem>
-                        <NavItem label={"My favorites"} href={"#"}></NavItem>
+                        <NavItem label={"Explore events"} to={"/home"} />
+                        <NavItem label={"My profile"} href={"#"} />
+                        <NavItem label={"My favorites"} href={"#"} />
                         <li className={"nav-item mx-4"}>
                             <a type={"button"} className={"btn btn-outline-light"} href={"#"}>Sign in</a>
                         </li>
@@ -25,5 +25,5 @@ export const Navbar = () => {
                 </div>
             </div>
         </nav>
-    )
-}
+    );
+};

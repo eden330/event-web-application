@@ -35,6 +35,19 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
+    public CityDto findCityByName(String cityName) {
+        return cityRepository.findCityByName(cityName)
+                .map(cityMapper::cityToDto)
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCity(City city) {
+        cityRepository.delete(city);
+    }
+
+    @Override
     @Transactional
     public City findOrSaveCity(City city) {
         try {
