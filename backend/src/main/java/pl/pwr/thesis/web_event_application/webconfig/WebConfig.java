@@ -15,7 +15,8 @@ public class WebConfig implements WebMvcConfigurer {
         String[] endpoints = new String[]{
                 "/api/events/**",
                 "/api/cities/**",
-                "/api/categories/**"
+                "/api/categories/**",
+                "api/users/**"
         };
         for (var endpoint : endpoints) {
             registry.addMapping(endpoint)

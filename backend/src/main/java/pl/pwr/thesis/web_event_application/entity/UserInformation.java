@@ -20,7 +20,7 @@ import java.util.List;
 @Table(name = "user_detail")
 @NoArgsConstructor
 @Data
-public class UserDetail {
+public class UserInformation {
 
     @Id
     @Column(name = "user_id")
