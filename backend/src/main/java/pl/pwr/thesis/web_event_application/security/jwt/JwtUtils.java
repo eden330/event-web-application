@@ -28,11 +28,14 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(Authentication authentication) {
-
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        return generateJwtTokenFromUsername(userPrincipal.getUsername());
+    }
+
+    public String generateJwtTokenFromUsername(String username) {
         logger.info("JWT Secret during token generation: {}", jwtSecret);
         return Jwts.builder()
-                .subject(userPrincipal.getUsername())
+                .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key())

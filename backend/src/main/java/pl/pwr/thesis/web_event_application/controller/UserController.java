@@ -13,21 +13,25 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
-import pl.pwr.thesis.web_event_application.dto.payload.JwtResponse;
+import pl.pwr.thesis.web_event_application.dto.payload.request.RefreshTokenRequest;
+import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
+import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
 import pl.pwr.thesis.web_event_application.exception.error.ErrorResponse;
+import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
 @RestController
 @RequestMapping("api/users")
 public class UserController {
 
-
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RefreshTokenService refreshTokenService) {
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/login")
@@ -61,6 +65,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ErrorResponse("Error occurred during registration", e.getMessage())
             );
+        }
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request) {
+        try {
+            RefreshTokenResponse response = refreshTokenService.getRefreshToken(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Unexpected error during login: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ErrorResponse("Error occurred during login", e.getMessage()));
         }
     }
 }

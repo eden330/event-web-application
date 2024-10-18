@@ -1,4 +1,4 @@
-package pl.pwr.thesis.web_event_application.dto.payload;
+package pl.pwr.thesis.web_event_application.dto.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,11 +10,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class JwtResponse {
-    private String token;
-    private String type = "Bearer";
     private Long id;
     private String username;
     private String email;
     private List<String> roles;
+    private String token;
+    private String tokenType;
+    private String refreshToken;
 
 }

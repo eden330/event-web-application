@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
-import pl.pwr.thesis.web_event_application.dto.payload.JwtResponse;
+import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
+import pl.pwr.thesis.web_event_application.entity.RefreshToken;
 import pl.pwr.thesis.web_event_application.entity.Role;
 import pl.pwr.thesis.web_event_application.entity.User;
 import pl.pwr.thesis.web_event_application.enums.UserRole;
@@ -22,6 +23,7 @@ import pl.pwr.thesis.web_event_application.repository.RoleRepository;
 import pl.pwr.thesis.web_event_application.repository.UserRepository;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
+import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
 import java.util.HashSet;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
@@ -45,12 +48,14 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder encoder,
                            UserMapper userMapper,
                            AuthenticationManager authenticationManager,
+                           RefreshTokenService refreshTokenService,
                            JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
+        this.refreshTokenService = refreshTokenService;
         this.jwtUtils = jwtUtils;
     }
 
@@ -80,6 +85,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return userMapper.userToDto(user);
     }
+
     @Override
     public JwtResponse authenticateUser(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
@@ -92,15 +98,20 @@ public class UserServiceImpl implements UserService {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return new JwtResponse(jwt,
-                "Bearer",
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.id());
+
+        return new JwtResponse(
                 userDetails.id(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                roles);
+                roles,
+                jwt,
+                "Bearer",
+                refreshToken.getToken());
     }
 }
