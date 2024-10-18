@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.pwr.thesis.web_event_application.security.jwt.AccessDeniedHandlerImpl;
 import pl.pwr.thesis.web_event_application.security.jwt.AuthEntryPointJwt;
 import pl.pwr.thesis.web_event_application.security.jwt.AuthTokenFilter;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
@@ -24,22 +25,27 @@ public class WebSecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
+    private final AccessDeniedHandlerImpl accessDeniedHandler;
     private final JwtUtils jwtUtils;
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
                              AuthEntryPointJwt unauthorizedHandler,
-                             JwtUtils jwtUtils) {
+                             AccessDeniedHandlerImpl accessDeniedHandler, JwtUtils jwtUtils) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
+        this.accessDeniedHandler = accessDeniedHandler;
         this.jwtUtils = jwtUtils;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(unauthorizedHandler)
+                                .accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/users/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("api/test/**").permitAll()
                         .anyRequest().authenticated());
 
@@ -50,10 +56,9 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter(jwtUtils,userDetailsService);
+        return new AuthTokenFilter(jwtUtils, userDetailsService);
     }
 
     @Bean

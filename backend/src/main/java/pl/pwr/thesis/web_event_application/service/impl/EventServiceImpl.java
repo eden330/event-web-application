@@ -18,7 +18,7 @@ import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 import pl.pwr.thesis.web_event_application.enums.EventCategory;
 import pl.pwr.thesis.web_event_application.geocode.Geocoder;
-import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
+import pl.pwr.thesis.web_event_application.mapper.EventMapper;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
 import pl.pwr.thesis.web_event_application.repository.specification.EventSpecifications;
 import pl.pwr.thesis.web_event_application.service.interfaces.AddressService;

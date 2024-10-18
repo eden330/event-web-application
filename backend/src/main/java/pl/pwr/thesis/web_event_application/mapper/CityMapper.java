@@ -1,4 +1,4 @@
-package pl.pwr.thesis.web_event_application.mapper.list;
+package pl.pwr.thesis.web_event_application.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
