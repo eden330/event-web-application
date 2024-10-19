@@ -99,11 +99,11 @@ public class UserServiceImpl implements UserService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.id());
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.id());
 
         return new JwtResponse(
                 userDetails.id(),

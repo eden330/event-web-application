@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
+import pl.pwr.thesis.web_event_application.dto.payload.request.LogoutRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.request.RefreshTokenRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
+import pl.pwr.thesis.web_event_application.exception.TokenRefreshException;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
 import pl.pwr.thesis.web_event_application.exception.error.ErrorResponse;
 import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
@@ -74,10 +76,23 @@ public class UserController {
         try {
             RefreshTokenResponse response = refreshTokenService.getRefreshToken(request);
             return ResponseEntity.ok(response);
+        } catch (TokenRefreshException e) {
+            logger.warn("Refresh token is expired.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ErrorResponse("Unauthorized", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @RequestBody LogoutRequest request) {
+        try {
+            refreshTokenService.deleteByUserId(request.getUserId());
+            return ResponseEntity.ok("Logout successful");
         } catch (Exception e) {
-            logger.error("Unexpected error during login: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ErrorResponse("Error occurred during login", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Logout failed", e.getMessage()));
         }
     }
 }

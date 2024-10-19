@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const fetchEventsMap = async (cityName?: string, category?: string, searchTerm?: string) => {
@@ -9,8 +11,7 @@ export const fetchEventsMap = async (cityName?: string, category?: string, searc
     return await fetchFromApi("/events/map", params);
 };
 
-export const fetchEventsList = async (page: number, size: number, cityName?: string,
-                                      category?: string, searchTerm?: string) => {
+export const fetchEventsList = async (page: number, size: number, cityName?: string, category?: string, searchTerm?: string) => {
     const params = new URLSearchParams({ page: String(page), size: String(size) });
     if (cityName) params.append('cityName', cityName);
     if (category) params.append('category', category);
@@ -44,27 +45,15 @@ export const fetchCategories = async () => {
 
 const fetchFromApi = async (endpoint: string, params?: URLSearchParams) => {
     let url = `${API_BASE_URL}${endpoint}`;
-    if (params) {
-        url += `?${params.toString()}`;
-    }
+    const query = params ? `?${params.toString()}` : '';
 
-    console.log("Fetching from URL:", url);
+    console.log("Fetching from URL:", url + query);
 
     try {
-        const response = await fetch(url);
-        if (response.ok) {
-            const textResponse = await response.text();
-            if (!textResponse || textResponse.trim() === "") {
-                return [];
-            }
-            return JSON.parse(textResponse);
-        } else if (response.status === 204) {
-            return [];
-        } else {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
-        }
-    } catch (error: unknown) {
-        if (error instanceof Error) {
+        const response = await axios.get(url + query);
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
             console.error("Error fetching data:", error.message);
             throw new Error(`Failed to fetch data: ${error.message}`);
         } else {
@@ -73,3 +62,4 @@ const fetchFromApi = async (endpoint: string, params?: URLSearchParams) => {
         }
     }
 };
+

@@ -16,11 +16,14 @@ public class WebConfig implements WebMvcConfigurer {
                 "/api/events/**",
                 "/api/cities/**",
                 "/api/categories/**",
-                "api/users/**"
+                "/api/users/**"
         };
-        for (var endpoint : endpoints) {
+        for (String endpoint : endpoints) {
             registry.addMapping(endpoint)
-                    .allowedOrigins(frontendUrl);
+                    .allowedOrigins(frontendUrl)
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("Content-Type", "Authorization")
+                    .allowCredentials(true);
         }
     }
 }
