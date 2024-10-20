@@ -44,7 +44,7 @@ export const fetchCategories = async () => {
 };
 
 const fetchFromApi = async (endpoint: string, params?: URLSearchParams) => {
-    let url = `${API_BASE_URL}${endpoint}`;
+    let url = `${API_BASE_URL + "/api"}${endpoint}`;
     const query = params ? `?${params.toString()}` : '';
 
     console.log("Fetching from URL:", url + query);

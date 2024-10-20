@@ -123,10 +123,6 @@ export const HomePage = () => {
     };
 
     useEffect(() => {
-        fetchInitialEvents();
-    }, []);
-
-    useEffect(() => {
         if (selectedCity || selectedCategory || searchTerm) {
             fetchEvents(selectedCity, selectedCategory, searchTerm);
             fetchEventsForMap(selectedCity, selectedCategory, searchTerm);

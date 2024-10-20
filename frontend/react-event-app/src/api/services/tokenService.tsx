@@ -10,13 +10,5 @@ export const isTokenExpired = (token: string): boolean => {
         console.error("Error decoding token:", error);
         return true;
     }
-};
+}
 
-export const decodeToken = (token: string): any => {
-    try {
-        return jwtDecode(token);
-    } catch (error) {
-        console.error("Error decoding token:", error);
-        return null;
-    }
-};

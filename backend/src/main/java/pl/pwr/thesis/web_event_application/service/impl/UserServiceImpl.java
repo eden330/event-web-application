@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,7 @@ import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
-import pl.pwr.thesis.web_event_application.entity.RefreshToken;
+import pl.pwr.thesis.web_event_application.dto.user.UserProfileDto;
 import pl.pwr.thesis.web_event_application.entity.Role;
 import pl.pwr.thesis.web_event_application.entity.User;
 import pl.pwr.thesis.web_event_application.enums.UserRole;
@@ -23,7 +24,6 @@ import pl.pwr.thesis.web_event_application.repository.RoleRepository;
 import pl.pwr.thesis.web_event_application.repository.UserRepository;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
-import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
 import java.util.HashSet;
@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
@@ -48,14 +47,12 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder encoder,
                            UserMapper userMapper,
                            AuthenticationManager authenticationManager,
-                           RefreshTokenService refreshTokenService,
                            JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
-        this.refreshTokenService = refreshTokenService;
         this.jwtUtils = jwtUtils;
     }
 
@@ -99,8 +96,6 @@ public class UserServiceImpl implements UserService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.id());
-
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
@@ -111,7 +106,13 @@ public class UserServiceImpl implements UserService {
                 userDetails.getEmail(),
                 roles,
                 jwt,
-                "Bearer",
-                refreshToken.getToken());
+                "Bearer");
+    }
+
+    @Override
+    public UserProfileDto getUserProfile(Long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::userToProfileDto)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

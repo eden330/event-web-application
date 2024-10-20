@@ -1,6 +1,6 @@
 package pl.pwr.thesis.web_event_application.service.interfaces;
 
-import pl.pwr.thesis.web_event_application.dto.payload.request.RefreshTokenRequest;
+import org.springframework.http.ResponseCookie;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
 import pl.pwr.thesis.web_event_application.entity.RefreshToken;
 
@@ -14,8 +14,10 @@ public interface RefreshTokenService {
 
     RefreshToken verifyExpiration(RefreshToken refreshToken);
 
-    int deleteByUserId(Long userId);
+    ResponseCookie createRefreshTokenCookie(Long userId);
 
-    RefreshTokenResponse getRefreshToken(RefreshTokenRequest request);
+    void deleteByUserId(Long userId);
+
+    RefreshTokenResponse getRefreshToken(String refreshToken);
 
 }

@@ -2,8 +2,8 @@ package pl.pwr.thesis.web_event_application.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
-import pl.pwr.thesis.web_event_application.dto.payload.request.RefreshTokenRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
 import pl.pwr.thesis.web_event_application.entity.RefreshToken;
 import pl.pwr.thesis.web_event_application.exception.TokenRefreshException;
@@ -43,6 +43,26 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     @Transactional
+    public ResponseCookie createRefreshTokenCookie(Long userId) {
+        RefreshToken refreshToken = null;
+        long maxAge = 0;
+        if (userId != null) {
+            refreshToken = createRefreshToken(userId);
+            maxAge = refreshTokenDurationMs;
+        }
+
+        return ResponseCookie.from("refreshTokenCookie",
+                        refreshToken == null ? "" : refreshToken.getToken())
+                .path("/")
+                .httpOnly(true)
+                .secure(false) // for development
+                .domain("localhost")
+                .maxAge(maxAge)
+                .build();
+    }
+
+    @Override
+    @Transactional
     public RefreshToken createRefreshToken(Long userId) {
         refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
 
@@ -70,27 +90,24 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     @Transactional
-    public int deleteByUserId(Long userId) {
-        return refreshTokenRepository.deleteByUser(
+    public void deleteByUserId(Long userId) {
+        refreshTokenRepository.deleteByUser(
                 userRepository.findById(userId).get());
     }
 
     @Override
-    public RefreshTokenResponse getRefreshToken(RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-
-        return findByToken(requestRefreshToken)
+    public RefreshTokenResponse getRefreshToken(String refreshToken) {
+        return findByToken(refreshToken)
                 .map(this::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String token = jwtUtils.generateJwtTokenFromUsername(user.getUsername());
                     return new RefreshTokenResponse(
                             token,
-                            requestRefreshToken,
                             "Bearer"
                     );
                 })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                .orElseThrow(() -> new TokenRefreshException(refreshToken,
                         "Refresh token is not in database!"));
     }
 }

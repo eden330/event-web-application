@@ -12,18 +12,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        String[] endpoints = new String[]{
-                "/api/events/**",
-                "/api/cities/**",
-                "/api/categories/**",
-                "/api/users/**"
-        };
-        for (String endpoint : endpoints) {
-            registry.addMapping(endpoint)
-                    .allowedOrigins(frontendUrl)
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("Content-Type", "Authorization")
-                    .allowCredentials(true);
-        }
+        registry.addMapping("/**")
+                .allowedOrigins(frontendUrl)
+                .allowedHeaders("*")
+                .allowedMethods("*")
+                .allowCredentials(true);
+
     }
 }

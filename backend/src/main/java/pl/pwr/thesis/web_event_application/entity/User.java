@@ -68,7 +68,7 @@ public class User {
     private List<Event> favouriteEvents;
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private UserInformation userInformation;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Reaction> reactions;
 
     public User(String username, String email, String password) {
