@@ -45,11 +45,11 @@ public class WebSecurityConfig {
                                 .accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/events/**").permitAll()
-                        .requestMatchers("api/categories/**").permitAll()
-                        .requestMatchers("api/cities/**").permitAll()
+                        .requestMatchers("/api/events/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/cities/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("api/test/**").permitAll()
+                        .requestMatchers("/api/test/**").permitAll()
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());

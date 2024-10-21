@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,8 +24,12 @@ public class RegisterDto {
     private String email;
 
     @NotBlank
-  //  @Size(min = 8, max = 120, message = "Password must be between 8 and 120 characters")
+    //  @Size(min = 8, max = 120, message = "Password must be between 8 and 120 characters")
     // @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=]).*$",
-       //     message = "Password must contain at least one letter, one number, and one special character")
+    //     message = "Password must contain at least one letter, one number, and one special character")
     private String password;
+
+    private List<Long> categoriesId;
+
+    private Long cityId;
 }

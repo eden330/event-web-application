@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -122,7 +121,7 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
+    // @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserProfileDto> showProfile(Authentication authentication) {
         UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
         UserProfileDto userProfileDto = userService.getUserProfile(principal.id());

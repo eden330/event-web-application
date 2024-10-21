@@ -32,13 +32,15 @@ export const HomePage = () => {
 
         try {
             const responseJson: EventModel[] = await fetchEventsList(page, size,
-                cityName || undefined, category || undefined, searchTerm || undefined);
+                cityName || undefined, category || undefined, searchTerm || undefined) || [];
+
 
             console.log("Number of events returned:", responseJson.length);
 
             if (responseJson.length === 0) {
                 setNoResultsFound(true);
                 setHasMore(false);
+                setEvents([])
             } else {
                 setEvents((prevEvents) => [...prevEvents, ...responseJson]);
                 setHasMore(responseJson.length === size);
@@ -54,9 +56,14 @@ export const HomePage = () => {
                                      searchTerm: string | null = null) => {
         try {
             const responseJson: EventModelMap[] = await fetchEventsMap(cityName || undefined,
-                category || undefined, searchTerm || undefined);
+                category || undefined, searchTerm || undefined) || [];
             console.log("Number of events [MAP] returned:", responseJson.length);
-            setEventsMap(responseJson);
+            if (responseJson.length === 0) {
+                setNoResultsFound(true);
+                setEventsMap([])
+            } else{
+                setEventsMap(responseJson);
+            }
 
         } catch (error: any) {
             setHttpError(error.message);

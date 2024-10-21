@@ -3,20 +3,20 @@ import { Navigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { logout } from "../../actions/auth";
 import { fetchUserProfile } from "../../api/services/userService";
-import { toast } from "react-toastify";
 import { AppDispatch } from "../../store";
+import { UserProfileModel } from "./models/UserProfileModel";
 
 export const Profile: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
 
-    const [profileData, setProfileData] = useState<any>(null);
+    const [profileData, setProfileData] = useState<UserProfileModel | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     const loadProfile = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetchUserProfile();
+            const response: UserProfileModel = await fetchUserProfile();
             setProfileData(response);
         } catch (err) {
             setError("Failed to fetch profile data");
@@ -52,7 +52,9 @@ export const Profile: React.FC = () => {
                         {profileData.userInformationDto && (
                             <div>
                                 <p><strong>City:</strong> {profileData.userInformationDto.city.name}</p>
-                                <p><strong>Categories:</strong> {profileData.userInformationDto.category.map((cat: any) => cat.name).join(", ")}</p>
+                                <p><strong>Categories:</strong> {profileData.userInformationDto.categories && profileData.userInformationDto.categories.length > 0
+                                    ? profileData.userInformationDto.categories.map((cat) => cat.eventCategory).join(", ")
+                                    : "No categories available"}</p>
                             </div>
                         )}
                     </div>

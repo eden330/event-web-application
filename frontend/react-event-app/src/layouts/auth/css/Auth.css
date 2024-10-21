@@ -45,3 +45,16 @@
     padding: 10px;
     margin-top: 10px;
 }
+
+.category-button {
+    margin: 5px;
+    padding: 10px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.category-button.selected {
+    background-color: #007bff;
+    color: white;
+}

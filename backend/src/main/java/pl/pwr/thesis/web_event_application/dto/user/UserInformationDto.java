@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInformationDto {
 
-    private List<CategoryDto> category;
+    private List<CategoryDto> categories;
 
     private CityDto city;
 }

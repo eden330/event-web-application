@@ -11,11 +11,19 @@ export interface AuthResponse {
     tokenType: string;
 }
 
-export const register = async (username: string, email: string, password: string): Promise<any> => {
+export const register = async (
+    username: string,
+    email: string,
+    password: string,
+    cityId: number,
+    categoriesId: number[]
+): Promise<any> => {
     return await axios.post(API_URL + "/register", {
         username,
         password,
         email,
+        cityId,
+        categoriesId,
     });
 };
 

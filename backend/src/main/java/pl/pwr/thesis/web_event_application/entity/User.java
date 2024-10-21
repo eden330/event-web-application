@@ -66,7 +66,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> favouriteEvents;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserInformation userInformation;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Reaction> reactions;

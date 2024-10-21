@@ -15,12 +15,18 @@ import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.user.UserProfileDto;
+import pl.pwr.thesis.web_event_application.entity.Category;
+import pl.pwr.thesis.web_event_application.entity.City;
 import pl.pwr.thesis.web_event_application.entity.Role;
 import pl.pwr.thesis.web_event_application.entity.User;
+import pl.pwr.thesis.web_event_application.entity.UserInformation;
 import pl.pwr.thesis.web_event_application.enums.UserRole;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
 import pl.pwr.thesis.web_event_application.mapper.UserMapper;
+import pl.pwr.thesis.web_event_application.repository.CategoryRepository;
+import pl.pwr.thesis.web_event_application.repository.CityRepository;
 import pl.pwr.thesis.web_event_application.repository.RoleRepository;
+import pl.pwr.thesis.web_event_application.repository.UserInformationRepository;
 import pl.pwr.thesis.web_event_application.repository.UserRepository;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
@@ -36,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CategoryRepository categoryRepository;
+    private final CityRepository cityRepository;
+    private final UserInformationRepository userInformationRepository;
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
@@ -44,12 +53,18 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
+                           CategoryRepository categoryRepository,
+                           CityRepository cityRepository,
+                           UserInformationRepository userInformationRepository,
                            PasswordEncoder encoder,
                            UserMapper userMapper,
                            AuthenticationManager authenticationManager,
                            JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.categoryRepository = categoryRepository;
+        this.cityRepository = cityRepository;
+        this.userInformationRepository = userInformationRepository;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
@@ -68,10 +83,26 @@ public class UserServiceImpl implements UserService {
                     registerDto.getEmail());
             throw new UserAlreadyExistsException("User with specified email already exists!");
         }
+
+        if (registerDto.getCategoriesId() == null || registerDto.getCategoriesId().isEmpty()) {
+            throw new IllegalArgumentException("At least one category must be selected.");
+        }
+
         User user = new User(
                 registerDto.getUsername(),
                 registerDto.getEmail(),
                 encoder.encode(registerDto.getPassword()));
+
+        List<Category> categories = categoryRepository.findAllById(registerDto.getCategoriesId());
+        City city = cityRepository.findById(registerDto.getCityId())
+                .orElseThrow(() -> new IllegalArgumentException("City not found."));
+
+        UserInformation userInformation = new UserInformation(categories,city);
+        userInformation.setUser(user);
+
+        userInformationRepository.save(userInformation);
+
+        user.setUserInformation(userInformation);
 
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
@@ -111,6 +142,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileDto getUserProfile(Long userId) {
+        var us = userRepository.findById(userId);
+        System.out.println(us);
         return userRepository.findById(userId)
                 .map(userMapper::userToProfileDto)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
