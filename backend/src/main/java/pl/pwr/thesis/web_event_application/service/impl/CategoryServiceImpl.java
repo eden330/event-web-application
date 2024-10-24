@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.list.CategoryDto;
 import pl.pwr.thesis.web_event_application.entity.Category;
-import pl.pwr.thesis.web_event_application.mapper.list.CategoryMapper;
+import pl.pwr.thesis.web_event_application.mapper.CategoryMapper;
 import pl.pwr.thesis.web_event_application.repository.CategoryRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.CategoryService;
 

@@ -12,14 +12,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        String[] endpoints = new String[]{
-                "/api/events/**",
-                "/api/cities/**",
-                "/api/categories/**"
-        };
-        for (var endpoint : endpoints) {
-            registry.addMapping(endpoint)
-                    .allowedOrigins(frontendUrl);
-        }
+        registry.addMapping("/**")
+                .allowedOrigins(frontendUrl)
+                .allowedHeaders("*")
+                .allowedMethods("*")
+                .allowCredentials(true);
+
     }
 }

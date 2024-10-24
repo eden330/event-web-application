@@ -18,7 +18,7 @@ import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 import pl.pwr.thesis.web_event_application.enums.EventCategory;
 import pl.pwr.thesis.web_event_application.geocode.Geocoder;
-import pl.pwr.thesis.web_event_application.mapper.list.EventMapper;
+import pl.pwr.thesis.web_event_application.mapper.EventMapper;
 import pl.pwr.thesis.web_event_application.repository.EventRepository;
 import pl.pwr.thesis.web_event_application.repository.specification.EventSpecifications;
 import pl.pwr.thesis.web_event_application.service.interfaces.AddressService;
@@ -82,9 +82,8 @@ public class EventServiceImpl implements EventService {
         Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
 
         try {
-            logger.info("Fetching {} events to List", size);
+           // logger.info("Fetching {} events to List", size);
             Page<Event> eventPage = eventRepository.findAll(spec, pageable);
-            logger.info("Number of events: {} fetched to List", size);
             return eventPage.stream()
                     .map(eventMapper::eventToDto)
                     .toList();
@@ -101,9 +100,8 @@ public class EventServiceImpl implements EventService {
         Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
 
         try {
-            logger.info("Fetching all events to Map");
+          //  logger.info("Fetching all events to Map");
             List<Event> events = eventRepository.findAll(spec);
-            logger.info("Number of events: {} fetched to Map", events.size());
             return events.stream()
                     .map(eventMapper::eventToDtoMap)
                     .toList();

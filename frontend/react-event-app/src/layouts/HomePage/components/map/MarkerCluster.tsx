@@ -75,7 +75,7 @@ const createClusterIcon = (cluster: any, events: EventModelMap[]): L.DivIcon => 
     const clusterEvents: EventModelMap[] = markers.map((marker: any) => {
         const popup = marker.getPopup();
         return events.find(event => popup && popup.getContent().includes(event.name));
-    }).filter(Boolean); // Ensure there are no undefined values
+    }).filter(Boolean);
 
     const mostFrequentCategory = getMostFrequentCategory(clusterEvents);
     const eventCount = markers.length;
