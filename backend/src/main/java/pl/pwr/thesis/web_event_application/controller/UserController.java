@@ -9,7 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +20,7 @@ import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
 import pl.pwr.thesis.web_event_application.dto.payload.request.LogoutRequest;
+import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
 import pl.pwr.thesis.web_event_application.dto.user.UserProfileDto;
@@ -27,6 +28,7 @@ import pl.pwr.thesis.web_event_application.exception.TokenRefreshException;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
 import pl.pwr.thesis.web_event_application.exception.error.ErrorResponse;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
+import pl.pwr.thesis.web_event_application.security.util.SecurityUtil;
 import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
@@ -38,11 +40,15 @@ public class UserController {
 
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final SecurityUtil securityUtil;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, RefreshTokenService refreshTokenService) {
+    public UserController(UserService userService,
+                          RefreshTokenService refreshTokenService,
+                          SecurityUtil securityUtil) {
         this.userService = userService;
         this.refreshTokenService = refreshTokenService;
+        this.securityUtil = securityUtil;
     }
 
     @PostMapping("/login")
@@ -106,9 +112,8 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @RequestBody LogoutRequest request) {
+            @RequestBody LogoutRequest logoutRequest) {
         try {
-            refreshTokenService.deleteByUserId(request.getUserId());
             ResponseCookie responseCookie =
                     refreshTokenService.createRefreshTokenCookie(null);
             return ResponseEntity.ok()
@@ -121,12 +126,53 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    // @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserProfileDto> showProfile(Authentication authentication) {
-        UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<UserProfileDto> showProfile() {
+        UserDetailsImpl principal = (UserDetailsImpl) securityUtil.getCurrentUser();
         UserProfileDto userProfileDto = userService.getUserProfile(principal.id());
 
         return ResponseEntity.ok(userProfileDto);
     }
 
+    @PostMapping("/delete")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> deleteUserAccount() {
+        logger.info("Received request to delete user account");
+        try {
+            UserDetailsImpl principal = (UserDetailsImpl) securityUtil.getCurrentUser();
+            if (principal != null) {
+                refreshTokenService.deleteByUserId(principal.id());
+                userService.deleteUserById(principal.id());
+            }
+
+            return ResponseEntity.ok("Account deleted successfully!");
+        } catch (Exception e) {
+            logger.error("Error occurred while deleting account: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to delete account", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/update-preferences")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updateUserPreferences(
+            @RequestBody UpdateRequest updateRequest) {
+        logger.info("Received request to update user preferences");
+        try {
+            UserDetailsImpl principal = (UserDetailsImpl) securityUtil.getCurrentUser();
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ErrorResponse("User is not authenticated."));
+            }
+
+            userService.updateUserPreferences(principal.id(), updateRequest);
+
+            logger.info("User preferences updated successfully for user ID: {}", principal.id());
+            return ResponseEntity.ok("Account preferences updated successfully!");
+        } catch (Exception e) {
+            logger.error("Error updating user preferences: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to update account preferences", e.getMessage()));
+        }
+    }
 }

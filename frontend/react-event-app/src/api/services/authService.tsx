@@ -1,4 +1,5 @@
 import axios from "axios";
+import {isTokenExpired} from "./tokenService";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL + "/api/users";
 
@@ -47,10 +48,12 @@ export const logout = async (): Promise<void> => {
         const currentUser = localStorage.getItem("user");
         if (currentUser) {
             const user = JSON.parse(currentUser);
-            await axios.post(`${API_URL}/logout`, {userId: user.id}, {
+            console.log("Calling logout API at:", API_URL + "/logout");
+
+            await axios.post(API_URL + `/logout`, {userId: user.id}, {
                 withCredentials: true,
             });
-            console.log("User logged out successfully: " + user)
+            console.log("User logged out successfully.");
             localStorage.removeItem("user");
         }
     } catch (error) {

@@ -16,12 +16,6 @@ interface IFormInput {
     email: string;
     password: string;
 }
-
-interface IFormCityCategory {
-    cityId: number;
-    categoriesId: number[];
-}
-
 export const Register: React.FC = () => {
     const { register: formRegister, handleSubmit, formState: { errors } } = useForm<IFormInput>();
     const [successful, setSuccessful] = useState(false);
@@ -52,7 +46,7 @@ export const Register: React.FC = () => {
 
     const onSubmitCityCategory = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
-        setFormError(null); // Reset error before validation
+        setFormError(null);
 
         if (!selectedCityId || selectedCategories.length < 1 || selectedCategories.length > 3) {
             setFormError("Please select a city and between 1 to 3 categories.");

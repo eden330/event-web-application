@@ -1,5 +1,6 @@
 package pl.pwr.thesis.web_event_application.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
+import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
+import pl.pwr.thesis.web_event_application.dto.user.UserInformationDto;
 import pl.pwr.thesis.web_event_application.dto.user.UserProfileDto;
 import pl.pwr.thesis.web_event_application.entity.Category;
 import pl.pwr.thesis.web_event_application.entity.City;
@@ -26,10 +29,10 @@ import pl.pwr.thesis.web_event_application.mapper.UserMapper;
 import pl.pwr.thesis.web_event_application.repository.CategoryRepository;
 import pl.pwr.thesis.web_event_application.repository.CityRepository;
 import pl.pwr.thesis.web_event_application.repository.RoleRepository;
-import pl.pwr.thesis.web_event_application.repository.UserInformationRepository;
 import pl.pwr.thesis.web_event_application.repository.UserRepository;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
+import pl.pwr.thesis.web_event_application.service.interfaces.UserInformationService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
 import java.util.HashSet;
@@ -44,7 +47,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
-    private final UserInformationRepository userInformationRepository;
+    private final UserInformationService userInformationService;
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
@@ -55,7 +58,7 @@ public class UserServiceImpl implements UserService {
                            RoleRepository roleRepository,
                            CategoryRepository categoryRepository,
                            CityRepository cityRepository,
-                           UserInformationRepository userInformationRepository,
+                           UserInformationService userInformationService,
                            PasswordEncoder encoder,
                            UserMapper userMapper,
                            AuthenticationManager authenticationManager,
@@ -64,7 +67,7 @@ public class UserServiceImpl implements UserService {
         this.roleRepository = roleRepository;
         this.categoryRepository = categoryRepository;
         this.cityRepository = cityRepository;
-        this.userInformationRepository = userInformationRepository;
+        this.userInformationService = userInformationService;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
@@ -97,10 +100,10 @@ public class UserServiceImpl implements UserService {
         City city = cityRepository.findById(registerDto.getCityId())
                 .orElseThrow(() -> new IllegalArgumentException("City not found."));
 
-        UserInformation userInformation = new UserInformation(categories,city);
+        UserInformation userInformation = new UserInformation(categories, city);
         userInformation.setUser(user);
 
-        userInformationRepository.save(userInformation);
+        userInformationService.save(userInformation);
 
         user.setUserInformation(userInformation);
 
@@ -142,10 +145,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileDto getUserProfile(Long userId) {
-        var us = userRepository.findById(userId);
-        System.out.println(us);
         return userRepository.findById(userId)
                 .map(userMapper::userToProfileDto)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("User not found with ID: " + id);
+        }
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserInformationDto updateUserPreferences(Long userId, UpdateRequest updateRequest) {
+        return userInformationService.updateUserPreferences(userId, updateRequest);
     }
 }
