@@ -11,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Route, Routes, Navigate} from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from "react-toastify";
+import {FavouriteEvents} from "./layouts/auth/FavouriteEvents";
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/event/:eventId/:eventName" element={<EventPage/>}/>
+                <Route path="/favourites" element={<FavouriteEvents />} />
             </Routes>
             <ToastContainer />
         </div>

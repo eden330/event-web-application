@@ -2,6 +2,8 @@ package pl.pwr.thesis.web_event_application.repository;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.pwr.thesis.web_event_application.entity.User;
 
@@ -17,7 +19,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     @EntityGraph(attributePaths = {"userInformation"})
-    Optional<User> findById(Long id);
+    Optional<User> findUserWithUserInformationById(Long id);
 
+    @EntityGraph(attributePaths = {"favouriteEvents"})
+    Optional<User> findUserWithFavouriteEventsById(Long id);
 
+    @EntityGraph(attributePaths = {"reactions"})
+    Optional<User> findUserWithEventReactionsById(Long id);
+
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+            "FROM User u JOIN u.favouriteEvents e " +
+            "WHERE u.id = :userId AND e.id = :eventId")
+    boolean isEventInUserFavourites(@Param("userId") Long userId, @Param("eventId") Long eventId);
 }

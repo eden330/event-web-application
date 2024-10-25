@@ -6,8 +6,7 @@ import {EventCard} from "./components/EventCard";
 import {EventModel} from "./models/EventModel";
 import {EventModelMap} from "./models/map/EventModelMap";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {fetchEventCount, fetchCity, fetchEventsMap, fetchEventsList} from "../../api/eventApi";
-import {Link} from "react-router-dom";
+import {fetchCity, fetchEventsMap, fetchEventsList} from "../../api/eventApi";
 
 export const HomePage = () => {
     const [events, setEvents] = useState<EventModel[]>([]);
@@ -166,13 +165,7 @@ export const HomePage = () => {
                                 scrollableTarget="scrollable-event-list"
                             >
                                 {events.map(event => (
-                                    <Link
-                                        key={event.id}
-                                        to={`/event/${event.id}/${encodeURIComponent(event.name)}`}
-                                        style={{textDecoration: 'none', color: 'inherit'}}
-                                    >
-                                        <EventCard event={event}/>
-                                    </Link>
+                                    <EventCard key={event.id} event={event}/>
                                 ))}
                             </InfiniteScroll>
                         )}

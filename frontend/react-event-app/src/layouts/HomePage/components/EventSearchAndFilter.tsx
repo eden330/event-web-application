@@ -203,12 +203,12 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                         </div>
                         <div className="d-flex position-relative">
                             <input
-                                ref={searchInputRef}  // Add reference to the search input
+                                ref={searchInputRef}
                                 className="form-control me-2 mt-3"
                                 type="search"
                                 placeholder="Search events"
                                 aria-label="Search"
-                                value={currentSearchTerm} // Use current search term in input
+                                value={currentSearchTerm}
                                 onChange={handleSearchInputChange}
                                 onKeyDown={handleKeyDown}
                             />

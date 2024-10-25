@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {MapContainer, TileLayer, useMap} from 'react-leaflet';
+import {useMap} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -9,26 +9,27 @@ import {EventModelMap} from "../../models/map/EventModelMap";
 import './MapComponents.css';
 import {CategoryModel} from "../../models/CategoryModel";
 
+
 interface MapComponentProps {
     events: EventModelMap[];
 }
 
 const createPopupContent = (event: EventModelMap): string => {
     return `
-        <a href="/event/${event.id}/${encodeURIComponent(event.name)}" 
-           style="text-decoration: none; color: inherit;">
-           <div class="card" style="border: 1px solid #ccc; border-radius: 8px; padding: 10px; width: 15rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-               <div class="d-flex align-items-center">
-                   <img src="${event.image}" class="img-fluid" alt="${event.name}" style="width: 50px; height: 50px; margin-right: 10px;" />
-                   <div style="flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                       <h5 class="card-title" style="font-size: 0.9rem; font-weight: bold; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${event.name}</h5>
-                       <p class="card-text" style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${event.category.eventCategory}</p>
-                   </div>
-               </div>
-           </div>
+        <a href="/event/${event.id}/${encodeURIComponent(event.name)}" style="text-decoration: none; color: inherit;">
+            <div class="card" style="border: 1px solid #ccc; border-radius: 8px; padding: 10px; width: 15rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div class="d-flex align-items-center">
+                    <img src="${event.image}" class="img-fluid" alt="${event.name}" style="width: 50px; height: 50px; margin-right: 10px;" />
+                    <div style="flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <h5 class="card-title" style="font-size: 0.9rem; font-weight: bold; margin: 0;">${event.name}</h5>
+                        <p class="card-text" style="margin: 0;">${event.category.eventCategory}</p>
+                    </div>
+                </div>
+            </div>
         </a>
     `;
 };
+
 
 const createClusterPopupContent = (events: EventModelMap[]): string => {
     return `
@@ -130,8 +131,7 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
             const markers = e.layer.getAllChildMarkers();
             const clusterEvents = markers.map((marker: any) => {
                 const popup = marker.getPopup();
-                const eventData = events.find(event => popup.getContent().includes(event.name));
-                return eventData;
+                return events.find(event => popup.getContent().includes(event.name));
             }).filter(Boolean);
 
             if (clusterEvents.length > 0) {

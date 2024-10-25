@@ -43,6 +43,25 @@ export const fetchCategories = async () => {
     return await fetchFromApi("/categories/all");
 };
 
+export const fetchReactionCountByType = async (eventId: string | number,
+                                               reactionType: string): Promise<number> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/events/${eventId}/count`, {
+            params: { reactionType },
+        });
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error("Error fetching reaction count:", error.message);
+            throw new Error(`Failed to fetch reaction count: ${error.message}`);
+        } else {
+            console.error("Unknown error fetching reaction count:", error);
+            throw new Error('An unknown error occurred while fetching reaction count');
+        }
+    }
+};
+
+
 const fetchFromApi = async (endpoint: string, params?: URLSearchParams) => {
     let url = `${API_BASE_URL + "/api"}${endpoint}`;
     const query = params ? `?${params.toString()}` : '';

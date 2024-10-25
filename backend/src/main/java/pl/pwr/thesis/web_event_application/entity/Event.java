@@ -17,6 +17,7 @@ import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import pl.pwr.thesis.web_event_application.entity.embedded.Reaction;
@@ -24,6 +25,7 @@ import pl.pwr.thesis.web_event_application.scraper.EventDeserializer;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedEntityGraphs({
@@ -54,6 +56,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @JsonDeserialize(using = EventDeserializer.class)
+@EqualsAndHashCode
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,15 +72,16 @@ public class Event {
     private LocalDateTime startDate;
     @Column(name = "end_date")
     private LocalDateTime endDate;
-    @ManyToMany(mappedBy = "favouriteEvents")
+    @ManyToMany(mappedBy = "favouriteEvents", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<User> users;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
     @OneToMany(mappedBy = "event")
-    private List<Reaction> reactions;
+    private Set<Reaction> reactions;
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
 }
