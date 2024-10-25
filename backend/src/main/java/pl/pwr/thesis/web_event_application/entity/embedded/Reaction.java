@@ -35,4 +35,14 @@ public class Reaction {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private ReactionType type;
+
+    public Reaction(User user, Event event, ReactionType type) {
+        this.user = user;
+        this.event = event;
+        this.type = type;
+
+        this.id = new ReactionKey();
+        this.id.setUser_id(user.getId());
+        this.id.setEvent_id(event.getId());
+    }
 }

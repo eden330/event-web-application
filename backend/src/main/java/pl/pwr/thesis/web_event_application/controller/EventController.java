@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +15,7 @@ import pl.pwr.thesis.web_event_application.dto.map.EventDtoMap;
 import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.scraper.EventReader;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
+import pl.pwr.thesis.web_event_application.service.interfaces.ReactionService;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +25,15 @@ import java.util.Optional;
 public class EventController {
 
     private final EventService eventService;
+    private final ReactionService reactionService;
     private final EventReader eventReader;
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
 
-    public EventController(EventService eventService, EventReader eventReader) {
+    public EventController(EventService eventService,
+                           ReactionService reactionService,
+                           EventReader eventReader) {
         this.eventService = eventService;
+        this.reactionService = reactionService;
         this.eventReader = eventReader;
     }
 
@@ -125,4 +129,14 @@ public class EventController {
                     .body("Error occurred while saving events.");
         }
     }
+
+    @GetMapping("/{eventId}/count")
+    public ResponseEntity<Long> getReactionCountByType(
+            @PathVariable Long eventId,
+            @RequestParam String reactionType
+    ) {
+        Long reactionCount = reactionService.countReactionsTypeForSpecificEvent(eventId, reactionType);
+        return ResponseEntity.ok(reactionCount);
+    }
+
 }

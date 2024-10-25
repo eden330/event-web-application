@@ -63,14 +63,13 @@ public class UserInformationServiceImpl implements UserInformationService {
                     "User information not found for user ID: " + userId);
         }
 
-        if (!updateRequest.getCategoriesId().isEmpty()) {
-            userInformation.getCategories().clear();
 
-            List<Category> updatedCategories = categoryRepository
-                    .findAllById(updateRequest.getCategoriesId());
-            userInformation.setCategories(updatedCategories);
-            isUpdated = true;
-        }
+        userInformation.getCategories().clear();
+
+        List<Category> updatedCategories = categoryRepository
+                .findAllById(updateRequest.getCategoriesId());
+        userInformation.setCategories(updatedCategories);
+
 
         if (updateRequest.getCityId() != null) {
             City updatedCity = cityRepository.findById(updateRequest.getCityId())
@@ -79,12 +78,10 @@ public class UserInformationServiceImpl implements UserInformationService {
 
 
             userInformation.setCity(updatedCity);
-            isUpdated = true;
         }
 
-        if(isUpdated){
-            userInformationRepository.save(userInformation);
-        }
+
+        userInformationRepository.save(userInformation);
 
         return userInformationMapper.userInformationToUserInformationDto(userInformation);
     }

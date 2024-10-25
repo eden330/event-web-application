@@ -10,6 +10,7 @@ import {CategoryModel} from "../HomePage/models/CategoryModel";
 import {CityModel} from "../HomePage/models/CityModel";
 import {fetchCategories, fetchCities} from "../../api/eventApi";
 import {UpdateRequest} from "../../api/services/models/UpdateRequest";
+import { useNavigate } from 'react-router-dom';
 
 export const Profile: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -22,12 +23,19 @@ export const Profile: React.FC = () => {
     const [showPreferencesModal, setShowPreferencesModal] = useState<boolean>(false);
     const [selectedCity, setSelectedCity] = useState<number | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [categoryError, setCategoryError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
 
     const loadProfile = useCallback(async () => {
         setLoading(true);
         try {
             const response: UserProfileModel = await fetchUserProfile();
             setProfileData(response);
+
+            if (response.userInformationDto?.categories) {
+                setSelectedCategories(response.userInformationDto.categories.map((cat) => cat.id));
+            }
         } catch (err) {
             setError("Failed to fetch profile data");
         } finally {
@@ -48,7 +56,7 @@ export const Profile: React.FC = () => {
 
     useEffect(() => {
         loadProfile();
-        loadCitiesAndCategories(); // Load cities and categories on mount
+        loadCitiesAndCategories();
     }, [loadProfile, loadCitiesAndCategories]);
 
     useEffect(() => {
@@ -71,35 +79,39 @@ export const Profile: React.FC = () => {
     const handleUpdatePreferences = async () => {
         if (!profileData) {
             console.error("Profile data is not available.");
-            return; // Early return if profileData is null
+            return;
+        }
+
+        if (selectedCategories.length > 3) {
+            setCategoryError("Please select between 1 and 3 categories.");
+            return;
         }
 
         const updateRequest: UpdateRequest = {
             username: profileData.username,
             email: profileData.email,
             categoriesId: selectedCategories,
-            cityId: selectedCity !== null ? selectedCity : null, // Ensure this can be null
+            cityId: selectedCity !== null ? selectedCity : null,
         };
 
         try {
-            // Update preferences on the backend
             await updateUserPreferences(updateRequest);
 
             console.log("Preferences updated successfully!");
 
-            // Reset selected categories after successful update
-            setSelectedCategories([]); // Clear selected categories state
-            setSelectedCity(null); // Optionally reset the selected city as well
-
-            // Fetch the updated user profile to get the latest data
             const updatedProfileData: UserProfileModel = await fetchUserProfile();
-            setProfileData(updatedProfileData); // Update the state with new profile data
+            setProfileData(updatedProfileData);
+
+            if (updatedProfileData.userInformationDto?.categories) {
+                setSelectedCategories(updatedProfileData.userInformationDto.categories.map((cat) => cat.id));
+            }
 
             setShowPreferencesModal(false);
         } catch (error) {
             console.error("Failed to update preferences:", error);
         }
     };
+
 
     if (error) {
         return <Navigate to="/home" />;
@@ -155,7 +167,10 @@ export const Profile: React.FC = () => {
                             <Card className="mb-3 shadow-sm">
                                 <Card.Body>
                                     <Card.Title>Favourite Events</Card.Title>
-                                    <Button variant="primary">
+                                    <Button
+                                        variant="primary"
+                                        onClick={() => navigate('/favourites')}
+                                    >
                                         View Favourite Events
                                     </Button>
                                 </Card.Body>
@@ -184,7 +199,6 @@ export const Profile: React.FC = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* Preferences Modal */}
             <Modal show={showPreferencesModal} onHide={() => setShowPreferencesModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Update Preferences</Modal.Title>
@@ -202,22 +216,37 @@ export const Profile: React.FC = () => {
                         </Form.Group>
 
                         <Form.Group controlId="formCategories">
-                            <Form.Label>Select Categories</Form.Label>
+                            <Form.Label>Select Categories (Up to 3)</Form.Label>
                             {categories.map((category) => (
                                 <Form.Check
                                     key={category.id}
                                     type="checkbox"
                                     label={category.eventCategory}
+                                    checked={selectedCategories.includes(category.id)}
                                     onChange={(e) => {
                                         if (e.target.checked) {
-                                            setSelectedCategories(prev => [...prev, category.id]);
+                                            setSelectedCategories((prev) => {
+                                                if (prev.length < 3) {
+                                                    setCategoryError(null);
+                                                    return [...prev, category.id];
+                                                } else {
+                                                    setCategoryError("You can only select up to 3 categories.");
+                                                    return prev;
+                                                }
+                                            });
                                         } else {
-                                            setSelectedCategories(prev => prev.filter(id => id !== category.id));
+                                            setSelectedCategories((prev) => prev.filter((id) => id !== category.id));
+                                            setCategoryError(null);
                                         }
                                     }}
                                 />
                             ))}
+
+                            {categoryError && (
+                                <div className="text-danger mt-2">{categoryError}</div>
+                            )}
                         </Form.Group>
+
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>

@@ -2,3 +2,39 @@
     height: 50vh;
     width: 100%;
 }
+
+.heart-icon {
+    font-size: 1.7em;
+    margin-left: 10px;
+}
+
+.heart-icon:hover {
+    transform: scale(1.2);
+}
+
+.favorited {
+    color: red;
+}
+.favorited:hover{
+    animation: heartbeat 1s infinite;
+}
+
+.not-favorite {
+    color: lightgray;
+}
+
+.not-favorite:hover{
+    animation: heartbeat 1s infinite;
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

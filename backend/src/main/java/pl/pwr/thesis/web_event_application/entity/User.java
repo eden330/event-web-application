@@ -17,11 +17,11 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.pwr.thesis.web_event_application.entity.embedded.Reaction;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,6 +32,7 @@ import java.util.Set;
         })
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode
 public class User {
 
     @Id
@@ -53,6 +54,7 @@ public class User {
     @Column(name = "active")
     private byte active;
     @ManyToMany(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -60,16 +62,19 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
     @ManyToMany(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     @JoinTable(
             name = "user_event",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private List<Event> favouriteEvents;
+    private Set<Event> favouriteEvents;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private UserInformation userInformation;
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Reaction> reactions;
+    @EqualsAndHashCode.Exclude
+    private Set<Reaction> reactions;
 
     public User(String username, String email, String password) {
         this.username = username;
