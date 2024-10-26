@@ -1,25 +1,24 @@
-import React, {useState, useEffect, useRef} from "react";
-import {CategoryButton} from "./CategoryButton";
-import {CitiesModal} from "./CitiesModal";
-import {fetchCategories, fetchCities, fetchEventsList} from "../../../api/eventApi";
-import {CityModel} from "../models/CityModel";
-import {CategoryModel} from "../models/CategoryModel";
-import {EventModel} from "../models/EventModel";
+import React, { useState, useEffect, useRef } from "react";
+import { CategoryButton } from "./CategoryButton";
+import { CitiesModal } from "./CitiesModal";
+import { fetchCategories, fetchCities, fetchEventsList } from "../../../api/eventApi";
+import { CityModel } from "../models/CityModel";
+import { CategoryModel } from "../models/CategoryModel";
+import { EventModel } from "../models/EventModel";
 
 interface EventSearchAndFilterProps {
-    onShowEvents: (cityName: string | null, category: string | null, searchTerm?: string | null) => void;
+    onShowEvents: (cityName: string | null, categories: string[], searchTerm?: string | null) => void;
     clearFilters: () => void;
 }
 
-export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onShowEvents, clearFilters}) => {
+export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents, clearFilters }) => {
     const [showModal, setShowModal] = useState(false);
     const [cities, setCities] = useState<CityModel[]>([]);
     const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [currentSearchTerm, setCurrentSearchTerm] = useState<string>("");
     const [suggestions, setSuggestions] = useState<EventModel[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -30,7 +29,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
     const handleCloseModal = () => setShowModal(false);
 
     const loadCities = async () => {
-        if (showModal) {
+        if (showModal && cities.length === 0) {
             try {
                 const responseJson: CityModel[] = await fetchCities();
                 setCities(responseJson);
@@ -41,30 +40,29 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
     };
 
     const loadCategories = async () => {
-        try {
-            const responseJson: CategoryModel[] = await fetchCategories();
-            setCategories(responseJson);
-        } catch (error: any) {
-            setHttpError(error.message);
+        if (categories.length === 0) {
+            try {
+                const responseJson: CategoryModel[] = await fetchCategories();
+                setCategories(responseJson);
+            } catch (error: any) {
+                setHttpError(error.message);
+            }
         }
     };
 
     const handleCategoryClick = (category: string) => {
-        if (selectedCategory === category) {
-            setSelectedCategory(null);
-            onShowEvents(selectedCity, null, searchTerm);
-        } else {
-            setSelectedCategory(category);
-            onShowEvents(selectedCity, category, searchTerm);
-        }
+        const updatedCategories = selectedCategories.includes(category) ? [] : [category];
+        setSelectedCategories(updatedCategories);
+        onShowEvents(selectedCity, updatedCategories, searchTerm);
     };
 
     const handleCitySelection = (city: string | null) => {
-        if (selectedCity === city) {
-            return;
+        if (city !== selectedCity) {
+            setSelectedCity(city);
+            onShowEvents(city, selectedCategories, searchTerm);
+        } else {
+            console.log("Same city selected, no event fetch triggered.");
         }
-        setSelectedCity(city);
-        onShowEvents(city, selectedCategory, searchTerm);
     };
 
     const fetchSuggestions = async (searchValue: string) => {
@@ -74,13 +72,13 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                     0,
                     10,
                     selectedCity || undefined,
-                    selectedCategory || undefined,
+                    selectedCategories.length > 0 ? selectedCategories : undefined,
                     searchValue
                 );
                 setSuggestions(suggestionResponse);
                 setShowDropdown(true);
             } catch (error) {
-                console.error('Error fetching suggestions:', error);
+                console.error("Error fetching suggestions:", error);
                 setSuggestions([]);
                 setShowDropdown(false);
             }
@@ -91,7 +89,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
 
     const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchValue = e.target.value;
-        setCurrentSearchTerm(searchValue);
+        setSearchTerm(searchValue);
 
         if (debounceTimeoutRef.current) {
             clearTimeout(debounceTimeoutRef.current);
@@ -103,36 +101,35 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
     };
 
     const handleSuggestionClick = (suggestion: EventModel) => {
-        setCurrentSearchTerm(suggestion.name);
+        setSearchTerm(suggestion.name);
         setShowDropdown(false);
-        handleSearch();
+        onShowEvents(selectedCity, selectedCategories, suggestion.name);
     };
 
     const handleSearch = () => {
         if (debounceTimeoutRef.current) {
             clearTimeout(debounceTimeoutRef.current);
         }
-
-        if (currentSearchTerm === searchTerm) {
-            return;
-        }
-
-        setSearchTerm(currentSearchTerm);
-        onShowEvents(selectedCity, selectedCategory, currentSearchTerm);
+        onShowEvents(selectedCity, selectedCategories, searchTerm);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
             handleSearch();
         }
     };
 
     const handleClearFilters = () => {
-        setSelectedCity(null);
-        setSelectedCategory(null);
-        setSearchTerm('')
-        setCurrentSearchTerm('');
+        if (!selectedCity && selectedCategories.length === 0 && !searchTerm) {
+            console.log("Filters are already cleared, no action taken.");
+            return;
+        }
 
+        setSelectedCity(null);
+        setSelectedCategories([]);
+        setSearchTerm("");
+        setSuggestions([]);
+        setShowDropdown(false);
         clearFilters();
     };
 
@@ -156,9 +153,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
     }, []);
 
     useEffect(() => {
-        if (showModal) {
-            loadCities();
-        }
+        if (showModal) loadCities();
     }, [showModal]);
 
     useEffect(() => {
@@ -183,12 +178,12 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                         </div>
                         <div className="row justify-content-center">
                             {categories.length > 0 ? (
-                                categories.map(category => (
+                                categories.map((category) => (
                                     <CategoryButton
                                         key={category.id}
                                         label={category.eventCategory}
                                         image={category.image}
-                                        onClick={handleCategoryClick}
+                                        onClick={() => handleCategoryClick(category.eventCategory)}
                                     />
                                 ))
                             ) : (
@@ -208,7 +203,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                                 type="search"
                                 placeholder="Search events"
                                 aria-label="Search"
-                                value={currentSearchTerm}
+                                value={searchTerm}
                                 onChange={handleSearchInputChange}
                                 onKeyDown={handleKeyDown}
                             />
@@ -218,7 +213,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
 
                             {showDropdown && suggestions.length > 0 && (
                                 <div ref={dropdownRef} className="dropdown-menu show position-absolute"
-                                     style={{maxHeight: '200px', overflowY: 'auto', top: '100%', zIndex: 1000}}>
+                                     style={{ maxHeight: "200px", overflowY: "auto", top: "100%", zIndex: 1000 }}>
                                     {suggestions.map((suggestion) => (
                                         <button
                                             key={suggestion.id}
@@ -241,7 +236,8 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                             <button
                                 className="btn btn-outline-primary"
                                 onClick={handleShowModal}
-                                style={{width: '150px', padding: '5px 10px', textAlign: 'center'}}>
+                                style={{ width: "150px", padding: "5px 10px", textAlign: "center" }}
+                            >
                                 Show Cities
                             </button>
                         </div>
@@ -253,7 +249,8 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                 handleClose={handleCloseModal}
                 cities={cities}
                 onShowEvents={handleCitySelection}
-                selectedCategory={selectedCategory}
+                selectedCategories={selectedCategories}
+                previouslySelectedCity={selectedCity}
             />
         </div>
     );

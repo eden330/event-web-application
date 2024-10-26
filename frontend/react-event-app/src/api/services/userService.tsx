@@ -2,6 +2,7 @@ import axiosInstance from './axiosInterceptor';
 import {logout} from "./authService";
 import {UpdateRequest} from "./models/UpdateRequest";
 import {FavouriteEventModel} from "./models/FavouriteEvent";
+import {EventModel} from "../../layouts/HomePage/models/EventModel";
 
 export const fetchUserProfile = async () => {
     try {
@@ -82,6 +83,20 @@ export const handleEventReaction = async (eventId: number, reactionType: string)
         console.log(`Reaction ${reactionType} for event ${eventId} has been handled: `, response.data);
     } catch (error) {
         console.error("Error handling event reaction:", error);
+        throw error;
+    }
+};
+
+export const fetchRecommendedEvents = async (page = 0, size = 10): Promise<EventModel[]> => {
+    try {
+        const response = await axiosInstance.get('/api/users/event/recommendations', {
+            params: { page, size },
+            withCredentials: true,
+        });
+        console.log("Fetched recommended events: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching recommended events:", error);
         throw error;
     }
 };

@@ -9,22 +9,23 @@ import pl.pwr.thesis.web_event_application.entity.Event;
 import pl.pwr.thesis.web_event_application.entity.Location;
 import pl.pwr.thesis.web_event_application.enums.EventCategory;
 
+import java.util.List;
+
 public class EventSpecifications {
 
-    private static Logger logger = LoggerFactory.getLogger(EventSpecifications.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventSpecifications.class);
 
     public static Specification<Event> hasCityName(String cityName) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
                 root.get("location").get("address").get("city").get("name"), cityName);
     }
 
-    public static Specification<Event> hasCategory(EventCategory category) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
-                root.get("category").get("eventCategory"), category
-        );
+    public static Specification<Event> hasCategory(List<EventCategory> categories) {
+        return (root, query, criteriaBuilder) ->
+                root.get("category").get("eventCategory").in(categories);
     }
 
-    public static Specification<Event> eventTitleOrLocationOrCityContains(String searchTerm) {
+    public static Specification<Event> eventTitleOrLocationContains(String searchTerm) {
         return (root, query, criteriaBuilder) -> {
             String pattern = "%" + searchTerm.toLowerCase() + "%";
             logger.info("Starting search events with term: {}", searchTerm);
@@ -35,8 +36,7 @@ public class EventSpecifications {
             Join<Event, Location> locationJoin = root.join("location");
 
             Predicate locationNamePredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(locationJoin.get("name")), pattern
-            );
+                    criteriaBuilder.lower(locationJoin.get("name")), pattern);
 
             return criteriaBuilder.or(eventTitlePredicate, locationNamePredicate);
         };

@@ -67,14 +67,14 @@ public class EventController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String cityName,
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) String searchTerm
     ) {
         try {
             List<EventDto> eventDtos = eventService
                     .fetchAllEventsList(page, size,
                             Optional.ofNullable(cityName),
-                            Optional.ofNullable(category),
+                            Optional.ofNullable(categories),
                             Optional.ofNullable(searchTerm));
             return checkFetchedData(eventDtos, "list");
         } catch (Exception e) {
@@ -86,14 +86,14 @@ public class EventController {
     @GetMapping("/map")
     public ResponseEntity<List<EventDtoMap>> fetchAllEventsList(
             @RequestParam(required = false) String cityName,
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) String searchTerm
     ) {
         try {
             List<EventDtoMap> eventDtos = eventService
                     .fetchAllEventsMap(
                             Optional.ofNullable(cityName),
-                            Optional.ofNullable(category),
+                            Optional.ofNullable(categories),
                             Optional.ofNullable(searchTerm));
             return checkFetchedData(eventDtos, "map");
         } catch (Exception e) {

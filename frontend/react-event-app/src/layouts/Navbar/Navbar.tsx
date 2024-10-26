@@ -39,6 +39,7 @@ export const Navbar: React.FC = () => {
                             <>
                                 <NavItem label={"My profile"} to={"/profile"}/>
                                 <NavItem label={"Favourite Events"} to={"/favourites"}/>
+                                <NavItem label={"Recommended Events"} to={"/recommended"}/>
                                 <li className={"nav-item mx-4"}>
                                     <button className={"btn btn-outline-light"} onClick={handleLogout}>Log Out</button>
                                 </li>

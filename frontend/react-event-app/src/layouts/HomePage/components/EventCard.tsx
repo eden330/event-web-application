@@ -99,8 +99,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
                         </div>
                     </div>
                     <div className="col-md-3">
-                        <p>Start date: {new Date(event.startDate).toLocaleDateString()}</p>
-                        <p>End date: {new Date(event.endDate).toLocaleDateString()}</p>
+                        <p> Start date:{new Date(event.startDate).toLocaleDateString('pl-PL')}</p>
+                        <p> End date:{new Date(event.endDate).toLocaleDateString('pl-PL')}</p>
                     </div>
                 </div>
 

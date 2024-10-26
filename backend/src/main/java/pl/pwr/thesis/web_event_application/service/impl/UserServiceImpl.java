@@ -3,6 +3,9 @@ package pl.pwr.thesis.web_event_application.service.impl;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.user.FavouriteEventDto;
@@ -26,6 +30,7 @@ import pl.pwr.thesis.web_event_application.entity.Role;
 import pl.pwr.thesis.web_event_application.entity.User;
 import pl.pwr.thesis.web_event_application.entity.UserInformation;
 import pl.pwr.thesis.web_event_application.entity.embedded.Reaction;
+import pl.pwr.thesis.web_event_application.enums.EventCategory;
 import pl.pwr.thesis.web_event_application.enums.ReactionType;
 import pl.pwr.thesis.web_event_application.enums.UserRole;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
@@ -37,6 +42,7 @@ import pl.pwr.thesis.web_event_application.repository.EventRepository;
 import pl.pwr.thesis.web_event_application.repository.ReactionRepository;
 import pl.pwr.thesis.web_event_application.repository.RoleRepository;
 import pl.pwr.thesis.web_event_application.repository.UserRepository;
+import pl.pwr.thesis.web_event_application.repository.specification.EventSpecifications;
 import pl.pwr.thesis.web_event_application.security.jwt.JwtUtils;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserInformationService;
@@ -252,5 +258,28 @@ public class UserServiceImpl implements UserService {
         logger.info("Reaction updated - {} ", reaction.getType());
         reaction.setType(newReactionType);
         return true;
+    }
+
+    @Override
+    public List<EventDto> findRecommendedEvents(Long userId, int size, int page) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException("User not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        var city = user.getUserInformation().getCity();
+        var categories = user.getUserInformation().getCategories();
+
+        Specification<Event> spec = Specification.where(null);
+
+        spec = spec.and(EventSpecifications.hasCityName(city.getName()));
+
+        List<EventCategory> eventCategories = categories.stream()
+                .map(Category::getEventCategory)
+                .toList();
+        spec = spec.and(EventSpecifications.hasCategory(eventCategories));
+
+        return eventRepository.findAll(spec, pageable).stream()
+                .map(eventMapper::eventToDto)
+                .collect(Collectors.toList());
     }
 }

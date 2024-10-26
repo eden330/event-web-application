@@ -1,22 +1,31 @@
-import React, {useState} from 'react';
-import {CityModel} from "../models/CityModel";
+import React, { useState } from 'react';
+import { CityModel } from "../models/CityModel";
 
 interface CitiesModalProps {
     show: boolean;
     handleClose: () => void;
     cities: CityModel[];
-    onShowEvents: (cityName: string | null, category: string | null) => void;
-    selectedCategory: string | null;
+    onShowEvents: (cityName: string | null, categories: string[]) => void;
+    selectedCategories: string[];
+    previouslySelectedCity: string | null;
 }
 
-export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, cities,
-                                                            onShowEvents,selectedCategory}) => {
+export const CitiesModal: React.FC<CitiesModalProps> = ({
+                                                            show,
+                                                            handleClose,
+                                                            cities,
+                                                            onShowEvents,
+                                                            selectedCategories,
+                                                            previouslySelectedCity
+                                                        }) => {
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
 
     const handleCityClick = (cityName: string) => {
-        setSelectedCity(cityName);
+        if (cityName !== selectedCity) {
+            setSelectedCity(cityName);
+        }
         setIsDropdownVisible(false);
     };
 
@@ -31,14 +40,14 @@ export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, citi
     );
 
     return (
-        <div className={`modal ${show ? 'show' : ''}`} style={{display: show ? "block" : "none"}}>
+        <div className={`modal ${show ? 'show' : ''}`} style={{ display: show ? "block" : "none" }}>
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Location</h5>
                         <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
-                    <div className="modal-body" style={{maxHeight: '400px', overflowY: 'auto'}}>
+                    <div className="modal-body" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                         <div className="position-relative">
                             <input
                                 type="text"
@@ -52,7 +61,7 @@ export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, citi
                             />
                             {isDropdownVisible && searchQuery && (
                                 <ul className="dropdown-menu show w-100 position-absolute"
-                                    style={{maxHeight: '150px', overflowY: 'auto'}}>
+                                    style={{ maxHeight: '150px', overflowY: 'auto' }}>
                                     {filteredCities.length > 0 ? (
                                         filteredCities.map((city, index) => (
                                             <li
@@ -105,9 +114,12 @@ export const CitiesModal: React.FC<CitiesModalProps> = ({show, handleClose, citi
                             type="button"
                             className="btn btn-primary"
                             onClick={() => {
-                                onShowEvents(selectedCity, selectedCategory);
+                                if (selectedCity !== previouslySelectedCity) {
+                                    onShowEvents(selectedCity, selectedCategories);
+                                }
                                 handleClose();
-                            }}>
+                            }}
+                        >
                             Show events
                         </button>
                     </div>

@@ -8,10 +8,13 @@ import {Profile} from "./layouts/auth/Profile";
 import {Login} from "./layouts/auth/Login";
 import 'leaflet/dist/leaflet.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import {Route, Routes, Navigate} from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from "react-toastify";
 import {FavouriteEvents} from "./layouts/auth/FavouriteEvents";
+import RecommendedEvents from "./layouts/auth/RecommendedEvents";
 
 function App() {
     return (
@@ -25,6 +28,7 @@ function App() {
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/event/:eventId/:eventName" element={<EventPage/>}/>
                 <Route path="/favourites" element={<FavouriteEvents />} />
+                <Route path="/recommended" element={<RecommendedEvents />} />
             </Routes>
             <ToastContainer />
         </div>

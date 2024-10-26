@@ -20,11 +20,11 @@ public interface EventService {
 
     List<EventDto> fetchAllEventsList(int page, int size,
                                       Optional<String> city,
-                                      Optional<String> category,
+                                      Optional<List<String>> categories,
                                       Optional<String> searchTerm);
 
     List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
-                                        Optional<String> category,
+                                        Optional<List<String>> categories,
                                         Optional<String> searchTerm);
 
     Optional<EventDto> fetchEventById(long id);

@@ -3,6 +3,7 @@ package pl.pwr.thesis.web_event_application.service.interfaces;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.user.FavouriteEventDto;
@@ -30,4 +31,6 @@ public interface UserService {
     List<FavouriteEventDto> findFavouriteEvents(Long userId);
 
     boolean handleEventReaction(Long userId, Long eventId, String reactionType);
+
+    List<EventDto> findRecommendedEvents(Long userId, int size, int page);
 }

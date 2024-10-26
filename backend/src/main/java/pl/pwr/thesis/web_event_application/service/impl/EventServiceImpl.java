@@ -64,7 +64,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Optional<EventDto> fetchEventById(long id) {
-        return eventRepository.findById(id).map(eventMapper::eventToDto);
+        return eventRepository
+                .findById(id)
+                .map(eventMapper::eventToDto);
     }
 
     @Override
@@ -76,31 +78,29 @@ public class EventServiceImpl implements EventService {
 
     public List<EventDto> fetchAllEventsList(int page, int size,
                                              Optional<String> city,
-                                             Optional<String> category,
+                                             Optional<List<String>> categories,
                                              Optional<String> searchTerm) {
         Pageable pageable = PageRequest.of(page, size);
-        Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
+        Specification<Event> spec = buildEventSpecification(city, categories, searchTerm);
 
         try {
-           // logger.info("Fetching {} events to List", size);
             Page<Event> eventPage = eventRepository.findAll(spec, pageable);
             return eventPage.stream()
                     .map(eventMapper::eventToDto)
                     .toList();
         } catch (Exception e) {
-            logger.error("Error in fetching all events", e);
+            logger.error("Error in fetching all events for List", e);
             throw new RuntimeException("Error fetching events", e);
         }
     }
 
 
     public List<EventDtoMap> fetchAllEventsMap(Optional<String> city,
-                                               Optional<String> category,
+                                               Optional<List<String>> categories,
                                                Optional<String> searchTerm) {
-        Specification<Event> spec = buildEventSpecification(city, category, searchTerm);
+        Specification<Event> spec = buildEventSpecification(city, categories, searchTerm);
 
         try {
-          //  logger.info("Fetching all events to Map");
             List<Event> events = eventRepository.findAll(spec);
             return events.stream()
                     .map(eventMapper::eventToDtoMap)
@@ -112,7 +112,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Specification<Event> buildEventSpecification(Optional<String> city,
-                                                         Optional<String> category,
+                                                         Optional<List<String>> categories,
                                                          Optional<String> searchTerm) {
         Specification<Event> spec = Specification.where(null);
 
@@ -121,16 +121,18 @@ public class EventServiceImpl implements EventService {
             logger.info("Applying filter by city name: {}", cityName);
             spec = spec.and(EventSpecifications.hasCityName(cityName));
         }
-        if (category.isPresent()) {
-            String categoryName = category.get();
-            EventCategory eventCategory = EventCategory.valueOf(categoryName.toUpperCase());
-            logger.info("Applying filter by category name: {}", categoryName);
-            spec = spec.and(EventSpecifications.hasCategory(eventCategory));
+        if (categories.isPresent() && !categories.get().isEmpty()) {
+            List<EventCategory> eventCategories = categories.get().stream()
+                    .map(category -> EventCategory.valueOf(category.toUpperCase()))
+                    .toList();
+
+            logger.info("Applying filter by category name: {}", categories);
+            spec = spec.and(EventSpecifications.hasCategory(eventCategories));
         }
         if (searchTerm.isPresent()) {
             String term = searchTerm.get();
             logger.info("Applying filter by search term: {}", term);
-            spec = spec.and(EventSpecifications.eventTitleOrLocationOrCityContains(term));
+            spec = spec.and(EventSpecifications.eventTitleOrLocationContains(term));
         }
 
         return spec;

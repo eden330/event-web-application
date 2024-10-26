@@ -2,19 +2,19 @@ import axios from "axios";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-export const fetchEventsMap = async (cityName?: string, category?: string, searchTerm?: string) => {
+export const fetchEventsMap = async (cityName?: string, categories?: string[], searchTerm?: string) => {
     const params = new URLSearchParams();
     if (cityName) params.append('cityName', cityName);
-    if (category) params.append('category', category);
+    if (categories && categories.length > 0) params.append('categories', categories.join(','));
     if (searchTerm) params.append('searchTerm', searchTerm);
 
     return await fetchFromApi("/events/map", params);
 };
 
-export const fetchEventsList = async (page: number, size: number, cityName?: string, category?: string, searchTerm?: string) => {
+export const fetchEventsList = async (page: number, size: number, cityName?: string, categories?: string[], searchTerm?: string) => {
     const params = new URLSearchParams({ page: String(page), size: String(size) });
     if (cityName) params.append('cityName', cityName);
-    if (category) params.append('category', category);
+    if (categories && categories.length > 0) params.append('categories', categories.join(','));
     if (searchTerm) params.append('searchTerm', searchTerm);
 
     return await fetchFromApi("/events/list", params);

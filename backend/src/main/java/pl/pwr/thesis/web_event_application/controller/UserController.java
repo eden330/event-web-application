@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
+import pl.pwr.thesis.web_event_application.dto.list.EventDto;
 import pl.pwr.thesis.web_event_application.dto.payload.request.LogoutRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
@@ -303,6 +304,37 @@ public class UserController {
                     principal.id(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Error adding event reaction", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/event/recommendations")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> fetchEventRecommendations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        UserDetailsImpl principal = (UserDetailsImpl) securityUtil.getCurrentUser();
+        logger.info("Received request to display recommendations of events for - User: {}",
+                principal.id());
+
+        try {
+            List<EventDto> recommendedEvents = userService.
+                    findRecommendedEvents(principal.id(), size, page);
+
+            logger.info("Successfully fetched recommended events for - User: {}", principal.id());
+            return ResponseEntity.ok(recommendedEvents);
+
+        } catch (EntityNotFoundException e) {
+            logger.error("User doesn't exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", e.getMessage()));
+
+        } catch (Exception e) {
+            logger.error("Error fetching recommended Events for user ID: {}: {}",
+                    principal.id(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(
+                            "Error fetching recommended Events for user", e.getMessage()));
         }
     }
 }

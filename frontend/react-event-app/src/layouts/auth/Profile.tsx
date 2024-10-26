@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Navigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
-import { logout } from "../../actions/auth";
-import { fetchUserProfile, deleteAccount, updateUserPreferences } from "../../api/services/userService";
-import { AppDispatch } from "../../store";
-import { UserProfileModel } from "./models/UserProfileModel";
-import { Button, Card, Row, Col, Modal, Form } from 'react-bootstrap';
+import React, {useEffect, useState, useCallback} from "react";
+import {Navigate} from 'react-router-dom';
+import {useDispatch} from "react-redux";
+import {logout} from "../../actions/auth";
+import {fetchUserProfile, deleteAccount, updateUserPreferences} from "../../api/services/userService";
+import {AppDispatch} from "../../store";
+import {UserProfileModel} from "./models/UserProfileModel";
+import {Button, Card, Row, Col, Modal, Form} from 'react-bootstrap';
 import {CategoryModel} from "../HomePage/models/CategoryModel";
 import {CityModel} from "../HomePage/models/CityModel";
 import {fetchCategories, fetchCities} from "../../api/eventApi";
 import {UpdateRequest} from "../../api/services/models/UpdateRequest";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
 export const Profile: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -114,7 +114,7 @@ export const Profile: React.FC = () => {
 
 
     if (error) {
-        return <Navigate to="/home" />;
+        return <Navigate to="/home"/>;
     }
 
     return (
@@ -128,8 +128,10 @@ export const Profile: React.FC = () => {
                             <Card className="mb-3 shadow-sm">
                                 <Card.Body>
                                     <Card.Title>Chosen Events</Card.Title>
-                                    <Button variant="primary">
-                                        View Chosen Events
+                                    <Button
+                                        variant="primary"
+                                        onClick={() => navigate('/recommended')}>
+                                        View Recommended Events
                                     </Button>
                                 </Card.Body>
                             </Card>
@@ -141,8 +143,11 @@ export const Profile: React.FC = () => {
                                     <Card.Title>User Profile</Card.Title>
                                     <p><strong>Username:</strong> {profileData.username}</p>
                                     <p><strong>Email:</strong> {profileData.email}</p>
-                                    <p><strong>City:</strong> {profileData.userInformationDto?.city ? profileData.userInformationDto.city.name : "City not specified"}</p>
-                                    <p><strong>Categories:</strong> {profileData.userInformationDto?.categories && profileData.userInformationDto.categories.length > 0
+                                    <p>
+                                        <strong>City:</strong> {profileData.userInformationDto?.city ? profileData.userInformationDto.city.name : "City not specified"}
+                                    </p>
+                                    <p>
+                                        <strong>Categories:</strong> {profileData.userInformationDto?.categories && profileData.userInformationDto.categories.length > 0
                                         ? profileData.userInformationDto.categories.map((cat) => cat.eventCategory).join(", ")
                                         : "No categories available"}</p>
                                     <Button
@@ -169,8 +174,7 @@ export const Profile: React.FC = () => {
                                     <Card.Title>Favourite Events</Card.Title>
                                     <Button
                                         variant="primary"
-                                        onClick={() => navigate('/favourites')}
-                                    >
+                                        onClick={() => navigate('/favourites')}>
                                         View Favourite Events
                                     </Button>
                                 </Card.Body>
