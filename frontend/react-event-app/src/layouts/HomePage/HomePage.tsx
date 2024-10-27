@@ -6,9 +6,15 @@ import { EventCard } from "./components/EventCard";
 import { EventModel } from "./models/EventModel";
 import { EventModelMap } from "./models/map/EventModelMap";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { fetchCity, fetchEventsMap, fetchEventsList } from "../../api/eventApi";
+import { fetchCity, fetchEventsList } from "../../api/eventApi";
+import { fetchFilteredEventsForMap } from '../../reducers/slices/eventsDataSlice';
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../store";
 
 export const HomePage = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { eventsByFilters } = useSelector((state: RootState) => state.eventsData);
+
     const [events, setEvents] = useState<EventModel[]>([]);
     const [eventsMap, setEventsMap] = useState<EventModelMap[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
@@ -69,20 +75,33 @@ export const HomePage = () => {
         }
     };
 
-    const fetchEventsForMap = async (cityName: string | null = null, categories: string[] = [], searchTerm: string | null = null) => {
-        try {
-            const responseJson = await fetchEventsMap(
-                cityName || undefined,
-                categories.length > 0 ? categories : undefined,
-                searchTerm || undefined
-            ) as EventModelMap[];
+    const fetchEventsForMap = async () => {
+        console.log("Fetching map events for city:", selectedCity, "categories:", selectedCategories, "filter:", searchTerm);
 
-            console.log("Number of events [MAP] returned:", responseJson.length);
-            setEventsMap(responseJson.length === 0 ? [] : responseJson);
-        } catch (error: any) {
-            setHttpError(error.message || "An error occurred while fetching map events.");
+        try {
+            const actionResult = await dispatch(fetchFilteredEventsForMap({
+                cityName: selectedCity ?? undefined,
+                categories: selectedCategories,
+                searchTerm: searchTerm ?? undefined,
+            }));
+
+            if (fetchFilteredEventsForMap.fulfilled.match(actionResult)) {
+                const { cacheKey, events, cached } = actionResult.payload || {};
+                console.log("Fetched events from map:", events, "with cache key:", cacheKey);
+
+                if (cached) {
+                    const cachedEvents = eventsByFilters[cacheKey]?.events || [];
+                    console.log("Using cached events:", cachedEvents);
+                    setEventsMap(cachedEvents);
+                } else {
+                    setEventsMap(events || []);
+                }
+            }
+        } catch (err: any) {
+            setHttpError(err.message || "An error occurred while fetching map events.");
         }
     };
+
 
     const fetchCityCoordinates = async (cityName: string | null) => {
         if (!cityName) return;
@@ -137,7 +156,7 @@ export const HomePage = () => {
     useEffect(() => {
         if (selectedCity || selectedCategories.length > 0 || searchTerm) {
             fetchEvents(selectedCity, selectedCategories, searchTerm, true);
-            fetchEventsForMap(selectedCity, selectedCategories, searchTerm);
+            fetchEventsForMap();
         } else {
             fetchInitialEvents();
         }

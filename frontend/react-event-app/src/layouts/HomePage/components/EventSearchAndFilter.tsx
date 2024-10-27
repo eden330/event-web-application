@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { CategoryButton } from "./CategoryButton";
-import { CitiesModal } from "./CitiesModal";
-import { fetchCategories, fetchCities, fetchEventsList } from "../../../api/eventApi";
-import { CityModel } from "../models/CityModel";
-import { CategoryModel } from "../models/CategoryModel";
-import { EventModel } from "../models/EventModel";
+import React, {useEffect, useRef, useState} from "react";
+import {CategoryButton} from "./CategoryButton";
+import {CitiesModal} from "./CitiesModal";
+import {fetchEventsList} from "../../../api/eventApi";
+import {EventModel} from "../models/EventModel";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../../store";
+import {fetchCategoriesData} from "../../../reducers/slices/categoriesDataSlice";
+import {fetchCitiesData} from "../../../reducers/slices/citiesDataSlice";
 
 interface EventSearchAndFilterProps {
     onShowEvents: (cityName: string | null, categories: string[], searchTerm?: string | null) => void;
@@ -12,9 +14,9 @@ interface EventSearchAndFilterProps {
 }
 
 export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents, clearFilters }) => {
+    const dispatch = useDispatch<AppDispatch>();
+
     const [showModal, setShowModal] = useState(false);
-    const [cities, setCities] = useState<CityModel[]>([]);
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
     const [httpError, setHttpError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -28,27 +30,8 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-    const loadCities = async () => {
-        if (showModal && cities.length === 0) {
-            try {
-                const responseJson: CityModel[] = await fetchCities();
-                setCities(responseJson);
-            } catch (error: any) {
-                setHttpError(error.message);
-            }
-        }
-    };
-
-    const loadCategories = async () => {
-        if (categories.length === 0) {
-            try {
-                const responseJson: CategoryModel[] = await fetchCategories();
-                setCategories(responseJson);
-            } catch (error: any) {
-                setHttpError(error.message);
-            }
-        }
-    };
+    const categories = useSelector((state: RootState) => state.categories.categories);
+    const cities = useSelector((state: RootState) => state.cities.cities);
 
     const handleCategoryClick = (category: string) => {
         const updatedCategories = selectedCategories.includes(category) ? [] : [category];
@@ -153,12 +136,14 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     }, []);
 
     useEffect(() => {
-        if (showModal) loadCities();
-    }, [showModal]);
+        if (showModal) {
+            dispatch(fetchCitiesData());
+        }
+    }, [showModal, dispatch]);
 
     useEffect(() => {
-        loadCategories();
-    }, []);
+        dispatch(fetchCategoriesData());
+    }, [dispatch]);
 
     if (httpError) {
         return (
