@@ -21,9 +21,9 @@ export const fetchCitiesData = createAsyncThunk(
     'cities/fetchCities',
     async (_, {getState, rejectWithValue}) => {
         const state = getState() as RootState;
-        const ONE_DAY = 24 * 60 * 60 * 1000;
+        const CACHE_DURATION = 30 * 60 * 1000;
 
-        if (state.cities.lastFetched && Date.now() - state.cities.lastFetched < ONE_DAY) {
+        if (state.cities.lastFetched && Date.now() - state.cities.lastFetched < CACHE_DURATION) {
             console.log("Cities data is cached and still fresh");
             return;
         }

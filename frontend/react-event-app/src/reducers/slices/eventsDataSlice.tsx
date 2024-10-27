@@ -53,12 +53,12 @@ export const fetchFilteredEventsForMap = createAsyncThunk<FetchEventsForMapRespo
     'data/fetchFilteredEventsForMap',
     async ({ cityName, categories, searchTerm }: FetchEventsForMapArgs, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
-        const ONE_DAY = 24 * 60 * 60 * 1000;
+        const CACHE_DURATION = 30 * 60 * 1000;
         const cacheKey = generateCacheKey(cityName, categories, searchTerm);
 
         console.log("Generated cache key:", cacheKey);
 
-        if (state.eventsData.eventsByFilters[cacheKey] && Date.now() - state.eventsData.eventsByFilters[cacheKey].lastFetched < ONE_DAY) {
+        if (state.eventsData.eventsByFilters[cacheKey] && Date.now() - state.eventsData.eventsByFilters[cacheKey].lastFetched < CACHE_DURATION) {
             console.log("EVENTS FOR MAP IN CACHE -> NOT FETCHING", state.eventsData.eventsByFilters[cacheKey]);
             return { cached: true, cacheKey };
         }
