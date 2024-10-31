@@ -9,7 +9,7 @@ import {fetchCategoriesData} from "../../../reducers/slices/categoriesDataSlice"
 import {fetchCitiesData} from "../../../reducers/slices/citiesDataSlice";
 
 interface EventSearchAndFilterProps {
-    onShowEvents: (cityName: string | null, categories: string[], searchTerm?: string | null) => void;
+    onShowEvents: (cityName: string | null, categories: string[], searchTerm?: string | null, selectedEvent?: EventModel) => void;
     clearFilters: () => void;
 }
 
@@ -86,7 +86,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const handleSuggestionClick = (suggestion: EventModel) => {
         setSearchTerm(suggestion.name);
         setShowDropdown(false);
-        onShowEvents(selectedCity, selectedCategories, suggestion.name);
+        onShowEvents(selectedCity, selectedCategories, suggestion.name, suggestion); // Pass the selected event
     };
 
     const handleSearch = () => {
@@ -205,7 +205,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
                                             className="dropdown-item"
                                             onClick={() => handleSuggestionClick(suggestion)}
                                         >
-                                            {suggestion.category.eventCategory} - {suggestion.location.address.city.name}
+                                            {suggestion.name} - {suggestion.category.eventCategory} - {suggestion.location.address.city.name}
                                         </button>
                                     ))}
                                 </div>

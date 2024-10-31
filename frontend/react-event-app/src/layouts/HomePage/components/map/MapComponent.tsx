@@ -15,9 +15,14 @@ const SetMapCenter = ({ cityCoordinates }: { cityCoordinates?: { lat: number; lo
 
     useEffect(() => {
         if (cityCoordinates) {
-            map.setView([cityCoordinates.lat, cityCoordinates.lon], 11);
-        } else {
-            map.setView([52, 19.4803], 6);
+            const isDefaultCenter = cityCoordinates.lat === 52 && cityCoordinates.lon === 19.4803;
+            const zoomLevel = isDefaultCenter ? 6 : 11;
+
+            map.flyTo([cityCoordinates.lat, cityCoordinates.lon], zoomLevel, {
+                animate: true,
+                duration: 1.2,
+                easeLinearity: 0.1,
+            });
         }
     }, [cityCoordinates, map]);
 

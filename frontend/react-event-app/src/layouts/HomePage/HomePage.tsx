@@ -128,17 +128,22 @@ export const HomePage = () => {
         await fetchEventsForMap();
     };
 
-    const onShowEvents = (cityName: string | null = null, categories: string[] = [], searchTerm: string | null = null) => {
-        setHasMore(true);
-        setPage(0);
-        setEvents([]);
-
-        setSelectedCategories(categories);
-        setSearchTerm(searchTerm);
-        setSelectedCity(cityName);
-
-        if (cityName) {
-            fetchCityCoordinates(cityName);
+    const onShowEvents = (cityName: string | null = null, categories: string[] = [], searchTerm: string | null = null, selectedEvent?: EventModel) => {
+        if (selectedEvent) {
+            setEvents([selectedEvent]);
+            setEventsMap([selectedEvent]);
+            setHasMore(false);
+            fetchCityCoordinates(selectedEvent.location.address.city.name);
+        } else {
+            setHasMore(true);
+            setPage(0);
+            setEvents([]);
+            setSelectedCategories(categories);
+            setSearchTerm(searchTerm);
+            setSelectedCity(cityName);
+            if (cityName) {
+                fetchCityCoordinates(cityName);
+            }
         }
     };
 
@@ -151,6 +156,8 @@ export const HomePage = () => {
         setHasMore(true);
         setPage(0);
         setEvents([]);
+
+        setCityCoordinates({ lat: 52, lon: 19.4803 });
     };
 
     useEffect(() => {

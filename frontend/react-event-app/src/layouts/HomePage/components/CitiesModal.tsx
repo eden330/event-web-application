@@ -5,7 +5,7 @@ interface CitiesModalProps {
     show: boolean;
     handleClose: () => void;
     cities: CityModel[];
-    onShowEvents: (cityName: string | null, categories: string[]) => void;
+     onShowEvents: (cityName: string | null, categories: string[]) => void;
     selectedCategories: string[];
     previouslySelectedCity: string | null;
 }
