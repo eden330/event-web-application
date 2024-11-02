@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>pl.pwr.air-filipdutkiewicz-thesis</groupId>
-    <artifactId>web-event-application</artifactId>
+    <artifactId>web_event_application</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>web-event-application</name>
     <description>
@@ -143,6 +143,7 @@
     </dependencies>
 
     <build>
+        <finalName>web_event_application</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
