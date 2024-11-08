@@ -17,6 +17,7 @@ import pl.pwr.thesis.web_event_application.scraper.EventReader;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.ReactionService;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,7 +113,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<String> saveEvents() {
+    public ResponseEntity<String> saveEvents() throws MalformedURLException {
         List<Event> events = eventReader.readEvents();
         if (events.isEmpty()) {
             logger.warn("No events to be saved! Returning empty list status.");

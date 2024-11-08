@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pl.pwr.thesis.web_event_application.entity.Event;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public class EventReader {
         this.webScraper = webScraper;
     }
 
-    public List<Event> readEvents() {
+    public List<Event> readEvents() throws MalformedURLException {
         Set<String> eventJsonSet = webScraper.scrapEvents();
         List<Event> events = eventConverter.convertJsonToEvents(eventJsonSet);
         // events.forEach(System.out::println);

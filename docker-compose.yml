@@ -11,9 +11,18 @@ services:
     networks:
       - app-network
 
+  selenium:
+    image: selenium/standalone-chrome:115.0.5790.110
+    ports:
+      - "4444:4444"
+    networks:
+      - app-network
+
   backend_service:
     build:
       context: ./backend
+    cap_add:
+      - SYS_ADMIN
     ports:
       - "${SPRING_PORT}:${SPRING_PORT}"
     env_file:
@@ -24,6 +33,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
     depends_on:
       - mysql_db
+      - selenium
     networks:
       - app-network
 
@@ -44,3 +54,4 @@ volumes:
 
 networks:
   app-network:
+    driver: bridge
