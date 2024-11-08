@@ -9,7 +9,6 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,49 +16,40 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class EventClassifier {
 
-    private static final String MODEL_FILE = "event_classifier_model.bin";
+    private static final Path MODEL_FILE_PATH = Paths.get("event_classifier_model.bin");
 
-    private static final Path MODEL_FILE_PATH = Paths.get(
-            System.getProperty("user.dir"),
-            "backend",
-            "src",
-            "main",
-            "java",
-            "pl",
-            "pwr",
-            "thesis",
-            "web_event_application",
-            "machinelearning",
-            MODEL_FILE
-    );
-
-    public static void main(String[] args) throws Exception {
+    public static String predictCategory(String description) throws IOException {
         DoccatModel model = readModel();
 
         if (model == null) {
             model = trainModel();
             writeModel(model);
         }
+        DocumentCategorizerME categorizer = new DocumentCategorizerME(model);
 
-        String description = "Join a concert this Sunday!";
-        predictCategory(description, model);
+        String[] tokens = description.split("\\s+");
+        double[] outcomes = categorizer.categorize(tokens);
+        String category = categorizer.getBestCategory(outcomes);
+
+        System.out.println("Predicted Category: " + category);
+
+        return category;
     }
 
     private static DoccatModel readModel() {
-        if (Files.exists(MODEL_FILE_PATH)) {
-            try (FileInputStream fileIn = new FileInputStream(MODEL_FILE_PATH.toFile());
-                 ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-                System.out.println("Loaded model from " + MODEL_FILE);
+        try (InputStream fileIn = EventClassifier.class.getResourceAsStream("/event_classifier_model.bin")) {
+            if (fileIn != null) {
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+                System.out.println("Loaded model from resources");
                 return (DoccatModel) objectIn.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Failed to load model: " + e.getMessage());
             }
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Failed to load model: " + e.getMessage());
         }
         return null;
     }
@@ -74,7 +64,6 @@ public class EventClassifier {
         }
     }
 
-
     private static DoccatModel trainModel() throws IOException {
         try (InputStream dataIn = EventClassifier.class.getResourceAsStream("/event_data.train")) {
             ObjectStream<DocumentSample> sampleStream = getDocumentSampleObjectStream(dataIn);
@@ -85,20 +74,6 @@ public class EventClassifier {
 
             System.out.println("Training a new model...");
             return DocumentCategorizerME.train("en", sampleStream, mlParams, factory);
-        }
-    }
-
-    private static void predictCategory(String description, DoccatModel model) {
-        DocumentCategorizerME categorizer = new DocumentCategorizerME(model);
-
-        String[] tokens = description.split("\\s+");
-        double[] outcomes = categorizer.categorize(tokens);
-        String category = categorizer.getBestCategory(outcomes);
-
-        System.out.println("Predicted Category: " + category);
-
-        for (int i = 0; i < outcomes.length; i++) {
-            System.out.println("Category: " + categorizer.getCategory(i) + " - Score: " + outcomes[i]);
         }
     }
 
@@ -115,5 +90,4 @@ public class EventClassifier {
         };
         return new DocumentSampleStream(formattedLineStream);
     }
-
 }

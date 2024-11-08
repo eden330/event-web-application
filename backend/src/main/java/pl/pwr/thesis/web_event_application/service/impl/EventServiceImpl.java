@@ -189,7 +189,7 @@ public class EventServiceImpl implements EventService {
         City city = cityService.findOrSaveCity(address.getCity());
 
         if (city.getLatitude() == 0 || city.getLongitude() == 0) {
-            double[] cityCoordinates = geocoder.geocodeLocationWithRetries(cityName, "");
+            double[] cityCoordinates = geocoder.geocodeLocation(cityName, "");
             if (cityCoordinates == null) {
                 logger.warn("Geocoding failed for city: {}, event not saved to database.", cityName);
                 throw new IllegalStateException("Geocoding failed for city: " + cityName);
@@ -214,7 +214,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (savedLocation.getLongitude() == 0 || savedLocation.getLatitude() == 0) {
-            double[] coordinates = geocoder.geocodeLocationWithRetries(
+            double[] coordinates = geocoder.geocodeLocation(
                     savedLocation.getAddress().getCity().getName(),
                     savedLocation.getAddress().getStreet()
             );

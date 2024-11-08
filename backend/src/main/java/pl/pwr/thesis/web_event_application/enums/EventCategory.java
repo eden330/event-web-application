@@ -1,5 +1,5 @@
 package pl.pwr.thesis.web_event_application.enums;
 
 public enum EventCategory {
-    SPORT,FESTIVAL,ART,THEATER,FOOD,MUSIC
+    MUSIC,PLAYS,EXHIBITIONS
 }
