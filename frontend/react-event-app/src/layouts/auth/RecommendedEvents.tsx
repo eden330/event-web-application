@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { EventModel } from "../HomePage/models/EventModel";
-import { fetchRecommendedEvents } from "../../api/services/userService";
-import './css/Auth.css';
+import React, {useEffect, useState} from 'react';
+import {EventModel} from "../HomePage/models/EventModel";
+import {fetchRecommendedEvents} from "../../api/services/userService";
+import './css/RecommendedEvents.css';
+import {Link} from 'react-router-dom';
 
 const RecommendedEvents: React.FC = () => {
     const [events, setEvents] = useState<EventModel[]>([]);
@@ -55,7 +56,11 @@ const RecommendedEvents: React.FC = () => {
 
     return (
         <div className="recommended-events-container">
-            <h2>Recommended Events</h2>
+            <div className="recommended-events-header">
+                <h2>Your Personalized Event Picks</h2>
+                <p>Check out these events we think you'll love, tailored just for you!</p>
+            </div>
+
             <div className="carousel-wrapper">
                 <div className="carousel">
                     <ul
@@ -66,19 +71,24 @@ const RecommendedEvents: React.FC = () => {
                     >
                         {events.map((event, index) => (
                             <li key={index}>
-                                <img src={event.image} alt={event.name} className="event-image" />
-                                <div className="event-info">
-                                    <h3>{event.name}</h3>
-                                    <p>{event.location.address.city.name}</p>
-                                    <p>{event.category.eventCategory}</p>
-                                </div>
+                                <Link
+                                    to={`/event/${event.id}/${encodeURIComponent(event.name)}`}
+                                    style={{textDecoration: "none"}}
+                                >
+                                    <img src={event.image} alt={event.name} className="event-image"/>
+                                    <div className="event-info">
+                                        <h3>{event.name}</h3>
+                                        <p>📍 {event.location.address.city.name}</p>
+                                        <p>Category: {event.category.eventCategory}</p>
+                                    </div>
+                                </Link>
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 <div className="nav-dots">
-                    {Array.from({ length: pageSize }).map((_, index) => (
+                    {Array.from({length: pageSize}).map((_, index) => (
                         <span
                             key={index}
                             className={`nav-dot ${currentSlide === index ? 'active' : ''}`}

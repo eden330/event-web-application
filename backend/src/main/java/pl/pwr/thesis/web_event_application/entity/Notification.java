@@ -14,7 +14,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 
-@Entity(name = "notification")
+@Entity(name = "notifications")
 @NoArgsConstructor
 @Data
 public class Notification {

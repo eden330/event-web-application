@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { fetchFavouriteEvents, handleFavouriteEvent } from "../../api/services/userService";
-import { Card, Button, Row, Col } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { FavouriteEventModel } from "../../api/services/models/FavouriteEvent";
-import { PiHeartFill } from "react-icons/pi";
-import './css/Auth.css'; // Rename the CSS file to a more appropriate name
+import React, {useEffect, useState} from "react";
+import {fetchFavouriteEvents, handleFavouriteEvent} from "../../api/services/userService";
+import {Button, Card, Col, Row} from 'react-bootstrap';
+import {useNavigate} from 'react-router-dom';
+import {FavouriteEventModel} from "../../api/services/models/FavouriteEvent";
+import {PiHeartFill} from "react-icons/pi";
+import './css/FavouriteEvents.css';
 
 export const FavouriteEvents: React.FC = () => {
     const [favouriteEvents, setFavouriteEvents] = useState<FavouriteEventModel[]>([]);
@@ -41,58 +41,55 @@ export const FavouriteEvents: React.FC = () => {
         return <div>Loading favourite events...</div>;
     }
 
-    if (error) {
-        return <div>{error}</div>;
-    }
-
-    if (favouriteEvents.length === 0) {
-        return <div>No favourite events found.</div>;
-    }
 
     return (
-        <div className="container my-5">
-            <Row>
-                {favouriteEvents.map((event) => (
-                    <Col md={4} key={event.id}>
-                        <Card className="mb-3 shadow-sm favourite-card">
-                            {/* Clickable event photo */}
-                            <Link to={`/event/${event.id}/${encodeURIComponent(event.name)}`}>
+        <div className="container my-5 favourite-events-container">
+            {favouriteEvents.length === 0 ? (
+                <div className="no-favourites-message">
+                    <p>You have no favorite events yet.</p>
+                    <p>Start exploring and add some events to your favorites!</p>
+                    <Button
+                        onClick={() => navigate('/home')}
+                        className="go-home-btn"
+                    >
+                        Go to Home Page
+                    </Button>
+                </div>
+            ) : (
+                <Row>
+                    {favouriteEvents.map((event) => (
+                        <Col md={4} key={event.id}>
+                            <Card className="mb-3 shadow-sm favourite-card">
                                 <Card.Img
                                     variant="top"
                                     src={event.image || 'default-image.jpg'}
                                     alt={event.name}
                                     className="favourite-card-img"
-                                    style={{ cursor: 'pointer' }}
                                 />
-                            </Link>
 
-                            <Card.Body className="d-flex flex-column justify-content-between">
-                                <div className="d-flex justify-content-between align-items-center">
-                                    {/* Clickable event name */}
-                                    <Link
-                                        to={`/event/${event.id}/${encodeURIComponent(event.name)}`}
-                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                <Card.Body className="d-flex flex-column justify-content-between">
+                                    <Card.Title className="event-title">{event.name}</Card.Title>
+                                    <Card.Text>{event.category.eventCategory}</Card.Text>
+
+                                    <Button
+                                        onClick={() => navigate(`/event/${event.id}/${encodeURIComponent(event.name)}`)}
+                                        className="view-event-btn"
                                     >
-                                        <Card.Title className="event-title">{event.name}</Card.Title>
-                                    </Link>
-                                </div>
-                                <Card.Text>
-                                    {event.category.eventCategory}
-                                </Card.Text>
-                                <Link to={`/event/${event.id}/${encodeURIComponent(event.name)}`}>
-                                    <Button variant="primary">View Event</Button>
-                                </Link>
-                            </Card.Body>
+                                        View Event
+                                    </Button>
+                                </Card.Body>
 
-                            {/* Heart icon positioned in the bottom-right corner */}
-                            <PiHeartFill
-                                className="heart-icon-delete"
-                                onClick={() => handleRemoveFavourite(event.id)}
-                            />
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+                                <PiHeartFill
+                                    className="heart-icon-delete"
+                                    onClick={() => handleRemoveFavourite(event.id)}
+                                />
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            )}
         </div>
     );
+
+
 };

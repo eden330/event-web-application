@@ -52,7 +52,7 @@ import java.util.Set;
                 }
         )
 })
-@Table(name = "event")
+@Table(name = "events")
 @NoArgsConstructor
 @Data
 @JsonDeserialize(using = EventDeserializer.class)

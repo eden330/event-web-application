@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import pl.pwr.thesis.web_event_application.enums.EventCategory;
 
 @Entity
-@Table(name = "category")
+@Table(name = "categories")
 @NoArgsConstructor
 @Data
 public class Category {

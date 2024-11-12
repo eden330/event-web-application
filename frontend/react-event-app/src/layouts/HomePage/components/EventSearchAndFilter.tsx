@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from "react";
-import {CategoryButton} from "./CategoryButton";
 import {CitiesModal} from "./CitiesModal";
 import {fetchEventsList} from "../../../api/eventApi";
 import {EventModel} from "../models/EventModel";
@@ -7,15 +6,15 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../store";
 import {fetchCategoriesData} from "../../../reducers/slices/categoriesDataSlice";
 import {fetchCitiesData} from "../../../reducers/slices/citiesDataSlice";
+import '../css/EventSearchAndFilter.css';
 
 interface EventSearchAndFilterProps {
     onShowEvents: (cityName: string | null, categories: string[], searchTerm?: string | null, selectedEvent?: EventModel) => void;
     clearFilters: () => void;
 }
 
-export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onShowEvents, clearFilters }) => {
+export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onShowEvents, clearFilters}) => {
     const dispatch = useDispatch<AppDispatch>();
-
     const [showModal, setShowModal] = useState(false);
     const [httpError, setHttpError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -23,15 +22,16 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [suggestions, setSuggestions] = useState<EventModel[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
+
     const dropdownRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-
     const categories = useSelector((state: RootState) => state.categories.categories);
     const cities = useSelector((state: RootState) => state.cities.cities);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
     const handleCategoryClick = (category: string) => {
         const updatedCategories = selectedCategories.includes(category) ? [] : [category];
@@ -69,7 +69,6 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
             setShowDropdown(false);
         }
     };
-
     const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchValue = e.target.value;
         setSearchTerm(searchValue);
@@ -86,7 +85,7 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     const handleSuggestionClick = (suggestion: EventModel) => {
         setSearchTerm(suggestion.name);
         setShowDropdown(false);
-        onShowEvents(selectedCity, selectedCategories, suggestion.name, suggestion); // Pass the selected event
+        onShowEvents(selectedCity, selectedCategories, suggestion.name, suggestion);
     };
 
     const handleSearch = () => {
@@ -103,11 +102,6 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
     };
 
     const handleClearFilters = () => {
-        if (!selectedCity && selectedCategories.length === 0 && !searchTerm) {
-            console.log("Filters are already cleared, no action taken.");
-            return;
-        }
-
         setSelectedCity(null);
         setSelectedCategories([]);
         setSearchTerm("");
@@ -129,106 +123,75 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({ onSh
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     useEffect(() => {
-        if (showModal) {
-            dispatch(fetchCitiesData());
-        }
+        if (showModal) dispatch(fetchCitiesData());
     }, [showModal, dispatch]);
 
     useEffect(() => {
         dispatch(fetchCategoriesData());
     }, [dispatch]);
 
-    if (httpError) {
-        return (
-            <div className="container m-5">
-                <p>{httpError}</p>
-            </div>
-        );
-    }
+    if (httpError) return <div className="container m-5"><p>{httpError}</p></div>;
 
     return (
-        <div>
-            <div className="container-fluid">
-                <div className="row justify-content-center">
-                    <div className="col-lg-4 col-12">
-                        <div className="col d-flex justify-content-center align-items-center">
-                            <h6>EVENT CATEGORIES</h6>
-                        </div>
-                        <div className="row justify-content-center">
-                            {categories.length > 0 ? (
-                                categories.map((category) => (
-                                    <CategoryButton
-                                        key={category.id}
-                                        label={category.eventCategory}
-                                        image={category.image}
-                                        onClick={() => handleCategoryClick(category.eventCategory)}
-                                    />
-                                ))
-                            ) : (
-                                <p>Loading categories...</p>
-                            )}
-                        </div>
+        <div className="button-container">
+            <div className="category-buttons">
+                {categories.map((category) => (
+                    <div
+                        key={category.id}
+                        className="category-item"
+                        style={{backgroundImage: `url(${category.image})`}}
+                        onClick={() => handleCategoryClick(category.eventCategory)}
+                    >
+                        <p className="category-label">{category.eventCategory}</p>
                     </div>
+                ))}
+            </div>
 
-                    <div className="col-lg-4 col-12">
-                        <div className="col d-flex justify-content-center align-items-center">
-                            <h6>SEARCH EVENTS</h6>
-                        </div>
-                        <div className="d-flex position-relative">
-                            <input
-                                ref={searchInputRef}
-                                className="form-control me-2 mt-3"
-                                type="search"
-                                placeholder="Search events"
-                                aria-label="Search"
-                                value={searchTerm}
-                                onChange={handleSearchInputChange}
-                                onKeyDown={handleKeyDown}
-                            />
-                            <button className="btn btn-outline-danger" onClick={handleClearFilters}>
-                                Clear Filters
-                            </button>
-
-                            {showDropdown && suggestions.length > 0 && (
-                                <div ref={dropdownRef} className="dropdown-menu show position-absolute"
-                                     style={{ maxHeight: "200px", overflowY: "auto", top: "100%", zIndex: 1000 }}>
-                                    {suggestions.map((suggestion) => (
-                                        <button
-                                            key={suggestion.id}
-                                            className="dropdown-item"
-                                            onClick={() => handleSuggestionClick(suggestion)}
-                                        >
-                                            {suggestion.name} - {suggestion.category.eventCategory} - {suggestion.location.address.city.name}
-                                        </button>
-                                    ))}
+            <div className="col d-flex flex-column align-items-center">
+                <div className="d-flex search-bar-wrapper" style={{position: "relative"}}>
+                    <i
+                        className="fas fa-search search-icon"
+                        onClick={handleSearch}
+                        style={{cursor: 'pointer'}}
+                    />
+                    <input
+                        ref={searchInputRef}
+                        className="form-control search-bar"
+                        type="search"
+                        placeholder="Search events"
+                        aria-label="Search"
+                        value={searchTerm}
+                        onChange={handleSearchInputChange}
+                        onKeyDown={handleKeyDown}
+                    />
+                    <button className="clear-filters" onClick={handleClearFilters}>
+                        <i className="fas fa-times"></i> {/* Clear icon */}
+                        CLEAR
+                    </button>
+                    {showDropdown && suggestions.length > 0 && (
+                        <div className="suggestions-dropdown" ref={dropdownRef}>
+                            {suggestions.map((suggestion) => (
+                                <div
+                                    key={suggestion.id}
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                >
+                                    {suggestion.name}
                                 </div>
-                            )}
+                            ))}
                         </div>
-                    </div>
-
-                    <div className="col-lg-4 col-12">
-                        <div className="col d-flex justify-content-center align-items-center">
-                            <h6>EVENT CITIES</h6>
-                        </div>
-                        <div className="row justify-content-center">
-                            <button
-                                className="btn btn-outline-primary"
-                                onClick={handleShowModal}
-                                style={{ width: "150px", padding: "5px 10px", textAlign: "center" }}
-                            >
-                                Show Cities
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
+
+            <div className="col d-flex flex-column align-items-center" style={{height: "100%"}}>
+                <button className="btn btn-show-cities" onClick={handleShowModal}>
+                </button>
+            </div>
+
             <CitiesModal
                 show={showModal}
                 handleClose={handleCloseModal}

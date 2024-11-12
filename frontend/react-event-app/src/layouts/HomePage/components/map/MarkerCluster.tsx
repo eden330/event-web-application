@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import {useNavigate} from 'react-router-dom'; // Import useNavigate
 import {useMap} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -9,14 +10,13 @@ import {EventModelMap} from "../../models/map/EventModelMap";
 import './MapComponents.css';
 import {CategoryModel} from "../../models/CategoryModel";
 
-
 interface MapComponentProps {
     events: EventModelMap[];
 }
 
 const createPopupContent = (event: EventModelMap): string => {
     return `
-        <a href="/event/${event.id}/${encodeURIComponent(event.name)}" style="text-decoration: none; color: inherit;">
+        <div class="popup-content" data-event-id="${event.id}" data-event-name="${encodeURIComponent(event.name)}" style="cursor: pointer;">
             <div class="card" style="border: 1px solid #ccc; border-radius: 8px; padding: 10px; width: 15rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                 <div class="d-flex align-items-center">
                     <img src="${event.image}" class="img-fluid" alt="${event.name}" style="width: 50px; height: 50px; margin-right: 10px;" />
@@ -26,10 +26,9 @@ const createPopupContent = (event: EventModelMap): string => {
                     </div>
                 </div>
             </div>
-        </a>
+        </div>
     `;
 };
-
 
 const createClusterPopupContent = (events: EventModelMap[]): string => {
     return `
@@ -48,7 +47,7 @@ const createClusterPopupContent = (events: EventModelMap[]): string => {
 const getIconForCategory = (category: CategoryModel): string => {
     return category.image && category.image.trim() !== ''
         ? category.image
-        : 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png'; // Default icon for unknown category
+        : 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png';
 };
 
 const getMostFrequentCategory = (events: EventModelMap[]): CategoryModel | null => {
@@ -60,7 +59,7 @@ const getMostFrequentCategory = (events: EventModelMap[]): CategoryModel | null 
         if (categoryCounts[category]) {
             categoryCounts[category].count += 1;
         } else {
-            categoryCounts[category] = { count: 1, categoryModel };
+            categoryCounts[category] = {count: 1, categoryModel};
         }
     });
 
@@ -94,7 +93,7 @@ const createClusterIcon = (cluster: any, events: EventModelMap[]): L.DivIcon => 
 
 export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
     const map = useMap();
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         const markerClusters = L.markerClusterGroup({
@@ -103,8 +102,7 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
             maxClusterRadius: 100,
             spiderfyOnMaxZoom: false,
             chunkedLoading: true,
-            iconCreateFunction: (cluster) => createClusterIcon(cluster, events)
-
+            iconCreateFunction: (cluster) => createClusterIcon(cluster, events),
         });
 
         markerClusters.clearLayers();
@@ -119,13 +117,19 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
                 iconAnchor: [10, 10],
             });
 
-            L.marker(new L.LatLng(event.location.latitude, event.location.longitude), {
+            const marker = L.marker(new L.LatLng(event.location.latitude, event.location.longitude), {
                 icon: eventIcon,
-            }).bindPopup(popupContent)
-                .addTo(markerClusters);
+            });
 
+            marker.bindPopup(popupContent);
+            marker.on("popupopen", () => {
+                // Attach click event on popup content to navigate
+                document.querySelector('.popup-content')?.addEventListener('click', () => {
+                    navigate(`/event/${event.id}/${encodeURIComponent(event.name)}`);
+                });
+            });
+            markerClusters.addLayer(marker);
         });
-
 
         markerClusters.on('clusterclick', (e: any) => {
             const markers = e.layer.getAllChildMarkers();
@@ -140,6 +144,19 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
                     .setLatLng(e.latlng)
                     .setContent(clusterPopupContent)
                     .openOn(map);
+
+                setTimeout(() => {
+                    document.querySelectorAll('.popup-content').forEach(item => {
+                        item.addEventListener('click', (ev) => {
+                            const target = ev.currentTarget as HTMLElement;
+                            const eventId = target.getAttribute('data-event-id');
+                            const eventName = target.getAttribute('data-event-name');
+                            if (eventId && eventName) {
+                                navigate(`/event/${eventId}/${eventName}`);
+                            }
+                        });
+                    });
+                }, 0);
             }
         });
 
@@ -149,7 +166,7 @@ export const MarkerCluster: React.FC<MapComponentProps> = ({events}) => {
             map.removeLayer(markerClusters);
         };
 
-    }, [events, map]);
+    }, [events, map, navigate]);
 
     return null;
 };

@@ -1,0 +1,41 @@
+.profile-card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: scale(1.03);
+}
+
+.chosen-events-card {
+    background-image: url('https://i.postimg.cc/LXhrSZXD/party.avif');
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.chosen-events-card:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.favourite-events-card {
+    background-image: url('https://i.postimg.cc/5t4hPrWZ/heart.webp');
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.favourite-events-card:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+button {
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #333;
+    color: #fff;
+}

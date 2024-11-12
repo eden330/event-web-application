@@ -29,12 +29,14 @@ import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
 import pl.pwr.thesis.web_event_application.dto.user.FavouriteEventDto;
+import pl.pwr.thesis.web_event_application.dto.user.ReactedEventDto;
 import pl.pwr.thesis.web_event_application.dto.user.UserProfileDto;
 import pl.pwr.thesis.web_event_application.exception.TokenRefreshException;
 import pl.pwr.thesis.web_event_application.exception.UserAlreadyExistsException;
 import pl.pwr.thesis.web_event_application.exception.error.ErrorResponse;
 import pl.pwr.thesis.web_event_application.security.service.UserDetailsImpl;
 import pl.pwr.thesis.web_event_application.security.util.SecurityUtil;
+import pl.pwr.thesis.web_event_application.service.interfaces.ReactionService;
 import pl.pwr.thesis.web_event_application.service.interfaces.RefreshTokenService;
 import pl.pwr.thesis.web_event_application.service.interfaces.UserService;
 
@@ -49,13 +51,15 @@ public class UserController {
     private final RefreshTokenService refreshTokenService;
     private final SecurityUtil securityUtil;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final ReactionService reactionService;
 
     public UserController(UserService userService,
                           RefreshTokenService refreshTokenService,
-                          SecurityUtil securityUtil) {
+                          SecurityUtil securityUtil, ReactionService reactionService) {
         this.userService = userService;
         this.refreshTokenService = refreshTokenService;
         this.securityUtil = securityUtil;
+        this.reactionService = reactionService;
     }
 
     @PostMapping("/login")
@@ -335,6 +339,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(
                             "Error fetching recommended Events for user", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/events/reactions")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getUserReactedEventIds() {
+        UserDetailsImpl principal = (UserDetailsImpl) securityUtil.getCurrentUser();
+        Long userId = principal.id();
+
+        try {
+            List<ReactedEventDto> reactedEvents = reactionService.
+                    findReactedEventIdsAndTypesByUserId(userId);
+            return ResponseEntity.ok(reactedEvents);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Error fetching reacted events", e.getMessage()));
         }
     }
 }

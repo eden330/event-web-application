@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './css/HomePage.css';
-import { EventSearchAndFilter } from "./components/EventSearchAndFilter";
-import { MapComponent } from "./components/map/MapComponent";
-import { EventCard } from "./components/EventCard";
-import { EventModel } from "./models/EventModel";
-import { EventModelMap } from "./models/map/EventModelMap";
+import {EventSearchAndFilter} from "./components/EventSearchAndFilter";
+import {MapComponent} from "./components/map/MapComponent";
+import {EventCard} from "./components/EventCard";
+import {EventModel} from "./models/EventModel";
+import {EventModelMap} from "./models/map/EventModelMap";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { fetchCity, fetchEventsList } from "../../api/eventApi";
-import { fetchFilteredEventsForMap } from '../../reducers/slices/eventsDataSlice';
+import {fetchCity, fetchEventsList} from "../../api/eventApi";
+import {fetchFilteredEventsForMap} from '../../reducers/slices/eventsDataSlice';
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../store";
 
 export const HomePage = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { eventsByFilters } = useSelector((state: RootState) => state.eventsData);
+    const {eventsByFilters} = useSelector((state: RootState) => state.eventsData);
 
     const [events, setEvents] = useState<EventModel[]>([]);
     const [eventsMap, setEventsMap] = useState<EventModelMap[]>([]);
@@ -29,13 +29,14 @@ export const HomePage = () => {
     const [noResultsFound, setNoResultsFound] = useState(false);
     const isFetching = useRef(false);
 
+    const [swipedEventId, setSwipedEventId] = useState<number | null>(null);
+
     const fetchEvents = async (
         cityName: string | null = null,
         categories: string[] = [],
         searchTerm: string | null = null,
         reset: boolean = false
     ) => {
-        console.log("Fetching events for city:", cityName, "categories:", categories, "filter:", searchTerm);
         if (isFetching.current || (!hasMore && !reset)) return;
 
         isFetching.current = true;
@@ -56,9 +57,10 @@ export const HomePage = () => {
                 searchTerm || undefined
             ) as EventModel[];
 
-            console.log("Number of events returned:", responseJson.length);
-
             if (responseJson.length === 0) {
+                if (events.length > 0) {
+                    return;
+                }
                 setNoResultsFound(true);
                 setHasMore(false);
                 if (reset) setEvents([]);
@@ -76,8 +78,6 @@ export const HomePage = () => {
     };
 
     const fetchEventsForMap = async () => {
-        console.log("Fetching map events for city:", selectedCity, "categories:", selectedCategories, "filter:", searchTerm);
-
         try {
             const actionResult = await dispatch(fetchFilteredEventsForMap({
                 cityName: selectedCity ?? undefined,
@@ -86,12 +86,10 @@ export const HomePage = () => {
             }));
 
             if (fetchFilteredEventsForMap.fulfilled.match(actionResult)) {
-                const { cacheKey, events, cached } = actionResult.payload || {};
-                console.log("Fetched events from map:", events, "with cache key:", cacheKey);
+                const {cacheKey, events, cached} = actionResult.payload || {};
 
                 if (cached) {
                     const cachedEvents = eventsByFilters[cacheKey]?.events || [];
-                    console.log("Using cached events:", cachedEvents);
                     setEventsMap(cachedEvents);
                 } else {
                     setEventsMap(events || []);
@@ -102,13 +100,12 @@ export const HomePage = () => {
         }
     };
 
-
     const fetchCityCoordinates = async (cityName: string | null) => {
         if (!cityName) return;
         try {
             const cityData = await fetchCity(cityName);
             if (cityData && cityData.latitude && cityData.longitude) {
-                setCityCoordinates({ lat: cityData.latitude, lon: cityData.longitude });
+                setCityCoordinates({lat: cityData.latitude, lon: cityData.longitude});
             } else {
                 console.error(`No coordinates found for city: ${cityName}`);
             }
@@ -118,7 +115,6 @@ export const HomePage = () => {
     };
 
     const fetchInitialEvents = async () => {
-        console.log("Fetching initial events without filters");
         setPage(0);
         setHasMore(true);
         setEvents([]);
@@ -148,16 +144,14 @@ export const HomePage = () => {
     };
 
     const clearFilters = () => {
-        console.log("Clearing all filters");
         setSelectedCity(null);
         setSelectedCategories([]);
         setSearchTerm(null);
-
         setHasMore(true);
         setPage(0);
         setEvents([]);
-
-        setCityCoordinates({ lat: 52, lon: 19.4803 });
+        setCityCoordinates({lat: 52, lon: 19.4803});
+        setSwipedEventId(null);
     };
 
     useEffect(() => {
@@ -169,6 +163,18 @@ export const HomePage = () => {
         }
     }, [selectedCity, selectedCategories, searchTerm]);
 
+    const handleSwipeLeft = (event: EventModel) => {
+        if (swipedEventId !== event.id) {
+            console.log("Showing only this event on map:", event);
+            setEventsMap([event]);
+            setCityCoordinates({
+                lat: event.location.address.city.latitude,
+                lon: event.location.address.city.longitude
+            });
+            setSwipedEventId(event.id);
+        }
+    };
+
     if (httpError) {
         return (
             <div className="container m-5">
@@ -178,29 +184,41 @@ export const HomePage = () => {
     }
 
     return (
-        <div className="d-flex flex-column">
-            <EventSearchAndFilter onShowEvents={onShowEvents} clearFilters={clearFilters} />
-            <div className="container-fluid flex-grow-1">
-                <div className="row">
-                    <div className="col-12 col-md-6 p-0">
-                        <MapComponent events={eventsMap} cityCoordinates={cityCoordinates} />
-                    </div>
-                    <div className="col-12 col-md-6 p-3 event-list" id="scrollable-event-list">
-                        {noResultsFound ? (
-                            <p>No results found :D</p>
-                        ) : (
-                            <InfiniteScroll
-                                dataLength={events.length}
-                                next={() => fetchEvents(selectedCity, selectedCategories, searchTerm)}
-                                hasMore={hasMore}
-                                loader={<p>Loading more events...</p>}
-                                scrollableTarget="scrollable-event-list"
-                            >
-                                {events.map((event) => (
-                                    <EventCard key={event.id} event={event} />
-                                ))}
-                            </InfiniteScroll>
-                        )}
+        <div className="container-fluid" style={{overflowY: "auto", height: "100vh"}}>
+            <div className="search-filter-section bg-light shadow-sm rounded mb-3">
+                <EventSearchAndFilter onShowEvents={onShowEvents} clearFilters={clearFilters}/>
+            </div>
+            <div className="d-flex flex-column">
+                <div className="container-fluid flex-grow-1">
+                    <div className="row">
+                        <div className="col-12 col-md-5 p-3">
+                            <div className="map-tab">
+                                <div className="event-count-overlay">
+                                    <span className="event-count-text">{eventsMap.length}</span>
+                                    <span className="event-count-label">Events</span>
+                                </div>
+                            </div>
+                            <div className="map-container">
+                                <MapComponent events={eventsMap} cityCoordinates={cityCoordinates}/>
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-7 p-3 event-list-container" id="scrollable-event-list">
+                            {noResultsFound ? (
+                                <p className="text-muted">No results found 😕</p>
+                            ) : (
+                                <InfiniteScroll
+                                    dataLength={events.length}
+                                    next={() => fetchEvents(selectedCity, selectedCategories, searchTerm)}
+                                    hasMore={hasMore}
+                                    loader={<p></p>}
+                                    scrollableTarget="scrollable-event-list"
+                                >
+                                    {events.map((event) => (
+                                        <EventCard key={event.id} event={event} onSwipeLeft={handleSwipeLeft}/>
+                                    ))}
+                                </InfiniteScroll>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,342 @@
+.button-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rounded-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0069d9;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.button-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 0;
+}
+
+.rounded-btn:hover {
+    background-color: #f5f5f5;
+    color: #007bff;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-rounded-description {
+    font-size: 0.85rem;
+    color: #333333;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.location-button-container {
+    width: 33%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+}
+
+.location-filter-button {
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #007bff;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.location-filter-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.location-section {
+    margin-top: 20px;
+}
+
+.location-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tag:hover {
+    background-color: #e0e0e0;
+}
+
+
+.category-buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 33%;
+    max-width: 33%;
+}
+
+.category-item {
+    flex: 1 1 0;
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    cursor: pointer;
+    color: white;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-item:not(:first-child):not(:last-child) {
+    border-left: 2px solid #ddd;
+    border-right: 2px solid #ddd;
+}
+
+
+.category-item:hover {
+    transform: scale(1.04);
+}
+
+.category-label {
+    position: absolute;
+    bottom: -10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.category-item:hover .category-label {
+    color: #000;
+    text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.5);
+}
+
+.category-icon {
+    margin-left: 10px;
+    display: none;
+}
+
+.search-container {
+    width: 33%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+}
+
+
+.search-bar-wrapper {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    border-radius: 20px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f5f7fa;
+    padding: 5px 10px;
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    background: none;
+    padding: 8px;
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.search-bar::placeholder {
+    color: #b0b0b0;
+}
+
+.clear-filters {
+    background-color: transparent;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    border-radius: 8px;
+    margin-left: 5px;
+    padding: 3px 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-filters:hover {
+    background-color: #ff6b6b;
+    color: white;
+    transform: scale(1.05);
+}
+
+.clear-filters:focus {
+    outline: none;
+    box-shadow: 0 0 4px rgba(255, 107, 107, 0.5);
+}
+
+.search-icon {
+    font-size: 1rem;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    background-color: #f0f0f0;
+    padding: 8px;
+    flex-grow: 1;
+    font-size: 1rem;
+    color: #333;
+    border-radius: 20px;
+}
+
+.search-bar::placeholder {
+    color: #b0b0b0;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    transition: opacity 0.3s ease;
+}
+
+.suggestions-dropdown div {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.suggestions-dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+.col.d-flex.flex-column.align-items-center {
+    width: 100%;
+    height: 100%;
+}
+
+.btn-show-cities {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    background-image: url('https://i.postimg.cc/t4KWdz0b/city-removebg-preview-5.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+
+}
+
+.btn-show-cities:hover {
+    transform: scale(1.04);
+    transition: all 0.4s ease;
+}
+
+.btn-show-cities::before {
+    content: "LOCATIONS";
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .category-buttons,
+    .search-container,
+    .location-button-container {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .category-item {
+        width: 60px;
+        height: 60px;
+    }
+
+    .btn-show-cities {
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-item {
+        width: 50px;
+        height: 50px;
+    }
+
+    .btn-show-cities {
+        height: 50px;
+    }
+
+    .category-label {
+        font-size: 0.6rem;
+    }
+
+    .search-bar {
+        font-size: 0.8rem;
+    }
+
+    .clear-filters {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+}

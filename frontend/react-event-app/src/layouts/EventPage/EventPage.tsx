@@ -1,19 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
+import React, {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import {EventModel} from "../HomePage/models/EventModel";
 import {fetchEventById, fetchReactionCountByType} from "../../api/eventApi";
-import {handleFavouriteEvent, isFavouriteEvent, handleEventReaction} from "../../api/services/userService";
+import {
+    fetchReactedEvents,
+    handleEventReaction,
+    handleFavouriteEvent,
+    isFavouriteEvent
+} from "../../api/services/userService";
 import authService from "../../api/services/authService";
-import {Modal, Button} from 'react-bootstrap';
-import {FaThumbsUp, FaStar, FaThumbsDown} from 'react-icons/fa'; // Import the icons
+import {Button, Modal} from "react-bootstrap";
 import {PiHeartFill} from "react-icons/pi";
-import './css/EventPage.css';
+import "./css/EventPage.css";
 import {EventPageMap} from "./components/EventPageMap";
 
 export const EventPage = () => {
     const {eventId} = useParams<{ eventId: string }>();
     const navigate = useNavigate();
-
     const [event, setEvent] = useState<EventModel | null>(null);
     const [isLoadingEvent, setIsLoadingEvent] = useState(true);
     const [httpError, setHttpError] = useState<string | null>(null);
@@ -27,6 +30,7 @@ export const EventPage = () => {
         INTERESTED: 0,
         DISLIKE: 0,
     });
+    const [reactedEvents, setReactedEvents] = useState<Map<number, string>>(new Map());
 
     const checkAuthentication = () => {
         const user = authService.getCurrentUser();
@@ -35,9 +39,9 @@ export const EventPage = () => {
 
     const fetchReactionCounts = async () => {
         try {
-            const likeCount = await fetchReactionCountByType(parseInt(eventId!), 'LIKE');
-            const interestedCount = await fetchReactionCountByType(parseInt(eventId!), 'INTERESTED');
-            const dislikeCount = await fetchReactionCountByType(parseInt(eventId!), 'DISLIKE');
+            const likeCount = await fetchReactionCountByType(parseInt(eventId!), "LIKE");
+            const interestedCount = await fetchReactionCountByType(parseInt(eventId!), "INTERESTED");
+            const dislikeCount = await fetchReactionCountByType(parseInt(eventId!), "DISLIKE");
 
             setReactionCounts({
                 LIKE: likeCount,
@@ -45,7 +49,7 @@ export const EventPage = () => {
                 DISLIKE: dislikeCount,
             });
         } catch (error) {
-            console.error('Error fetching reaction counts:', error);
+            console.error("Error fetching reaction counts:", error);
         }
     };
 
@@ -62,6 +66,7 @@ export const EventPage = () => {
                 if (isAuth) {
                     const favouriteStatus = await isFavouriteEvent(parseInt(eventId!));
                     setIsFavourite(favouriteStatus);
+                    await fetchReactedEventsData();
                 }
 
                 fetchReactionCounts();
@@ -69,6 +74,20 @@ export const EventPage = () => {
                 setHttpError("Failed to load event data");
             } finally {
                 setIsLoadingEvent(false);
+            }
+        };
+
+        const fetchReactedEventsData = async () => {
+            try {
+                const reactedEventsData = await fetchReactedEvents();
+                const reactedEventsMap = new Map<number, string>();
+                reactedEventsData.forEach((eventDto) => {
+                    reactedEventsMap.set(eventDto.eventId, eventDto.reactionType);
+                });
+                setReactedEvents(reactedEventsMap);
+                setUserReaction(reactedEventsMap.get(parseInt(eventId!)) || null);
+            } catch (error) {
+                console.error("Error fetching reacted events:", error);
             }
         };
 
@@ -102,10 +121,18 @@ export const EventPage = () => {
             return;
         }
 
+        if (reactedEvents.has(parseInt(eventId!)) && reactedEvents.get(parseInt(eventId!)) === reactionType) {
+            reactedEvents.delete(parseInt(eventId!));
+            setReactedEvents(new Map(reactedEvents));
+            setUserReaction(null);
+        } else {
+            reactedEvents.set(parseInt(eventId!), reactionType);
+            setReactedEvents(new Map(reactedEvents));
+            setUserReaction(reactionType);
+        }
+
         try {
             await handleEventReaction(parseInt(eventId!), reactionType);
-            setUserReaction(reactionType);
-
             fetchReactionCounts();
         } catch (error) {
             console.error(`Error handling reaction: ${reactionType}`, error);
@@ -124,6 +151,10 @@ export const EventPage = () => {
         return <div>No event found</div>;
     }
 
+    const getUserReaction = (eventId: number): string | null => {
+        return reactedEvents.get(eventId) || null;
+    };
+
     const coordinates = {
         lat: event.location.latitude,
         lon: event.location.longitude,
@@ -131,44 +162,55 @@ export const EventPage = () => {
 
     return (
         <div className="container mt-4">
-            <div className="row" style={{display: 'flex', height: '600px'}}>
-                <div className="col-md-6 d-flex flex-column" style={{height: '600px'}}>
-                    <div className="card h-100" style={{overflowY: 'auto', maxHeight: '600px'}}>
-                        <img
-                            src={event.image || 'default-image.jpg'}
-                            className="card-img-top"
-                            alt={event.name}
-                            style={{height: '300px', objectFit: 'cover'}}
-                        />
-                        <div className="card-body" style={{overflowY: 'auto', maxHeight: 'calc(100% - 300px)'}}>
+            <div className="row" style={{display: "flex", height: "600px"}}>
+                <div className="col-md-6 d-flex flex-column" style={{height: "600px"}}>
+                    <div className="card h-100" style={{overflowY: "auto", maxHeight: "600px"}}>
+                        <img src={event.image || "default-image.jpg"} className="card-img-top" alt={event.name}
+                             style={{height: "300px", objectFit: "cover"}}/>
+                        <div className="card-body" style={{overflowY: "auto", maxHeight: "calc(100% - 300px)"}}>
                             <h5 className="card-title">
                                 {event.name}
                                 <span
-                                    className={`heart-icon ${isFavourite ? 'favorited' : 'not-favorite'}`}
-                                    style={{
-                                        cursor: isTogglingFavorite ? 'not-allowed' : 'pointer',
-                                    }}
+                                    className={`heart-icon ${isFavourite ? "favorited" : "not-favorite"}`}
+                                    style={{cursor: isTogglingFavorite ? "not-allowed" : "pointer"}}
                                     onClick={handleFavouriteClick}
                                 >
-            {isFavourite ? <PiHeartFill className="favorited"/> : <PiHeartFill className="not-favorite"/>}
-                </span>
+                                {isFavourite ? <PiHeartFill className="favorited"/> :
+                                    <PiHeartFill className="not-favorite"/>}
+                            </span>
                             </h5>
                             <p className="card-text">{event.description}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="col-md-6 d-flex flex-column" style={{height: '100%'}}>
-                    <div style={{height: '300px', width: '100%', flexShrink: 0, marginBottom: '20px'}}>
+                <div className="col-md-6 d-flex flex-column" style={{height: "100%"}}>
+                    <div style={{height: "300px", width: "100%", flexShrink: 0, marginBottom: "20px"}}>
                         <EventPageMap events={[event]} cityCoordinates={coordinates}/>
                     </div>
 
-                    <div className="card" style={{flexGrow: 1, marginTop: '40px'}}>
+                    <div className="card" style={{flexGrow: 1, marginTop: "40px"}}>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-6">
-                                    <p><strong>Start Date:</strong> {event.startDate}</p>
-                                    <p><strong>End Date:</strong> {event.endDate}</p>
+                                    <p><strong>Start
+                                        Date:</strong> {new Date(event.startDate).toLocaleDateString('pl-PL', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    })} {new Date(event.startDate).toLocaleTimeString('pl-PL', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}</p>
+                                    <p><strong>End Date:</strong> {new Date(event.endDate).toLocaleDateString('pl-PL', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    })} {new Date(event.endDate).toLocaleTimeString('pl-PL', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}</p>
+
                                 </div>
                                 <div className="col-md-6">
                                     <p><strong>Category:</strong> {event.category.eventCategory}</p>
@@ -178,28 +220,28 @@ export const EventPage = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="reaction-icons">
-                                <span
-                                    className={userReaction === 'LIKE' ? 'selected-reaction' : ''}
-                                    style={{cursor: 'pointer', fontSize: '1.5em', marginRight: '10px'}}
+                            <div className="reactions">
+                                <button
+                                    className={`reaction-button ${getUserReaction(event.id) === 'LIKE' ? 'active' : ''}`}
                                     onClick={() => handleReactionClick('LIKE')}
                                 >
-                                    <FaThumbsUp/> {reactionCounts.LIKE}
-                                </span>
-                                <span
-                                    className={userReaction === 'INTERESTED' ? 'selected-reaction' : ''}
-                                    style={{cursor: 'pointer', fontSize: '1.5em', marginRight: '10px'}}
+                                    <i className="fas fa-thumbs-up"></i>
+                                    <span className="reaction-count">{reactionCounts.LIKE}</span>
+                                </button>
+                                <button
+                                    className={`reaction-button fire-button ${getUserReaction(event.id) === 'INTERESTED' ? 'active' : ''}`}
                                     onClick={() => handleReactionClick('INTERESTED')}
                                 >
-                                    <FaStar/> {reactionCounts.INTERESTED}
-                                </span>
-                                <span
-                                    className={userReaction === 'DISLIKE' ? 'selected-reaction' : ''}
-                                    style={{cursor: 'pointer', fontSize: '1.5em', marginRight: '10px'}}
+                                    <i className="fas fa-fire"></i>
+                                    <span className="reaction-count">{reactionCounts.INTERESTED}</span>
+                                </button>
+                                <button
+                                    className={`reaction-button ${getUserReaction(event.id) === 'DISLIKE' ? 'active' : ''}`}
                                     onClick={() => handleReactionClick('DISLIKE')}
                                 >
-                                    <FaThumbsDown/> {reactionCounts.DISLIKE}
-                                </span>
+                                    <i className="fas fa-thumbs-down"></i>
+                                    <span className="reaction-count">{reactionCounts.DISLIKE}</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -217,7 +259,7 @@ export const EventPage = () => {
                     <Button variant="secondary" onClick={() => setShowLoginPrompt(false)}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={() => navigate('/login')}>
+                    <Button variant="primary" onClick={() => navigate("/login")}>
                         Log In
                     </Button>
                 </Modal.Footer>

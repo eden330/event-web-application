@@ -1,0 +1,194 @@
+.event-card {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #dcdcdc;
+    border-radius: 100px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s ease;
+    background-color: #fff;
+    position: relative;
+}
+
+.event-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image {
+    width: 150px;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-content {
+    flex-grow: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.3rem;
+}
+
+.card-location {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.card-dates {
+    display: flex;
+    align-items: baseline;
+    font-size: 0.9rem;
+    color: #555;
+    gap: 5px;
+}
+
+.card-category {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #FFA500;
+}
+
+.city-icon, .calendar-icon, .category-icon {
+    color: #007bff;
+    font-size: 1rem;
+    margin-right: 5px;
+}
+
+.reactions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.reaction-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #888;
+    position: relative;
+    transition: color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.reaction-button.active i {
+    color: #ff6347;
+}
+
+.reaction-button:hover i {
+    color: #ff6347;
+    transform: scale(1.2);
+}
+
+.reaction-count {
+    font-size: 0.8rem;
+    background-color: #f0f0f0;
+    color: #333;
+    border-radius: 12px;
+    padding: 3px 7px;
+    margin-left: 5px;
+    min-width: 22px;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.reaction-button.active .reaction-count {
+    color: #ff4500;
+}
+
+.reaction-button:hover .reaction-count {
+    color: #ff4500;
+}
+
+.reaction-button.active.fire-button i {
+    color: #ff4500;
+}
+
+.reaction-button.fire-button i {
+    color: #888;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.reaction-button.fire-button:hover i {
+    animation: flame 1s infinite;
+    transform: scale(1.1);
+}
+
+@keyframes flame {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(5deg);
+        color: #ff4500;
+    }
+    100% {
+        transform: scale(1) rotate(-5deg);
+        color: #ff6347;
+    }
+}
+
+.reaction-button:hover {
+    background: none;
+}
+
+.drag-handle {
+    width: 70px;
+    height: 100%;
+    background-color: rgb(61, 122, 255);
+    background-image: url('https://i.postimg.cc/vTbp498L/arrow-removebg-preview-1.png');
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transition: background-color 0.3s ease;
+}
+
+.drag-handle:hover {
+    background-color: rgba(0, 24, 179, 0.83);
+}
+
+@media (max-width: 768px) {
+    .event-card {
+        border-radius: 20px;
+    }
+
+    .card-image {
+        width: 100px;
+    }
+
+    .card-content {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-image {
+        width: 80px;
+    }
+
+    .card-content {
+        padding: 8px;
+    }
+
+    .drag-handle {
+        width: 50px;
+    }
+}

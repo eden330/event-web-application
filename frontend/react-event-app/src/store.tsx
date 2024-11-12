@@ -1,14 +1,13 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import {configureStore} from "@reduxjs/toolkit";
+import {persistReducer, persistStore} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import authReducer from "./reducers/authReducer";
 import messageReducer from "./reducers/messageReducer";
 import categoriesReducer from "./reducers/slices/categoriesDataSlice";
 import eventsDataReducer from "./reducers/slices/eventsDataSlice";
 import citiesReducer from "./reducers/slices/citiesDataSlice";
-import { combineReducers } from "redux";
+import {combineReducers} from "redux";
 
-// 1. Combine your reducers
 const rootReducer = combineReducers({
     auth: authReducer,
     message: messageReducer,
@@ -20,7 +19,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["categories", "cities","eventsData"],
+    whitelist: ["categories", "cities", "eventsData"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

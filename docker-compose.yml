@@ -13,22 +13,22 @@ services:
 
   selenium:
     image: selenium/standalone-chrome:115.0.5790.110
+    env_file:
+      - .env
     ports:
-      - "4444:4444"
+      - "${SELENIUM_PORT}:${SELENIUM_PORT}"
     networks:
       - app-network
 
   backend_service:
     build:
       context: ./backend
-    cap_add:
-      - SYS_ADMIN
     ports:
       - "${SPRING_PORT}:${SPRING_PORT}"
     env_file:
       - ./backend/.env
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql_db:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_URL=${MYSQL_URL}
       - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
     depends_on:

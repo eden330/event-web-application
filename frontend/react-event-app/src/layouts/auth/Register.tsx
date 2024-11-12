@@ -1,26 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { isEmail } from "validator";
-import { register } from "../../actions/auth";
-import { RootState, AppDispatch } from "../../store";
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {isEmail} from "validator";
+import {register} from "../../actions/auth";
+import {AppDispatch, RootState} from "../../store";
+import {useNavigate} from "react-router-dom";
 
 import './css/Auth.css';
-import { fetchCategories, fetchCities } from "../../api/eventApi";
-import { CityModel } from "../HomePage/models/CityModel";
-import { CategoryModel } from "../HomePage/models/CategoryModel";
+import {fetchCategories, fetchCities} from "../../api/eventApi";
+import {CityModel} from "../HomePage/models/CityModel";
+import {CategoryModel} from "../HomePage/models/CategoryModel";
 
 interface IFormInput {
     username: string;
     email: string;
     password: string;
 }
+
 export const Register: React.FC = () => {
-    const { register: formRegister, handleSubmit, formState: { errors } } = useForm<IFormInput>();
+    const {register: formRegister, handleSubmit, formState: {errors}} = useForm<IFormInput>();
     const [successful, setSuccessful] = useState(false);
     const [step, setStep] = useState(1);
-    const { message } = useSelector((state: RootState) => state.message);
+    const {message} = useSelector((state: RootState) => state.message);
     const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -103,8 +104,11 @@ export const Register: React.FC = () => {
                                         className="form-control"
                                         {...formRegister("username", {
                                             required: "Username is required",
-                                            minLength: { value: 3, message: "Username must be at least 3 characters" },
-                                            maxLength: { value: 20, message: "Username cannot be longer than 20 characters" }
+                                            minLength: {value: 3, message: "Username must be at least 3 characters"},
+                                            maxLength: {
+                                                value: 20,
+                                                message: "Username cannot be longer than 20 characters"
+                                            }
                                         })}
                                     />
                                     {errors.username && (
@@ -138,8 +142,8 @@ export const Register: React.FC = () => {
                                         className="form-control"
                                         {...formRegister("password", {
                                             required: "Password is required",
-                                            minLength: { value: 6, message: "Password must be at least 6 characters" },
-                                            maxLength: { value: 40, message: "Password cannot exceed 40 characters" }
+                                            minLength: {value: 6, message: "Password must be at least 6 characters"},
+                                            maxLength: {value: 40, message: "Password cannot exceed 40 characters"}
                                         })}
                                     />
                                     {errors.password && (

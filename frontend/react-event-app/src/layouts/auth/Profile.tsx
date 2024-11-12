@@ -1,16 +1,16 @@
-import React, {useEffect, useState, useCallback} from "react";
-import {Navigate} from 'react-router-dom';
+import React, {useCallback, useEffect, useState} from "react";
+import {Navigate, useNavigate} from 'react-router-dom';
 import {useDispatch} from "react-redux";
 import {logout} from "../../actions/auth";
-import {fetchUserProfile, deleteAccount, updateUserPreferences} from "../../api/services/userService";
+import {deleteAccount, fetchUserProfile, updateUserPreferences} from "../../api/services/userService";
 import {AppDispatch} from "../../store";
 import {UserProfileModel} from "./models/UserProfileModel";
-import {Button, Card, Row, Col, Modal, Form} from 'react-bootstrap';
+import {Button, Card, Col, Form, Modal, Row} from 'react-bootstrap';
 import {CategoryModel} from "../HomePage/models/CategoryModel";
 import {CityModel} from "../HomePage/models/CityModel";
 import {fetchCategories, fetchCities} from "../../api/eventApi";
 import {UpdateRequest} from "../../api/services/models/UpdateRequest";
-import {useNavigate} from 'react-router-dom';
+import './css/Profile.css';
 
 export const Profile: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -125,12 +125,13 @@ export const Profile: React.FC = () => {
                 profileData ? (
                     <Row>
                         <Col md={4}>
-                            <Card className="mb-3 shadow-sm">
-                                <Card.Body>
-                                    <Card.Title>Chosen Events</Card.Title>
+                            <Card className="mb-3 shadow-sm h-100 profile-card chosen-events-card">
+                                <Card.Body className="d-flex flex-column text-white">
                                     <Button
-                                        variant="primary"
-                                        onClick={() => navigate('/recommended')}>
+                                        variant="light"
+                                        onClick={() => navigate('/recommended')}
+                                        className="mt-auto"
+                                    >
                                         View Recommended Events
                                     </Button>
                                 </Card.Body>
@@ -138,9 +139,9 @@ export const Profile: React.FC = () => {
                         </Col>
 
                         <Col md={4}>
-                            <Card className="mb-3 shadow-sm">
-                                <Card.Body>
-                                    <Card.Title>User Profile</Card.Title>
+                            <Card className="mb-3 shadow-sm h-100 profile-card">
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title className="text-center">User Profile</Card.Title>
                                     <p><strong>Username:</strong> {profileData.username}</p>
                                     <p><strong>Email:</strong> {profileData.email}</p>
                                     <p>
@@ -149,7 +150,8 @@ export const Profile: React.FC = () => {
                                     <p>
                                         <strong>Categories:</strong> {profileData.userInformationDto?.categories && profileData.userInformationDto.categories.length > 0
                                         ? profileData.userInformationDto.categories.map((cat) => cat.eventCategory).join(", ")
-                                        : "No categories available"}</p>
+                                        : "No categories available"}
+                                    </p>
                                     <Button
                                         variant="danger"
                                         className="mt-3"
@@ -169,12 +171,13 @@ export const Profile: React.FC = () => {
                         </Col>
 
                         <Col md={4}>
-                            <Card className="mb-3 shadow-sm">
-                                <Card.Body>
-                                    <Card.Title>Favourite Events</Card.Title>
+                            <Card className="mb-3 shadow-sm h-100 profile-card favourite-events-card">
+                                <Card.Body className="d-flex flex-column text-white">
                                     <Button
-                                        variant="primary"
-                                        onClick={() => navigate('/favourites')}>
+                                        variant="light"
+                                        onClick={() => navigate('/favourites')}
+                                        className="mt-auto"
+                                    >
                                         View Favourite Events
                                     </Button>
                                 </Card.Body>
@@ -219,7 +222,7 @@ export const Profile: React.FC = () => {
                             </Form.Control>
                         </Form.Group>
 
-                        <Form.Group controlId="formCategories">
+                        <Form.Group controlId="formCategories" className="mt-3">
                             <Form.Label>Select Categories (Up to 3)</Form.Label>
                             {categories.map((category) => (
                                 <Form.Check
@@ -250,7 +253,6 @@ export const Profile: React.FC = () => {
                                 <div className="text-danger mt-2">{categoryError}</div>
                             )}
                         </Form.Group>
-
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
