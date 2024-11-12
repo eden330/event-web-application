@@ -19,7 +19,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Entity
-@Table(name = "user_detail")
+@Table(name = "users_details")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -37,7 +37,7 @@ public class UserInformation {
 
     @ManyToMany
     @JoinTable(
-            name = "user_detail_category",
+            name = "users_details_categories",
             joinColumns = @JoinColumn(name = "user_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )

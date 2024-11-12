@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Navigate, useNavigate} from "react-router-dom";
-import {useForm, SubmitHandler} from "react-hook-form";
+import {SubmitHandler, useForm} from "react-hook-form";
 import {login} from "../../actions/auth";
 import {AppDispatch, RootState} from "../../store";
 import './css/Auth.css';

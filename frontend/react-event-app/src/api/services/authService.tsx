@@ -1,5 +1,4 @@
 import axios from "axios";
-import {isTokenExpired} from "./tokenService";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL + "/api/users";
 
@@ -55,6 +54,7 @@ export const logout = async (): Promise<void> => {
             });
             console.log("User logged out successfully.");
             localStorage.removeItem("user");
+            window.location.reload();
         }
     } catch (error) {
         console.error("Error during logout", error);
@@ -88,9 +88,7 @@ export const saveNewAccessToken = (newAccessToken: string) => {
 export const getCurrentUser = (): AuthResponse | null => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
-        const user = JSON.parse(userStr);
-
-        return user;
+        return JSON.parse(userStr);
     }
     return null;
 };

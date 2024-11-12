@@ -3,11 +3,12 @@ import {logout} from "./authService";
 import {UpdateRequest} from "./models/UpdateRequest";
 import {FavouriteEventModel} from "./models/FavouriteEvent";
 import {EventModel} from "../../layouts/HomePage/models/EventModel";
+import {ReactedEventDto} from "../../layouts/auth/models/ReactedEventDto";
 
 export const fetchUserProfile = async () => {
     try {
         const response = await axiosInstance.get('/api/users/profile',
-            { withCredentials: true });
+            {withCredentials: true});
         console.log("Fetched user profile data: " + response.data)
         return response.data;
     } catch (error) {
@@ -18,7 +19,7 @@ export const fetchUserProfile = async () => {
 
 export const deleteAccount = async (): Promise<void> => {
     try {
-        await axiosInstance.post('/api/users/delete', {}, { withCredentials: true });
+        await axiosInstance.post('/api/users/delete', {}, {withCredentials: true});
         console.log("Account deleted successfully.");
     } catch (error) {
         console.error("Error during account deletion:", error);
@@ -30,7 +31,7 @@ export const deleteAccount = async (): Promise<void> => {
 export const updateUserPreferences = async (updateRequest: UpdateRequest): Promise<void> => {
     try {
         await axiosInstance.post('/api/users/update-preferences', updateRequest,
-            { withCredentials: true });
+            {withCredentials: true});
     } catch (error) {
         console.error("Error updating user preferences:", error);
         throw error;
@@ -40,7 +41,7 @@ export const updateUserPreferences = async (updateRequest: UpdateRequest): Promi
 export const handleFavouriteEvent = async (eventId: number): Promise<void> => {
     try {
         const response = await axiosInstance.post(`/api/users/handle-favourite-event/${eventId}`,
-            {}, { withCredentials: true });
+            {}, {withCredentials: true});
         console.log("Event added or deleted from favourite ones: ", response.data);
     } catch (error) {
         console.error("Error handling event to favourites:", error);
@@ -51,7 +52,7 @@ export const handleFavouriteEvent = async (eventId: number): Promise<void> => {
 export const isFavouriteEvent = async (eventId: number): Promise<boolean> => {
     try {
         const response = await axiosInstance.get(`/api/users/is-favourite-event/${eventId}`,
-            { withCredentials: true });
+            {withCredentials: true});
         console.log(`Event ${eventId} is favourite: `, response.data);
         return response.data;
     } catch (error) {
@@ -77,7 +78,7 @@ export const handleEventReaction = async (eventId: number, reactionType: string)
         const response = await axiosInstance.post(`/api/users/event/${eventId}/reaction`,
             null,
             {
-                params: { reaction: reactionType },
+                params: {reaction: reactionType},
                 withCredentials: true
             });
         console.log(`Reaction ${reactionType} for event ${eventId} has been handled: `, response.data);
@@ -90,7 +91,7 @@ export const handleEventReaction = async (eventId: number, reactionType: string)
 export const fetchRecommendedEvents = async (page = 0, size = 10): Promise<EventModel[]> => {
     try {
         const response = await axiosInstance.get('/api/users/event/recommendations', {
-            params: { page, size },
+            params: {page, size},
             withCredentials: true,
         });
         console.log("Fetched recommended events: ", response.data);
@@ -100,3 +101,15 @@ export const fetchRecommendedEvents = async (page = 0, size = 10): Promise<Event
         throw error;
     }
 };
+
+export const fetchReactedEvents = async (): Promise<ReactedEventDto[]> => {
+    try {
+        const response = await axiosInstance.get('/api/users/events/reactions', {withCredentials: true});
+        console.log("Fetched reacted events: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reacted events:", error);
+        throw error;
+    }
+};
+

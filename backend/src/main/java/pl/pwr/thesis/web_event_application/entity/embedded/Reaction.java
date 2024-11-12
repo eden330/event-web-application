@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -16,6 +17,7 @@ import pl.pwr.thesis.web_event_application.entity.User;
 import pl.pwr.thesis.web_event_application.enums.ReactionType;
 
 @Entity
+@Table(name = "reactions")
 @NoArgsConstructor
 @Data
 public class Reaction {

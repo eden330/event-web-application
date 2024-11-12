@@ -23,6 +23,12 @@ public class EventClassifier {
 
     private static final Path MODEL_FILE_PATH = Paths.get("event_classifier_model.bin");
 
+
+    public static void main(String[] args) throws IOException {
+        String opis = "Join us for a night of live jazz and rock music featuring top bands";
+        predictCategory(opis);
+    }
+
     public static String predictCategory(String description) throws IOException {
         DoccatModel model = readModel();
 
@@ -36,7 +42,13 @@ public class EventClassifier {
         double[] outcomes = categorizer.categorize(tokens);
         String category = categorizer.getBestCategory(outcomes);
 
+        System.out.println("Event description: " + " " + description);
         System.out.println("Predicted Category: " + category);
+
+        System.out.println("Probability percentage for each category:");
+        for (int i = 0; i < categorizer.getNumberOfCategories(); i++) {
+            System.out.printf("%s: %.2f%%\n", categorizer.getCategory(i), outcomes[i] * 100);
+        }
 
         return category;
     }

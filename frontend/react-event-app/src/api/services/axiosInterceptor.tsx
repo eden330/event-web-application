@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getCurrentUser, refreshAccessToken, saveNewAccessToken, logout} from './authService';
+import {getCurrentUser, logout, refreshAccessToken, saveNewAccessToken} from './authService';
 import {isTokenExpired} from './tokenService';
 import {toast} from 'react-toastify';
 

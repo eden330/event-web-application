@@ -20,7 +20,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Entity
-@Table(name = "location")
+@Table(name = "locations")
 @NoArgsConstructor
 @Data
 @Builder

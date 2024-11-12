@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet';
+import {MapContainer, TileLayer, useMap} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../css/HomePage.css';
 import {EventModelMap} from "../../models/map/EventModelMap";
@@ -10,7 +10,7 @@ interface MapComponentProps {
     cityCoordinates?: { lat: number; lon: number } | null | undefined;
 }
 
-const SetMapCenter = ({ cityCoordinates }: { cityCoordinates?: { lat: number; lon: number } | null }) => {
+const SetMapCenter = ({cityCoordinates}: { cityCoordinates?: { lat: number; lon: number } | null }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -41,13 +41,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({events, cityCoordinat
             zoomControl={false}
             minZoom={5}
             boxZoom={false}
+
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MarkerCluster events={events}/>
-            <SetMapCenter cityCoordinates={cityCoordinates} />
+            <SetMapCenter cityCoordinates={cityCoordinates}/>
         </MapContainer>
     );
 };

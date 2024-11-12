@@ -17,7 +17,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Entity
-@Table(name = "city")
+@Table(name = "cities")
 @NoArgsConstructor
 @Data
 @AllArgsConstructor

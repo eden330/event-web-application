@@ -1,11 +1,4 @@
-import {
-    REGISTER_SUCCESS,
-    REGISTER_FAIL,
-    LOGIN_SUCCESS,
-    LOGIN_FAIL,
-    LOGOUT,
-    SET_MESSAGE,
-} from "./types";
+import {LOGIN_FAIL, LOGIN_SUCCESS, LOGOUT, REGISTER_FAIL, REGISTER_SUCCESS, SET_MESSAGE,} from "./types";
 import AuthService from "../api/services/authService";
 
 export const register = (
@@ -53,7 +46,7 @@ export const login = (username: string, password: string) => (dispatch: any) => 
         (data) => {
             dispatch({
                 type: LOGIN_SUCCESS,
-                payload: { user: data },
+                payload: {user: data},
             });
 
             return Promise.resolve();

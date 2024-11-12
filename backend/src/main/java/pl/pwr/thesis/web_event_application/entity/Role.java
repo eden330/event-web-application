@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import pl.pwr.thesis.web_event_application.enums.UserRole;
 
 @Entity
-@Table(name = "role")
+@Table(name = "roles")
 @NoArgsConstructor
 @Data
 public class Role {
