@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,6 @@ import pl.pwr.thesis.web_event_application.scraper.EventReader;
 import pl.pwr.thesis.web_event_application.service.interfaces.EventService;
 import pl.pwr.thesis.web_event_application.service.interfaces.ReactionService;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,7 +113,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<String> saveEvents() throws MalformedURLException {
+    public ResponseEntity<String> saveEvents() {
         List<Event> events = eventReader.readEvents();
         if (events.isEmpty()) {
             logger.warn("No events to be saved! Returning empty list status.");
@@ -140,4 +140,21 @@ public class EventController {
         return ResponseEntity.ok(reactionCount);
     }
 
+    @PostMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteEventById(@PathVariable long id) {
+        logger.info("Request received to delete event with ID: {}", id);
+        try {
+            eventService.deleteEventById(id);
+            return ResponseEntity.ok("Successfully deleted event with ID " + id);
+        } catch (IllegalArgumentException e) {
+            logger.error("Error in deleting event with ID {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Event with ID " + id + " does not exist.");
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while deleting event with ID {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while deleting the event.");
+        }
+    }
 }

@@ -9,6 +9,7 @@ import pl.pwr.thesis.web_event_application.entity.User;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
+
     UserDto userToDto(User user);
 
     User userDtoToUser(UserDto userDto);

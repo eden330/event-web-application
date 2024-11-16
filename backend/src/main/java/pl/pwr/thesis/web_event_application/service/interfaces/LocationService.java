@@ -6,5 +6,4 @@ public interface LocationService {
 
     Location findOrSaveLocation(Location location);
 
-    void deleteLocation(Location location);
 }

@@ -9,6 +9,7 @@ import pl.pwr.thesis.web_event_application.dto.list.CategoryDto;
 @Setter
 @AllArgsConstructor
 public class FavouriteEventDto {
+
     private Long id;
     private String name;
     private String image;

@@ -43,12 +43,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public void deleteCity(City city) {
-        cityRepository.delete(city);
-    }
-
-    @Override
-    @Transactional
     public City findOrSaveCity(City city) {
         try {
             return cityRepository.findCityByName(city.getName())

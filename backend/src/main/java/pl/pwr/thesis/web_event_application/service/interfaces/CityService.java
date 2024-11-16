@@ -13,5 +13,4 @@ public interface CityService {
 
     CityDto findCityByName(String cityName);
 
-    void deleteCity(City city);
 }

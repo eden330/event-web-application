@@ -282,4 +282,21 @@ public class UserServiceImpl implements UserService {
                 .map(eventMapper::eventToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::userToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserByAdmin(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found with ID: " + userId);
+        }
+        userRepository.deleteById(userId);
+        logger.info("User with ID {} deleted successfully by admin.", userId);
+    }
 }

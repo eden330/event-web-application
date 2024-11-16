@@ -1,5 +1,6 @@
 package pl.pwr.thesis.web_event_application.scraper;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
@@ -8,6 +9,7 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -47,11 +49,11 @@ public class WebScraper {
 
     public WebDriver setupDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); 
-        options.addArguments("--no-sandbox"); 
-        options.addArguments("--disable-dev-shm-usage"); 
-        options.addArguments("--disable-gpu"); 
-        options.addArguments("--remote-allow-origins=*"); 
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--remote-allow-origins=*");
 
         try {
             return new RemoteWebDriver(new URL(seleniumUrl), options);
@@ -61,7 +63,17 @@ public class WebScraper {
     }
 
     public Set<String> scrapEvents() {
-        WebDriver driver = setupDriver();
+//        WebDriver driver = setupDriver();
+
+        WebDriverManager.chromedriver().setup();
+
+
+        ChromeOptions options = new ChromeOptions();
+
+
+
+        WebDriver driver = new ChromeDriver(options);
+
 
         logger.info("Web driver initialized");
 

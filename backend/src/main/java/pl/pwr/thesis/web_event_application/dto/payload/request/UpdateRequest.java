@@ -10,10 +10,7 @@ import java.util.List;
 public class UpdateRequest {
 
     private String username;
-
     private String email;
-
     private List<Long> categoriesId;
-
     private Long cityId;
 }

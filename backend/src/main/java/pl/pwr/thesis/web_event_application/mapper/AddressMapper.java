@@ -7,6 +7,7 @@ import pl.pwr.thesis.web_event_application.entity.Address;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AddressMapper {
+
     AddressDto addressToDto(Address address);
 
     Address addressDtoToAddress(AddressDto addressDto);

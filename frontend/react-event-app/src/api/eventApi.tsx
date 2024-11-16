@@ -19,11 +19,6 @@ export const fetchEventsList = async (page: number, size: number, cityName?: str
 
     return await fetchFromApi("/events/list", params);
 };
-
-export const fetchEventCount = async () => {
-    return await fetchFromApi("/events/count");
-};
-
 export const fetchCities = async () => {
     return await fetchFromApi("/cities/all");
 };

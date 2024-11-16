@@ -2,7 +2,6 @@ package pl.pwr.thesis.web_event_application.service.impl;
 
 import org.springframework.stereotype.Service;
 import pl.pwr.thesis.web_event_application.dto.user.ReactedEventDto;
-import pl.pwr.thesis.web_event_application.entity.embedded.Reaction;
 import pl.pwr.thesis.web_event_application.enums.ReactionType;
 import pl.pwr.thesis.web_event_application.repository.ReactionRepository;
 import pl.pwr.thesis.web_event_application.service.interfaces.ReactionService;
@@ -16,11 +15,6 @@ public class ReactionServiceImpl implements ReactionService {
 
     public ReactionServiceImpl(ReactionRepository reactionRepository) {
         this.reactionRepository = reactionRepository;
-    }
-
-    @Override
-    public void saveReaction(Reaction reaction) {
-        reactionRepository.save(reaction);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", orphanRemoval = true)
     private Set<Reaction> reactions;
     @ManyToOne
     @JoinColumn(name = "category_id")

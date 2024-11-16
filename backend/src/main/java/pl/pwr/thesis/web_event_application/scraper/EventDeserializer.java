@@ -33,7 +33,7 @@ public class EventDeserializer extends JsonDeserializer<Event> {
         event.setImage(node.get("image").asText());
 
         Category category = new Category();
-        var mlCategory = EventClassifier.predictCategory(event.getDescription());
+        var mlCategory = EventClassifier.predictCategory(event.getDescription(),event.getName());
         EventCategory eventCategory = EventCategory.valueOf(mlCategory);
         category.setEventCategory(eventCategory);
         event.setCategory(category);

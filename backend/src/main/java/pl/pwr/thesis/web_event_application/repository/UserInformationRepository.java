@@ -7,5 +7,4 @@ import pl.pwr.thesis.web_event_application.entity.UserInformation;
 @Repository
 public interface UserInformationRepository extends JpaRepository<UserInformation, Long> {
 
-    UserInformation findUserDetailsById(Long userId);
 }

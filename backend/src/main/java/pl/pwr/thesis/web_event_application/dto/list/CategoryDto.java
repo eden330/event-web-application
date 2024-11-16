@@ -9,8 +9,6 @@ import pl.pwr.thesis.web_event_application.enums.EventCategory;
 public class CategoryDto {
 
     private Integer id;
-
     private String image;
-
     private EventCategory eventCategory;
 }

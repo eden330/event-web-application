@@ -49,9 +49,7 @@ export const logout = async (): Promise<void> => {
             const user = JSON.parse(currentUser);
             console.log("Calling logout API at:", API_URL + "/logout");
 
-            await axios.post(API_URL + `/logout`, {userId: user.id}, {
-                withCredentials: true,
-            });
+            await axios.post(`${API_URL}/logout`, null, { withCredentials: true });
             console.log("User logged out successfully.");
             localStorage.removeItem("user");
             window.location.reload();

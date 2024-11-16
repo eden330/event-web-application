@@ -14,6 +14,5 @@ import java.util.List;
 public class UserInformationDto {
 
     private List<CategoryDto> categories;
-
     private CityDto city;
 }

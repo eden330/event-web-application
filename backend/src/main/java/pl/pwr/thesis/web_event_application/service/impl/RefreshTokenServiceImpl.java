@@ -55,8 +55,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                         refreshToken == null ? "" : refreshToken.getToken())
                 .path("/")
                 .httpOnly(true)
-                .secure(false) // for development
-                .domain("localhost")
                 .maxAge(maxAge)
                 .build();
     }

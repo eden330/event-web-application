@@ -15,6 +15,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from "react-toastify";
 import {FavouriteEvents} from "./layouts/auth/FavouriteEvents";
 import RecommendedEvents from "./layouts/auth/RecommendedEvents";
+import UsersAdminPanel from "./layouts/HomePage/components/UsersAdminPanel";
+import EventsAdminPanel from "./layouts/HomePage/components/EventsAdminPanel";
 
 function App() {
     return (
@@ -29,6 +31,8 @@ function App() {
                 <Route path="/event/:eventId/:eventName" element={<EventPage/>}/>
                 <Route path="/favourites" element={<FavouriteEvents/>}/>
                 <Route path="/recommended" element={<RecommendedEvents/>}/>
+                <Route path="/users" element={<UsersAdminPanel/>}/>
+                <Route path="/events" element={<EventsAdminPanel/>}/>
             </Routes>
             <ToastContainer/>
         </div>

@@ -9,27 +9,24 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class EventClassifier {
 
-    private static final Path MODEL_FILE_PATH = Paths.get("event_classifier_model.bin");
-
+    private static final Path MODEL_FILE_PATH = Paths.get("backend/src/main/resources/model/event_classifier_model.bin");
 
     public static void main(String[] args) throws IOException {
-        String opis = "Join us for a night of live jazz and rock music featuring top bands";
-        predictCategory(opis);
+        predictCategory("Intergenerational art workshop, the participants of which together will turn jasmine rice into a colorful material for creating fantastic, colorful paintings. Participants will dye the rice and make unusual colorful compositions out of it. Be prepared for a bit of mess, but that's okay - artists are not afraid of dirty hands. The class will be conducted by Michal Składanowski - a cultural animator.","");
     }
 
-    public static String predictCategory(String description) throws IOException {
+    public static String predictCategory(String description, String eventName) throws IOException {
         DoccatModel model = readModel();
 
         if (model == null) {
@@ -38,11 +35,11 @@ public class EventClassifier {
         }
         DocumentCategorizerME categorizer = new DocumentCategorizerME(model);
 
-        String[] tokens = description.split("\\s+");
+        String[] tokens = (eventName + " " + description).split("\\s+");
         double[] outcomes = categorizer.categorize(tokens);
         String category = categorizer.getBestCategory(outcomes);
 
-        System.out.println("Event description: " + " " + description);
+        System.out.println("Event description: " + " " + eventName + " " + description);
         System.out.println("Predicted Category: " + category);
 
         System.out.println("Probability percentage for each category:");
@@ -54,23 +51,27 @@ public class EventClassifier {
     }
 
     private static DoccatModel readModel() {
-        try (InputStream fileIn = EventClassifier.class.getResourceAsStream("/event_classifier_model.bin")) {
-            if (fileIn != null) {
-                ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-                System.out.println("Loaded model from resources");
-                return (DoccatModel) objectIn.readObject();
+        try (InputStream modelIn = EventClassifier.class.getResourceAsStream("/model/event_classifier_model.bin")) {
+            if (modelIn != null) {
+                System.out.println("Loaded model from resources.");
+                return new DoccatModel(modelIn);
+            } else {
+                System.err.println("Model not found in resources; training a new model.");
+                return null;
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.err.println("Failed to load model: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     private static void writeModel(DoccatModel model) {
-        try (FileOutputStream fileOut = new FileOutputStream(MODEL_FILE_PATH.toFile());
-             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-            objectOut.writeObject(model);
-            System.out.println("The model was successfully saved to " + MODEL_FILE_PATH);
+        File saveFile = MODEL_FILE_PATH.toFile();
+        saveFile.getParentFile().mkdirs();
+
+        try (FileOutputStream fileOut = new FileOutputStream(saveFile)) {
+            model.serialize(fileOut);
+            System.out.println("Model saved to " + MODEL_FILE_PATH);
         } catch (IOException e) {
             System.err.println("Failed to save model: " + e.getMessage());
         }

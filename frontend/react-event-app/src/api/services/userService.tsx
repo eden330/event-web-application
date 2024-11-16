@@ -113,3 +113,40 @@ export const fetchReactedEvents = async (): Promise<ReactedEventDto[]> => {
     }
 };
 
+export const fetchAllUsers = async (): Promise<any[]> => {
+    try {
+        const response = await axiosInstance.get('/api/users', { withCredentials: true });
+        console.log("Fetched all users: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching all users: ", error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (userId: number): Promise<void> => {
+    if (!userId) {
+        console.error("Invalid userId provided to deleteUser");
+        throw new Error("Invalid userId provided to deleteUser");
+    }
+    try {
+        console.log(`Sending delete request for userId: ${userId}`);
+        const response = await axiosInstance.post(`/api/users/delete/${userId}`, {}, { withCredentials: true });
+        console.log(`User with ID ${userId} deleted successfully.`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting user with ID ${userId}:`, error);
+        throw error;
+    }
+};
+
+export const deleteEventById = async (eventId: number): Promise<void> => {
+    try {
+        console.log(`Sending request to delete event with ID: ${eventId}`);
+        await axiosInstance.post(`/api/events/delete/${eventId}`, {}, { withCredentials: true });
+        console.log(`Event with ID ${eventId} deleted successfully.`);
+    } catch (error) {
+        console.error(`Error deleting event with ID ${eventId}:`, error);
+        throw error;
+    }
+};

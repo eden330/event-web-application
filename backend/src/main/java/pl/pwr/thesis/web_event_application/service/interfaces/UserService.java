@@ -33,4 +33,8 @@ public interface UserService {
     boolean handleEventReaction(Long userId, Long eventId, String reactionType);
 
     List<EventDto> findRecommendedEvents(Long userId, int size, int page);
+
+    List<UserDto> getAllUsers();
+
+    void deleteUserByAdmin(Long userId);
 }

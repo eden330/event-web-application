@@ -26,7 +26,4 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private UserRole name;
 
-    public Role(UserRole name) {
-        this.name = name;
-    }
 }

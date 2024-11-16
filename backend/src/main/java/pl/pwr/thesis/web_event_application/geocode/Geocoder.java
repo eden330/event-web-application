@@ -3,6 +3,7 @@ package pl.pwr.thesis.web_event_application.geocode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
+import java.util.Locale;
 
 @Service
 public class Geocoder {
@@ -34,11 +37,11 @@ public class Geocoder {
         if (street.isBlank()) {
             fullQuery = URLEncoder.encode(city, StandardCharsets.UTF_8);
         }
-        return String.format(baseUrl + "?query=%s&country=PL&lang=pl", fullQuery);
+        return String.format(baseUrl + "?query=%s&country=PL&lang=en", fullQuery);
     }
 
     private double[] handleResponse(HttpResponse<String> response, boolean isFallback,
-                                    String city, String apiUrl) throws JsonProcessingException {
+                                    String originalCity, String apiUrl) throws JsonProcessingException {
         if (response.statusCode() == 200) {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response.body());
@@ -46,14 +49,18 @@ public class Geocoder {
 
             if (featureNode != null && featureNode.isArray() && !featureNode.isEmpty()) {
                 JsonNode firstAddress = featureNode.get(0);
+                String responseCity = normalizeCityName(firstAddress.get("city").asText());
 
-                double latitude = firstAddress.get("latitude").asDouble();
-                double longitude = firstAddress.get("longitude").asDouble();
-
-                return new double[]{latitude, longitude};
-            } else if (!isFallback) {
-                return geocodeLocation(city, "", true);
+                if (isCityNameMatch(originalCity, responseCity)
+                        || responseCity.toLowerCase().contains(originalCity.toLowerCase())) {
+                    double latitude = firstAddress.get("latitude").asDouble();
+                    double longitude = firstAddress.get("longitude").asDouble();
+                    return new double[]{latitude, longitude};
+                } else if (!isFallback) {
+                    return geocodeLocation(originalCity, "", true);
+                }
             }
+            return geocodeLocation(originalCity, "", true);
         } else {
             logger.error("Error in API request, status code: {}, response body: {}, URL: {}",
                     response.statusCode(), response.body(), apiUrl);
@@ -85,5 +92,26 @@ public class Geocoder {
         logger.error("Geocoding failed for city: {} and street: {}," +
                 " returning default null", city, street);
         return null;
+    }
+
+    private String normalizeCityName(String cityName) {
+        String normalized = Normalizer.normalize(cityName, Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        return normalized.toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isCityNameMatch(String originalCity, String responseCity) {
+        String normalizedOriginalCity = normalizeCityName(originalCity);
+        String normalizedResponseCity = normalizeCityName(responseCity);
+
+        if (normalizedOriginalCity.equals(normalizedResponseCity)) {
+            return true;
+        }
+
+        // Use Levenshtein distance for a fuzzy match
+        LevenshteinDistance levenshtein = new LevenshteinDistance();
+        int distance = levenshtein.apply(normalizedOriginalCity, normalizedResponseCity);
+
+        return distance <= 2;  // Allow minor differences (like "Cracow" and "Krakow")
     }
 }

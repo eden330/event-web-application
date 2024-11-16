@@ -9,6 +9,7 @@ import pl.pwr.thesis.web_event_application.enums.ReactionType;
 @Setter
 @AllArgsConstructor
 public class ReactedEventDto {
+
     private Long eventId;
     private String reactionType;
 

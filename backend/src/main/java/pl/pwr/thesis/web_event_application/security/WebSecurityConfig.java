@@ -46,14 +46,29 @@ public class WebSecurityConfig {
                                 .accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/events/**").permitAll()
-                        .requestMatchers("/api/events").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/events").permitAll()
-                        .requestMatchers("/api/notifications/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/cities/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .anyRequest().authenticated());
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/events").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/notifications/send").permitAll()
+                        .requestMatchers(HttpMethod.POST,"api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"api/users/register").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/users/profile").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/users/logout").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/users/update-preferences").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/users/handle-favourite-event/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/favourite-events").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/event/recommendations").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/events/reactions").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/events/delete/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users/delete/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                );
+
 
         http.authenticationProvider(authenticationProvider());
 

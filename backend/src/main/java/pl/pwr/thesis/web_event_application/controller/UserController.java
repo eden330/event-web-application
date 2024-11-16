@@ -24,7 +24,6 @@ import pl.pwr.thesis.web_event_application.dto.authorization.LoginDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.RegisterDto;
 import pl.pwr.thesis.web_event_application.dto.authorization.UserDto;
 import pl.pwr.thesis.web_event_application.dto.list.EventDto;
-import pl.pwr.thesis.web_event_application.dto.payload.request.LogoutRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.request.UpdateRequest;
 import pl.pwr.thesis.web_event_application.dto.payload.response.JwtResponse;
 import pl.pwr.thesis.web_event_application.dto.payload.response.RefreshTokenResponse;
@@ -123,8 +122,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
-            @RequestBody LogoutRequest logoutRequest) {
+    public ResponseEntity<?> logout() {
         try {
             ResponseCookie responseCookie =
                     refreshTokenService.createRefreshTokenCookie(null);
@@ -355,6 +353,37 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Error fetching reacted events", e.getMessage()));
+        }
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<UserDto> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            logger.error("Error fetching all users: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to fetch all users", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/delete/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteUserByAdmin(@PathVariable Long userId) {
+        logger.info("Received request to delete user with ID: {}", userId);
+        try {
+            userService.deleteUserByAdmin(userId);
+            return ResponseEntity.ok("User deleted successfully.");
+        } catch (EntityNotFoundException e) {
+            logger.error("User not found with ID: {}", userId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error deleting user with ID {}: {}", userId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to delete user", e.getMessage()));
         }
     }
 }

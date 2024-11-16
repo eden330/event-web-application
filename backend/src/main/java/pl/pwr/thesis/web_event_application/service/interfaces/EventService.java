@@ -14,6 +14,8 @@ public interface EventService {
 
     long countEvents();
 
+    void deleteEventById(long id);
+
     void saveEvent(Event event);
 
     boolean checkIfEventExist(Event event);

@@ -8,5 +8,4 @@ import pl.pwr.thesis.web_event_application.entity.User;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     boolean existsByUserAndEvent(User user, Event event);
-
 }

@@ -43,7 +43,6 @@ public class EventServiceImpl implements EventService {
     private final Geocoder geocoder;
     private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
-
     public EventServiceImpl(EventRepository eventRepository, EventMapper eventMapper,
                             LocationService locationService, AddressService addressService,
                             CityService cityService, CategoryService categoryService,
@@ -149,6 +148,7 @@ public class EventServiceImpl implements EventService {
 
             for (Event event : events) {
                 try {
+                    logger.info("SAVING EVENT " + event.getName());
                     saveEvent(event);
                     savedEvents.add(event);
                 } catch (Exception e) {
@@ -227,5 +227,16 @@ public class EventServiceImpl implements EventService {
             event.setLocation(savedLocation);
         }
         eventRepository.save(event);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEventById(long id) {
+        if (!eventRepository.existsById(id)) {
+            logger.warn("Event with ID {} not found for deletion.", id);
+            throw new IllegalArgumentException("Event with ID " + id + " does not exist.");
+        }
+        eventRepository.deleteById(id);
+        logger.info("Successfully deleted event with ID {}", id);
     }
 }

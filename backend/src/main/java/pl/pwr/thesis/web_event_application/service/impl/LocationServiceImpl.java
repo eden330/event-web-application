@@ -30,9 +30,4 @@ public class LocationServiceImpl implements LocationService {
         }
     }
 
-    @Override
-    @Transactional
-    public void deleteLocation(Location location) {
-        locationRepository.delete(location);
-    }
 }
