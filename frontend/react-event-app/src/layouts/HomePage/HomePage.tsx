@@ -186,7 +186,7 @@ export const HomePage = () => {
     return (
         <div className="container-fluid" style={{overflowY: "auto", height: "100vh"}}>
             <div className="search-filter-section bg-light shadow-sm rounded mb-3">
-                <EventSearchAndFilter onShowEvents={onShowEvents} clearFilters={clearFilters}/>
+                <EventSearchAndFilter onShowEvents={onShowEvents} clearFilters={clearFilters} />
             </div>
             <div className="d-flex flex-column">
                 <div className="container-fluid flex-grow-1">
@@ -199,10 +199,18 @@ export const HomePage = () => {
                                 </div>
                             </div>
                             <div className="map-container">
-                                <MapComponent events={eventsMap} cityCoordinates={cityCoordinates}/>
+                                <MapComponent events={eventsMap} cityCoordinates={cityCoordinates} />
                             </div>
                         </div>
                         <div className="col-12 col-md-7 p-3 event-list-container" id="scrollable-event-list">
+                            <div className="d-flex justify-content-center align-items-center">
+                                <button
+                                    className="clear-filters"
+                                    onClick={clearFilters}
+                                >
+                                    CLEAR FILTERS
+                                </button>
+                            </div>
                             {noResultsFound ? (
                                 <p className="text-muted">No results found 😕</p>
                             ) : (
@@ -214,7 +222,7 @@ export const HomePage = () => {
                                     scrollableTarget="scrollable-event-list"
                                 >
                                     {events.map((event) => (
-                                        <EventCard key={event.id} event={event} onSwipeLeft={handleSwipeLeft}/>
+                                        <EventCard key={event.id} event={event} onSwipeLeft={handleSwipeLeft} />
                                     ))}
                                 </InfiniteScroll>
                             )}

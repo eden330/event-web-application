@@ -119,3 +119,21 @@
 .reaction-button:hover {
     background: none;
 }
+
+.card-body.scrollbar {
+    overflow-y: auto;
+    max-height: calc(100% - 300px);
+}
+
+.card-body.scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.card-body.scrollbar::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
+.card-body.scrollbar::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}

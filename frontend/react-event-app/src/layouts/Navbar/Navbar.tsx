@@ -24,7 +24,9 @@ export const Navbar: React.FC = () => {
     return (
         <nav className={"navbar navbar-expand-lg navbar-light bg-light small-navbar"}>
             <div className={"container-fluid"}>
-                <span className={"navbar-brand"}>Event App</span>
+             <span className="navbar-brand">
+    EventRadar
+</span>
                 <button
                     className={"navbar-toggler"}
                     type={"button"}
@@ -38,17 +40,17 @@ export const Navbar: React.FC = () => {
                 </button>
                 <div className={"collapse navbar-collapse"} id={"navbarNavDropdown"}>
                     <ul className={"navbar-nav ms-auto"}>
-                        <NavItem label={"Explore events"} to={"/home"} />
+                        <NavItem label={"Explore events"} to={"/home"}/>
                         {currentUser ? (
                             <>
-                                <NavItem label={"My profile"} to={"/profile"} />
-                                <NavItem label={"Favourite Events"} to={"/favourites"} />
-                                <NavItem label={"Recommended Events"} to={"/recommended"} />
+                                <NavItem label={"My profile"} to={"/profile"}/>
+                                <NavItem label={"Favourite Events"} to={"/favourites"}/>
+                                <NavItem label={"Recommended Events"} to={"/recommended"}/>
 
                                 {currentUser.roles.includes("ROLE_ADMIN") && (
                                     <>
-                                        <NavItem label={"User Panel"} to={"/users"} />
-                                        <NavItem label={"Events Panel"} to={"/events"} />
+                                        <NavItem label={"User Panel"} to={"/users"}/>
+                                        <NavItem label={"Events Panel"} to={"/events"}/>
                                     </>
                                 )}
 

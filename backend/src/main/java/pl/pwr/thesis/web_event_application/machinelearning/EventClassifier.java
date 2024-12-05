@@ -23,7 +23,7 @@ public class EventClassifier {
     private static final Path MODEL_FILE_PATH = Paths.get("backend/src/main/resources/model/event_classifier_model.bin");
 
     public static void main(String[] args) throws IOException {
-        predictCategory("Intergenerational art workshop, the participants of which together will turn jasmine rice into a colorful material for creating fantastic, colorful paintings. Participants will dye the rice and make unusual colorful compositions out of it. Be prepared for a bit of mess, but that's okay - artists are not afraid of dirty hands. The class will be conducted by Michal Składanowski - a cultural animator.","");
+        predictCategory("","");
     }
 
     public static String predictCategory(String description, String eventName) throws IOException {

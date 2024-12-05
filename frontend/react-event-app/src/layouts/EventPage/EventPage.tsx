@@ -1,21 +1,24 @@
-import React, {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {EventModel} from "../HomePage/models/EventModel";
-import {fetchEventById, fetchReactionCountByType} from "../../api/eventApi";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { EventModel } from "../HomePage/models/EventModel";
+import {
+    fetchEventById,
+    fetchReactionCountByType,
+} from "../../api/eventApi";
 import {
     fetchReactedEvents,
     handleEventReaction,
     handleFavouriteEvent,
-    isFavouriteEvent
+    isFavouriteEvent,
 } from "../../api/services/userService";
 import authService from "../../api/services/authService";
-import {Button, Modal} from "react-bootstrap";
-import {PiHeartFill} from "react-icons/pi";
+import { Button, Modal } from "react-bootstrap";
+import { PiHeartFill } from "react-icons/pi";
 import "./css/EventPage.css";
-import {EventPageMap} from "./components/EventPageMap";
+import { EventPageMap } from "./components/EventPageMap";
 
 export const EventPage = () => {
-    const {eventId} = useParams<{ eventId: string }>();
+    const { eventId } = useParams<{ eventId: string }>();
     const navigate = useNavigate();
     const [event, setEvent] = useState<EventModel | null>(null);
     const [isLoadingEvent, setIsLoadingEvent] = useState(true);
@@ -30,7 +33,9 @@ export const EventPage = () => {
         INTERESTED: 0,
         DISLIKE: 0,
     });
-    const [reactedEvents, setReactedEvents] = useState<Map<number, string>>(new Map());
+    const [reactedEvents, setReactedEvents] = useState<Map<number, string>>(
+        new Map()
+    );
 
     const checkAuthentication = () => {
         const user = authService.getCurrentUser();
@@ -39,9 +44,18 @@ export const EventPage = () => {
 
     const fetchReactionCounts = async () => {
         try {
-            const likeCount = await fetchReactionCountByType(parseInt(eventId!), "LIKE");
-            const interestedCount = await fetchReactionCountByType(parseInt(eventId!), "INTERESTED");
-            const dislikeCount = await fetchReactionCountByType(parseInt(eventId!), "DISLIKE");
+            const likeCount = await fetchReactionCountByType(
+                parseInt(eventId!),
+                "LIKE"
+            );
+            const interestedCount = await fetchReactionCountByType(
+                parseInt(eventId!),
+                "INTERESTED"
+            );
+            const dislikeCount = await fetchReactionCountByType(
+                parseInt(eventId!),
+                "DISLIKE"
+            );
 
             setReactionCounts({
                 LIKE: likeCount,
@@ -121,7 +135,10 @@ export const EventPage = () => {
             return;
         }
 
-        if (reactedEvents.has(parseInt(eventId!)) && reactedEvents.get(parseInt(eventId!)) === reactionType) {
+        if (
+            reactedEvents.has(parseInt(eventId!)) &&
+            reactedEvents.get(parseInt(eventId!)) === reactionType
+        ) {
             reactedEvents.delete(parseInt(eventId!));
             setReactedEvents(new Map(reactedEvents));
             setUserReaction(null);
@@ -162,85 +179,127 @@ export const EventPage = () => {
 
     return (
         <div className="container mt-4">
-            <div className="row" style={{display: "flex", height: "600px"}}>
-                <div className="col-md-6 d-flex flex-column" style={{height: "600px"}}>
-                    <div className="card h-100" style={{overflowY: "auto", maxHeight: "600px"}}>
-                        <img src={event.image || "default-image.jpg"} className="card-img-top" alt={event.name}
-                             style={{height: "300px", objectFit: "cover"}}/>
-                        <div className="card-body" style={{overflowY: "auto", maxHeight: "calc(100% - 300px)"}}>
+            <div className="row" style={{ display: "flex", height: "600px" }}>
+                <div className="col-md-6 d-flex flex-column" style={{ height: "600px" }}>
+                    <div className="card h-100 scrollbar" style={{ maxHeight: "600px" }}>
+                        <img
+                            src={event.image || "default-image.jpg"}
+                            className="card-img-top"
+                            alt={event.name}
+                            style={{ height: "300px", objectFit: "cover" }}
+                        />
+                        <div
+                            className="card-body scrollbar"
+                            style={{ maxHeight: "calc(100% - 300px)" }}
+                        >
                             <h5 className="card-title">
                                 {event.name}
                                 <span
-                                    className={`heart-icon ${isFavourite ? "favorited" : "not-favorite"}`}
-                                    style={{cursor: isTogglingFavorite ? "not-allowed" : "pointer"}}
+                                    className={`heart-icon ${
+                                        isFavourite ? "favorited" : "not-favorite"
+                                    }`}
+                                    style={{
+                                        cursor: isTogglingFavorite ? "not-allowed" : "pointer",
+                                    }}
                                     onClick={handleFavouriteClick}
                                 >
-                                {isFavourite ? <PiHeartFill className="favorited"/> :
-                                    <PiHeartFill className="not-favorite"/>}
-                            </span>
+                  {isFavourite ? (
+                      <PiHeartFill className="favorited" />
+                  ) : (
+                      <PiHeartFill className="not-favorite" />
+                  )}
+                </span>
                             </h5>
                             <p className="card-text">{event.description}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="col-md-6 d-flex flex-column" style={{height: "100%"}}>
-                    <div style={{height: "300px", width: "100%", flexShrink: 0, marginBottom: "20px"}}>
-                        <EventPageMap events={[event]} cityCoordinates={coordinates}/>
+                <div className="col-md-6 d-flex flex-column" style={{ height: "100%" }}>
+                    <div
+                        style={{
+                            height: "300px",
+                            width: "100%",
+                            flexShrink: 0,
+                            marginBottom: "20px",
+                        }}
+                    >
+                        <EventPageMap events={[event]} cityCoordinates={coordinates} />
                     </div>
 
-                    <div className="card" style={{flexGrow: 1, marginTop: "40px"}}>
+                    <div className="card scrollbar" style={{ flexGrow: 1, marginTop: "40px" }}>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-6">
-                                    <p><strong>Start
-                                        Date:</strong> {new Date(event.startDate).toLocaleDateString('pl-PL', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric'
-                                    })} {new Date(event.startDate).toLocaleTimeString('pl-PL', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}</p>
-                                    <p><strong>End Date:</strong> {new Date(event.endDate).toLocaleDateString('pl-PL', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric'
-                                    })} {new Date(event.endDate).toLocaleTimeString('pl-PL', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}</p>
-
+                                    <p>
+                                        <strong>Start Date:</strong>{" "}
+                                        {new Date(event.startDate).toLocaleDateString("pl-PL", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })}{" "}
+                                        {new Date(event.startDate).toLocaleTimeString("pl-PL", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </p>
+                                    <p>
+                                        <strong>End Date:</strong>{" "}
+                                        {new Date(event.endDate).toLocaleDateString("pl-PL", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })}{" "}
+                                        {new Date(event.endDate).toLocaleTimeString("pl-PL", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </p>
                                 </div>
                                 <div className="col-md-6">
-                                    <p><strong>Category:</strong> {event.category.eventCategory}</p>
-                                    <p><strong>Location:</strong> {event.location.name}</p>
                                     <p>
-                                        <strong>Address:</strong> {event.location.address.street}, {event.location.address.city.name}
+                                        <strong>Category:</strong> {event.category.eventCategory}
+                                    </p>
+                                    <p>
+                                        <strong>Location:</strong> {event.location.name}
+                                    </p>
+                                    <p>
+                                        <strong>Address:</strong> {event.location.address.street},{" "}
+                                        {event.location.address.city.name}
                                     </p>
                                 </div>
                             </div>
                             <div className="reactions">
                                 <button
-                                    className={`reaction-button ${getUserReaction(event.id) === 'LIKE' ? 'active' : ''}`}
-                                    onClick={() => handleReactionClick('LIKE')}
+                                    className={`reaction-button ${
+                                        getUserReaction(event.id) === "LIKE" ? "active" : ""
+                                    }`}
+                                    onClick={() => handleReactionClick("LIKE")}
                                 >
                                     <i className="fas fa-thumbs-up"></i>
                                     <span className="reaction-count">{reactionCounts.LIKE}</span>
                                 </button>
                                 <button
-                                    className={`reaction-button fire-button ${getUserReaction(event.id) === 'INTERESTED' ? 'active' : ''}`}
-                                    onClick={() => handleReactionClick('INTERESTED')}
+                                    className={`reaction-button fire-button ${
+                                        getUserReaction(event.id) === "INTERESTED" ? "active" : ""
+                                    }`}
+                                    onClick={() => handleReactionClick("INTERESTED")}
                                 >
                                     <i className="fas fa-fire"></i>
-                                    <span className="reaction-count">{reactionCounts.INTERESTED}</span>
+                                    <span className="reaction-count">
+                    {reactionCounts.INTERESTED}
+                  </span>
                                 </button>
                                 <button
-                                    className={`reaction-button ${getUserReaction(event.id) === 'DISLIKE' ? 'active' : ''}`}
-                                    onClick={() => handleReactionClick('DISLIKE')}
+                                    className={`reaction-button ${
+                                        getUserReaction(event.id) === "DISLIKE" ? "active" : ""
+                                    }`}
+                                    onClick={() => handleReactionClick("DISLIKE")}
                                 >
                                     <i className="fas fa-thumbs-down"></i>
-                                    <span className="reaction-count">{reactionCounts.DISLIKE}</span>
+                                    <span className="reaction-count">
+                    {reactionCounts.DISLIKE}
+                  </span>
                                 </button>
                             </div>
                         </div>

@@ -36,3 +36,32 @@
 .navbar-nav .nav-link:hover {
     color: #0056b3 !important;
 }
+
+.navbar-brand {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #007bff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.navbar-brand:hover {
+    color: #0056b3;
+    transform: scale(1.1);
+}
+
+.navbar-brand img {
+    height: 35px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+    transform: rotate(360deg);
+}

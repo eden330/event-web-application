@@ -100,16 +100,6 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
             handleSearch();
         }
     };
-
-    const handleClearFilters = () => {
-        setSelectedCity(null);
-        setSelectedCategories([]);
-        setSearchTerm("");
-        setSuggestions([]);
-        setShowDropdown(false);
-        clearFilters();
-    };
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -143,13 +133,14 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                     <div
                         key={category.id}
                         className="category-item"
-                        style={{backgroundImage: `url(${category.image})`}}
+                        style={{ backgroundImage: `url(${category.image})` }}
                         onClick={() => handleCategoryClick(category.eventCategory)}
                     >
                         <p className="category-label">{category.eventCategory}</p>
                     </div>
                 ))}
             </div>
+
 
             <div className="col d-flex flex-column align-items-center">
                 <div className="d-flex search-bar-wrapper" style={{position: "relative"}}>
@@ -168,10 +159,6 @@ export const EventSearchAndFilter: React.FC<EventSearchAndFilterProps> = ({onSho
                         onChange={handleSearchInputChange}
                         onKeyDown={handleKeyDown}
                     />
-                    <button className="clear-filters" onClick={handleClearFilters}>
-                        <i className="fas fa-times"></i> {/* Clear icon */}
-                        CLEAR
-                    </button>
                     {showDropdown && suggestions.length > 0 && (
                         <div className="suggestions-dropdown" ref={dropdownRef}>
                             {suggestions.map((suggestion) => (

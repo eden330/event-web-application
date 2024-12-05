@@ -1,6 +1,5 @@
 package pl.pwr.thesis.web_event_application.scraper;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
@@ -9,7 +8,6 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -63,16 +61,16 @@ public class WebScraper {
     }
 
     public Set<String> scrapEvents() {
-//        WebDriver driver = setupDriver();
+        WebDriver driver = setupDriver();
 
-        WebDriverManager.chromedriver().setup();
+//        WebDriverManager.chromedriver().setup();
+//
+//
+//        ChromeOptions options = new ChromeOptions();
 
 
-        ChromeOptions options = new ChromeOptions();
-
-
-
-        WebDriver driver = new ChromeDriver(options);
+//
+//        WebDriver driver = new ChromeDriver(options);
 
 
         logger.info("Web driver initialized");
